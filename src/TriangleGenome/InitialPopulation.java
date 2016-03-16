@@ -91,12 +91,25 @@ public class InitialPopulation extends Stage{
 		
 		//Grab the new image consisting of the initial population.
 		perspectiveImage = createNewPerspectiveImage();
+		
+		//Calculate the initial fitness (done by pixel by pixel comparison)
+		FitnessFunction startFitness = new FitnessFunction(image,perspectiveImage.getImage());
+		initialFitness = startFitness.getFitness();
+		Pane backgroundPane = new Pane();
+		Pane fitnessFunctionDisplay = new Pane();
+		//FitnessFunction startFitness = new FitnessFunction(originalImage);
+		Text fitnessDisplay = new Text("Fitness: " + initialFitness);
+		//initialFitness = startFitness.getFitness();
+		fitnessDisplay.setFont(Font.font("Verdana", FontWeight.BOLD, 70));
+		fitnessFunctionDisplay.getChildren().add(fitnessDisplay);
 
 		bp = new BorderPane();
 		//Right side of border pane is the original image. 
 		bp.setRight(originalImage);
 		//Left side of border pane is the initial population image. 
 		bp.setLeft(perspectiveImage);
+		//Display fitness of initial population. 
+		bp.setBottom(fitnessDisplay);
 		root = new Group();
 		root.getChildren().add(bp);
 		Scene scene  = new Scene(root);
