@@ -1,7 +1,10 @@
 package TriangleGenome;
 
+import java.awt.Graphics;
+
 import java.awt.Point;
 import java.awt.TextField;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import javafx.scene.text.Text;
@@ -10,7 +13,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.Group;
-import javafx.scene.image.WritableImage;
+
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
@@ -19,9 +22,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
+//import javafx.scene.paint.Color;
+import java.awt.Color;
 import javafx.stage.Stage;
-
+import javafx.embed.swing.SwingFXUtils;
 
 /**
  * @author Christian Seely
@@ -42,7 +46,7 @@ public class InitialPopulation extends Stage{
     private BorderPane bp;
     private ImageView originalImage;
     private ImageView perspectiveImage;
-    private WritableImage writableImage;
+    private BufferedImage writableImage;
     private double initialFitness;
 	int IMAGE_WIDTH;
 	int IMAGE_HEIGHT;
@@ -56,7 +60,6 @@ public class InitialPopulation extends Stage{
 	//just be a pixel larger in width/height.
 	double leftOverPixelsWidth;
 	double leftOverPixelsHeight;
-	private PixelWriter pixelWriter;
     private PixelReader reader;
     //Just something to hold to triangles so they can be kept track of. 
     private ArrayList<Triangle> listOfTriangles = new ArrayList<>();
@@ -72,9 +75,10 @@ public class InitialPopulation extends Stage{
 		//The images should have the same height/width.
 		this.IMAGE_HEIGHT =(int)image.getHeight();
 		this.IMAGE_WIDTH = (int)image.getWidth();
-		//Create a writeable image of the same size as the original image.
-		this.writableImage = new WritableImage(IMAGE_WIDTH, IMAGE_HEIGHT);
-		this.pixelWriter = writableImage.getPixelWriter();
+		//Make sure the type includes alpha since we have to take account for it,
+		//ARGB is alpha, red, green, blue. 
+		this.writableImage = new BufferedImage(IMAGE_WIDTH,IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+		//this.pixelWriter = writableImage.getPixelWriter();
 		this.reader = image.getPixelReader();  
 		//Using grid method we know there will be 10 rows. 
 		triangleWidth = IMAGE_WIDTH/10;
@@ -92,14 +96,15 @@ public class InitialPopulation extends Stage{
 		//Grab the new image consisting of the initial population.
 		perspectiveImage = createNewPerspectiveImage();
 		
+	
 		//Calculate the initial fitness (done by pixel by pixel comparison)
 		FitnessFunction startFitness = new FitnessFunction(image,perspectiveImage.getImage());
+		//Obtain the initial fitness. 
 		initialFitness = startFitness.getFitness();
+		
 		Pane backgroundPane = new Pane();
 		Pane fitnessFunctionDisplay = new Pane();
-		//FitnessFunction startFitness = new FitnessFunction(originalImage);
 		Text fitnessDisplay = new Text("Fitness: " + initialFitness);
-		//initialFitness = startFitness.getFitness();
 		fitnessDisplay.setFont(Font.font("Verdana", FontWeight.BOLD, 70));
 		fitnessFunctionDisplay.getChildren().add(fitnessDisplay);
 
@@ -226,31 +231,37 @@ public class InitialPopulation extends Stage{
 		triangle.setGreen(newGreenValue);
 		triangle.setBlue(newBlueValue);
 		//Update the triangle with its new color values. 
-		triangle.updateTriangle();
-		//Actually draw the triangle to the initialPopulation image.
-		Color color = triangle.getColor();
-		for(int i = startX; i < boundingBoxWidth+startX; i++)
-		{
-			for(int j = startY; j < boundingBoxHeight+startY; j++)
-			{
-				if(triangle.getTriangle().contains(i,j)) 
-				{
-				      
-		                pixelWriter.setColor(i, j, color);
-				}
-			}
-		}
-		
+		triangle.updateTriangle();		
 	}
 	
 
 	/**
-	 * 
+	 * This method draws all of the triangles (java.awt polygons)
+	 * to the buffered image and then the buffered image is 
+	 * converted to a FXImage which is set inside of a image view
+	 * and returned.
 	 * @return ImageView of the initialPopulation. 
 	 */
 	private ImageView createNewPerspectiveImage()
 	{
-		return new ImageView(writableImage);
+		Graphics genome = writableImage.createGraphics();
+		//This might really effect anything or it might
+		//have a big effect, what ever we set the background color
+		//to e.g black or white it will play as the base of the image.
+		genome.setColor(java.awt.Color.BLACK);
+		genome.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+		//Draw each triangle. 
+		for(Triangle triangle: listOfTriangles)
+		{
+			genome.setColor(triangle.getColor());
+			genome.drawPolygon(triangle.getTriangle());
+			genome.fillPolygon(triangle.getTriangle());
+		}
+		//Convert buffered image to FXImage, set in a image view and return it. 
+		ImageView imgView = new ImageView();
+		imgView.setImage(SwingFXUtils.toFXImage(writableImage, null));
+		
+		return imgView;
 	}
 
 	

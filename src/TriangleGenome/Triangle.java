@@ -1,9 +1,8 @@
 package TriangleGenome;
 
+import java.awt.Color;
 import java.awt.Point;
-import javafx.collections.ObservableList;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Polygon;
+import java.awt.Polygon;
 
 /**
  * @author Christian Seely
@@ -36,7 +35,7 @@ public class Triangle
     p1 = new Point();
     p2 = new Point();
     p3 = new Point();
-    triangle = new Polygon(new double[]{p1.x, p1.y, p2.x, p2.y, p3.x, p3.y});
+    triangle = new Polygon(new int[]{p1.x, p2.x, p3.x} , new int[]{p1.y, p2.y, p3.y}, 3);
   }
 
   /**
@@ -166,29 +165,16 @@ public class Triangle
   }
 
   /**
-   * @return Javafx polygon representation of the triangle.
+   * @return Java.awt polygon representation of the triangle.
    */
   public Polygon getTriangle()
   {
     return triangle;
   }
   
-  public void updateTriangle(){
-	//For some reason in JavaFX RGB values when creating a color are on 
-	//a scale of 0.0 to 1.0 so we have to divide ours by 255 to account for that.
-    color = new Color(red/255d, green/255d, blue/255d, alpha/255d);
-    triangle.setFill(color);
-    
-    //A list that allows listeners to track changes when they occur.
-    //(We might not even need this, it could possibly just be a regular
-    //list).
-    ObservableList<Double> points = triangle.getPoints();
-    
-    points.set(0, (double)p1.x);
-    points.set(1, (double)p1.y);
-    points.set(2, (double)p2.x);
-    points.set(3, (double)p2.y);
-    points.set(4, (double)p3.x);
-    points.set(5, (double)p3.y);
+  public void updateTriangle(){	 
+	//Update the color and the vertices of the triangle. 
+	triangle = new Polygon(new int[]{p1.x, p2.x, p3.x} , new int[]{p1.y, p2.y, p3.y}, 3);
+    color = new Color(red, green, blue, alpha);
   }
 }
