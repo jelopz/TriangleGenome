@@ -61,8 +61,9 @@ public class InitialPopulation extends Stage{
 	double leftOverPixelsWidth;
 	double leftOverPixelsHeight;
     private PixelReader reader;
-    //Just something to hold to triangles so they can be kept track of. 
-    private ArrayList<Triangle> listOfTriangles = new ArrayList<>();
+    //Just something to hold to triangles so they can be kept track of.
+    //All 200 triangles make up a solution or genome/DNA. 
+    private ArrayList<Triangle> DNA = new ArrayList<>();
 
     /**
      * Initialize fields and trigger the calculation and display of 
@@ -97,10 +98,21 @@ public class InitialPopulation extends Stage{
 		perspectiveImage = createNewPerspectiveImage();
 		
 	
-		//Calculate the initial fitness (done by pixel by pixel comparison)
-		FitnessFunction startFitness = new FitnessFunction(image,perspectiveImage.getImage());
-		//Obtain the initial fitness. 
+		//Convert the initial image into a buffered image. 
+		BufferedImage temp = SwingFXUtils.fromFXImage(image, null);
+		//Initialize the fitness function object with the bufferedImage
+		//version of the original image. 
+		FitnessFunction startFitness = new FitnessFunction(temp);
+		//Convert the perspective image to a buffered image. 
+		BufferedImage temp2 = SwingFXUtils.fromFXImage(perspectiveImage.getImage(), null);
+		//Now calculate the fitness of the perspective image. 
+		startFitness.calculateFitness(temp2);
 		initialFitness = startFitness.getFitness();
+
+		//Trigger the start of the GA given the first genome/DNA/Initial population.
+		//NOTE UNCOMMENT NEXT LINE TO SEE THE CURRENT STATE OF THE GA. (and
+		//line at bottom of function.)
+		//GA startGA = new GA(DNA,initialFitness,image,IMAGE_WIDTH,IMAGE_HEIGHT);
 		
 		Pane backgroundPane = new Pane();
 		Pane fitnessFunctionDisplay = new Pane();
@@ -119,6 +131,9 @@ public class InitialPopulation extends Stage{
 		root.getChildren().add(bp);
 		Scene scene  = new Scene(root);
 		this.setScene(scene);
+		
+		//NOTE UNCOMMENT THE NEXT LINE TO SEE THE CURRENT STATE OF THE GA. 
+		//startGA.show();
 		
 	}
 
@@ -156,12 +171,12 @@ public class InitialPopulation extends Stage{
 				triangle1.setP1(new Point(j*triangleWidth,i*triangleHeight));
 				triangle1.setP2(new Point(j*triangleWidth,(i+1)*triangleHeight+offset));
 				triangle1.setP3(new Point((j+1)*triangleWidth,(i+1)*triangleHeight+offset));
-				triangle1.setAlpha(255);//Set to opaque 
+				triangle1.setAlpha(150);//Set to semi-transparent , this is something we can play around with. 
 				triangle2 = new Triangle();
 				triangle2.setP1(new Point(j*triangleWidth,i*triangleHeight));
 				triangle2.setP2(new Point((j+1)*triangleWidth,i*triangleHeight));
 				triangle2.setP3(new Point((j+1)*triangleWidth,(i+1)*triangleHeight+offset));
-				triangle2.setAlpha(255);//Set to opaque 
+				triangle2.setAlpha(150);//Set to semi-transparent , this is something we can play around with. 
 				//Update the triangles with the new data that was set. 
 				triangle1.updateTriangle();
 				triangle2.updateTriangle();
@@ -175,8 +190,8 @@ public class InitialPopulation extends Stage{
 				calculateAverageRGB(triangle2,triangleWidth,triangleHeight+offset,startX,startY);
 
 				//Add the two triangle objects to the list of triangles. 
-				listOfTriangles.add(triangle1);
-				listOfTriangles.add(triangle2);
+				DNA.add(triangle1);
+				DNA.add(triangle2);
 
 			}
 		}
@@ -251,7 +266,7 @@ public class InitialPopulation extends Stage{
 		genome.setColor(java.awt.Color.BLACK);
 		genome.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
 		//Draw each triangle. 
-		for(Triangle triangle: listOfTriangles)
+		for(Triangle triangle: DNA)
 		{
 			genome.setColor(triangle.getColor());
 			genome.drawPolygon(triangle.getTriangle());

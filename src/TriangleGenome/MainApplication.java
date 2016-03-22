@@ -25,7 +25,7 @@ public class MainApplication extends Application
   private static final int WINDOW_WIDTH = 600;
   private static final int WINDOW_HEIGHT = 600;
   
-  //Layouts
+  //Layouts 
   private VBox horizontalLayout;
   private HBox fileContainer;
   private HBox[] buttonContainers;
@@ -91,7 +91,7 @@ public class MainApplication extends Application
         File file = fileChooser.showOpenDialog(stage);
         if (file != null){
           String path = file.toURI().toString();
-          image = new Image(path,700,700,true,true);
+          image = new Image(path,500,500,true,true);
           System.out.println("Loaded Image: " + path);
         }
       }
@@ -108,6 +108,7 @@ public class MainApplication extends Application
         if (image != null){
          InitialPopulation viewInitialPopulation = new InitialPopulation(image);
          viewInitialPopulation.show();
+         
         }
       }
     });
