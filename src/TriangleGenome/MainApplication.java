@@ -13,7 +13,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 /** 
- * @author Christian Seely, 
  * Main class which spurs the start of the flow of the program
  * and creates and sets up the GUI framework (currently really ugly). 
  * 

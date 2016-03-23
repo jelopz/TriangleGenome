@@ -8,7 +8,6 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Random;
-import test.TrianglesJogl;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -104,7 +103,7 @@ public class GA extends Stage{
 		//notice not much changes during the mutation because the step size is
 		//very small for the mutations (size of 1), and currently mutations
 		//that result in a lower fitness are ignored. 
-		for(int i = 0; i < 1000; i++)
+		for(int i = 0; i < 100; i++)
 		{
 			++mutations;
 			Mutate();
@@ -170,7 +169,7 @@ public class GA extends Stage{
 		//then change the direction). 
 		switch (geneMutationNum) {
 		case 1:
-			if (triangle.getAlpha() >= 100) {
+			if (triangle.getAlpha() >= 255) {
 				mutationDirection = false;
 			}
 			if (triangle.getAlpha() <= 0) {

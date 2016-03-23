@@ -13,7 +13,6 @@ import java.io.IOException;
 
 /**
  * 
- * @author Christian Seely
  * 
  * Brute force fitness function of comparing two
  * the difference between two images pixel by pixel.
