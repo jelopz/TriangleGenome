@@ -418,6 +418,9 @@ public class GA extends Stage
     triangle.updateTriangle();
   }
 
+  /**
+   * @return the value of the current mutations fitness.
+   */
   private double FitnessTest()
   {
     Graphics2D genome = writableImage.createGraphics();
@@ -446,15 +449,6 @@ public class GA extends Stage
   }
 
   /**
-   * There is a major bug that is illustrated in this method that is (probably)
-   * the main reason the GA doesn't work correctly. Although a fitness is drawn
-   * to screen, the two fitness results for the parent and child being compared
-   * here are both equal to 0 in every instance. Thus, there is never an
-   * improvement as 0 is not greater than 0, and so every single mutation is
-   * undone.
-   * 
-   * Since the fitness numbers ARE drawn to the windows though, the issue should
-   * probably be a simple fix.
    * 
    * @return If the last mutation was an improvement (e.g the childs fitness is
    *         better than the parents.)
