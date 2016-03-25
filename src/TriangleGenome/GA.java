@@ -27,12 +27,14 @@ import java.awt.image.VolatileImage;
  * climbing, but through explotation of patters we should be able to have
  * mutations of whole verticies (x,y), colors (a,r,g,b), size, order etc.
  * 
- * 3/24/2016: Now, when the GA runs in its current state, after 100 mutations, the image
+ * Now, when the GA runs in its current state, after 100 mutations, the image
  * that is shown at the end will PROBABLY have a higher fitness than the
  * initial. Since it's the last mutation done, it's impossible to be sure if it
  * was actually an improvement from our most fit iteration, but there likely
  * will have been at least a few improvements up to that point. Still not a
- * solid GA, but we're at least hill climbing (slowly).
+ * solid GA, but we're at least hill climbing.
+ * 
+ * Each step size is still only 1.
  * 
  * Another problem is the time taken per generation which make its difficult to
  * test as it takes a while to run a decent number of generations. There are two
@@ -153,11 +155,11 @@ public class GA extends Stage
     // from the list because the triangleNum references a triangle at a specific
     // index, thus that triangle should always be at that index.
     Triangle triangle = DNA.get(triangleNum);
-    TriangleMutation mutateTriangle = new TriangleMutation(triangle);
+    TriangleMutation mutateTriangle = new TriangleMutation(triangle, 1);
     // Next select a random gene from the triangle.
-    int geneMutationNum = random.nextInt(10);
+    geneMutationNum = random.nextInt(10) + 1;
     // Pick random direction.
-    if (random.nextInt(1) == 0)
+    if (random.nextInt(2) == 0)
     {
       mutationDirection = true;
     }
@@ -295,7 +297,7 @@ public class GA extends Stage
   {
     // Same triangle and same direction.
     Triangle triangle = DNA.get(triangleNum);
-    TriangleMutation mutateTriangle = new TriangleMutation(triangle);
+    TriangleMutation mutateTriangle = new TriangleMutation(triangle, 1);
 
     // Same mutation type.
     switch (geneMutationNum)
@@ -423,6 +425,7 @@ public class GA extends Stage
    */
   private double FitnessTest()
   {
+    double fitness;
     Graphics2D genome = writableImage.createGraphics();
 
     // This might not effect anything or it might
@@ -442,10 +445,11 @@ public class GA extends Stage
 
     // Check new fitness.
     checkFitness.calculateFitness(writableImage);
+    fitness = checkFitness.getFitness();
     // Set the image, and fitness to a screen.
     bp.setTop(new ImageView(perspectiveImage));
-    bp.setBottom(new Text("Fitness: " + checkFitness.getFitness()));
-    return checkFitness.getFitness();
+    bp.setBottom(new Text("Fitness: " + fitness));
+    return fitness;
   }
 
   /**
@@ -459,15 +463,15 @@ public class GA extends Stage
 
     if (childFitness > parentFitness)
     {
-      System.out.println("Improvement");
+      System.out.println("Improvement from " + parentFitness + ", new best fitness: " + childFitness);
       parentFitness = childFitness;
       return true;
     }
     else
     {
-      System.out.println("Not Improvement");
+      System.out.println("Not Improvement from " + parentFitness);
       undo();
-      parentFitness = childFitness;
+      // parentFitness = childFitness;
       return false;
     }
   }
@@ -478,7 +482,7 @@ public class GA extends Stage
   private void undo()
   {
     Triangle triangle = DNA.get(triangleNum);
-    TriangleMutation mutateTriangle = new TriangleMutation(triangle);
+    TriangleMutation mutateTriangle = new TriangleMutation(triangle, 1);
     // Toggle direction other way.
     if (mutationDirection)
     {
