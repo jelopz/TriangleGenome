@@ -32,11 +32,8 @@ import java.io.IOException;
 public class FitnessFunction {
 
 	private BufferedImage originalImage;
-	private BufferedImage perspectiveImage;
 	private int IMAGE_HEIGHT;
 	private int IMAGE_WIDTH;
-	private PixelReader readerOriginal;
-	private PixelReader readerPerspective;
 	double fitness; //(Rate between 0 and 100% where 100 is the most fit
 	//e.g perfect match.) We will probably want to change the scale because
 	//its not really possible to get 100% fitness under these conditions.

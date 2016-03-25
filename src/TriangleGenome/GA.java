@@ -1,9 +1,6 @@
 package TriangleGenome;
 
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
+
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -16,8 +13,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.scene.text.Text;
-
-import java.awt.image.VolatileImage;
 
 /**
  * 
@@ -56,10 +51,11 @@ public class GA extends Stage
   ArrayList<Triangle> DNA;
   private FitnessFunction checkFitness;
   Random random = new Random();
-  boolean mutationDirection; // Let false but decreasing, and true be
-                             // increasing.
+  boolean mutationDirection; // Let false but decreasing, and true be increasing.
+  //Create Render object. In doing so all of the fields for it are 
+  //initialized/set up. 
+  private Renderer imageRenderer; 
   boolean wasImprovement;
-  private BufferedImage writableImage;
   private int geneMutationNum;
   private int triangleNum;
   int mutations;
@@ -68,17 +64,12 @@ public class GA extends Stage
   {
     this.IMAGE_WIDTH = IMAGE_WIDTH;
     this.IMAGE_HEIGHT = IMAGE_HEIGHT;
+    imageRenderer = new Renderer(IMAGE_WIDTH,IMAGE_HEIGHT);
     this.originalImage = originalImage;
     BufferedImage temp = SwingFXUtils.fromFXImage(originalImage, null);
     this.checkFitness = new FitnessFunction(temp);
     this.parentFitness = initialFitness;
-    this.wasImprovement = false; // We want to start with a random gene
-                                 // mutation.
-
-    // Make sure the BufferedImage type includes alpha since we have to take
-    // account for it,
-    // ARGB is alpha, red, green, blue.
-    this.writableImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+    this.wasImprovement = false; // We want to start with a random gene mutation.
     this.childFitness = 0;
     this.DNA = DNA;
     // Start the GA.
@@ -109,13 +100,21 @@ public class GA extends Stage
     // notice not much changes during the mutation because the step size is
     // very small for the mutations (size of 1), and currently mutations
     // that result in a lower fitness are ignored.
-    for (int i = 0; i < 100; i++)
+    long startTime = System.nanoTime();
+
+    for (int i = 0; i < 500; i++)
     {
+      System.out.println(i);
       ++mutations;
       Mutate();
     }
-  }
+  
 
+  long endTime = System.nanoTime();
+
+  long duration = (endTime - startTime); 
+  System.out.println(duration);
+  }
   private void Mutate()
   {
     // If the last mutation was an improvement (better fitness)
@@ -425,33 +424,19 @@ public class GA extends Stage
    */
   private double FitnessTest()
   {
-    double fitness;
-    Graphics2D genome = writableImage.createGraphics();
-
-    // This might not effect anything or it might
-    // have a big effect, what ever we set the background color
-    // to e.g black or white it will play as the base of the image.
-    genome.setColor(java.awt.Color.BLACK);
-    genome.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
-    // Draw each triangle.
-    for (Triangle triangle : DNA)
-    {
-      genome.setColor(triangle.getColor());
-      genome.fillPolygon(triangle.getTriangle());
-    }
-
-    // Convert buffered Image to an FX image.
-    Image perspectiveImage = SwingFXUtils.toFXImage(writableImage, null);
-
-    // Check new fitness.
-    checkFitness.calculateFitness(writableImage);
-    fitness = checkFitness.getFitness();
-    // Set the image, and fitness to a screen.
-    bp.setTop(new ImageView(perspectiveImage));
-    bp.setBottom(new Text("Fitness: " + fitness));
-    return fitness;
+	    //Pass the genome/DNA to the renderer class to render the triangles off-screen
+	    //to an eventual buffered image using OpenGL/JOGL.
+		imageRenderer.render(DNA);
+		//Convert buffered Image to an FX image.
+		Image perspectiveImage = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
+		//Check new fitness.
+		checkFitness.calculateFitness(imageRenderer.getBuff());
+		//Set the image, and fitness to a screen.
+		bp.setTop(new ImageView(perspectiveImage));
+		bp.setBottom(new Text("Fitness: " + checkFitness.getFitness()));
+		return checkFitness.getFitness();
   }
-
+  
   /**
    * 
    * @return If the last mutation was an improvement (e.g the childs fitness is
@@ -460,7 +445,6 @@ public class GA extends Stage
   private boolean checkIfMutationWasImprovement()
   {
     childFitness = FitnessTest();
-
     if (childFitness > parentFitness)
     {
       System.out.println("Improvement from " + parentFitness + ", new best fitness: " + childFitness);
@@ -471,7 +455,6 @@ public class GA extends Stage
     {
       System.out.println("Not Improvement from " + parentFitness);
       undo();
-      // parentFitness = childFitness;
       return false;
     }
   }

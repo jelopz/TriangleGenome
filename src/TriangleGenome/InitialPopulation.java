@@ -139,7 +139,7 @@ public class InitialPopulation extends Stage{
 		//Trigger the start of the GA given the first genome/DNA/Initial population.
 		//NOTE UNCOMMENT NEXT LINE TO SEE THE CURRENT STATE OF THE GA. (and
 		//line at bottom of function.)
-		//GA startGA = new GA(test,initialFitness,image,IMAGE_WIDTH,IMAGE_HEIGHT);
+		GA startGA = new GA(test,initialFitness,image,IMAGE_WIDTH,IMAGE_HEIGHT);
 		
 		Pane backgroundPane = new Pane();
 		Pane fitnessFunctionDisplay = new Pane();
@@ -160,7 +160,7 @@ public class InitialPopulation extends Stage{
 		this.setScene(scene);
 		
 		//NOTE UNCOMMENT THE NEXT LINE TO SEE THE CURRENT STATE OF THE GA. 
-		//startGA.show();
+		startGA.show();
 		
 	}
 
