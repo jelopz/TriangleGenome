@@ -1,10 +1,11 @@
 package TriangleGenome;
 
-
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Random;
+
+import Application.NewMain;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -15,34 +16,35 @@ import javafx.stage.Stage;
 import javafx.scene.text.Text;
 
 /**
- * 
  * Class to handle the flow of the Genetic Algorithm/Hill climbing.
  *
  * Possible mutations (changing one of the 10 genes of a triangle) aka pure hill
  * climbing, but through explotation of patters we should be able to have
  * mutations of whole verticies (x,y), colors (a,r,g,b), size, order etc.
  * 
- * Now, when the GA runs in its current state, after 100 mutations, the image
- * that is shown at the end will PROBABLY have a higher fitness than the
- * initial. Since it's the last mutation done, it's impossible to be sure if it
- * was actually an improvement from our most fit iteration, but there likely
- * will have been at least a few improvements up to that point. Still not a
- * solid GA, but we're at least hill climbing.
+ * Each step size is altered by the improvementCombo integer. When the first
+ * improvement is found, improvementCombo is increased to 2, and the mutation
+ * following the first improvement increases/decreases a single value by 2 now.
+ * Then 3, up to 5. After consecutive improvements, the value can not be higher
+ * than 5. For example, we can never increase the alpha value by more than 5 per step.
+ * The value is decreased back to 1 upon finding a mutation with no improvement.
+ * After selecting a gene to mutate following NO improvement, improvementCombo
+ * is ALWAYS 1. improvementCombo is only ever greater than 1 following
+ * improvements, thus, values are only increased or decreased by more than 1
+ * IMMEDIATELY following improvements
  * 
- * Each step size is still only 1.
+ * The mutate method is used by the animationloop in the main class to perform
+ * the algorithm. Each time mutate is called, a single step in the algorithm is
+ * performed. If the mutate creates an improved fitness, give main a copy of the
+ * image and the fitness value.
  * 
- * Another problem is the time taken per generation which make its difficult to
- * test as it takes a while to run a decent number of generations. There are two
- * main things that take time during each generation. The first is rendering the
- * triangles to an image (I am currently working on a way to increase the speed
- * via openGL) and the second is the fitness function (which from what I'v heard
- * we will probably have to use something called openCL to increase its speed).
+ * Current problems I've noticed: Sometimes a triangle is completely useless.
+ * Some triangles may be trapped behind a giant non transparent triangle and any
+ * change to these trapped triangles result in no improvement. Not sure what to
+ * do about them. Do we pop them to the very top? Leave them alone?
  */
 public class GA extends Stage
 {
-
-  private Group root;
-  private BorderPane bp;
   double parentFitness;
   double childFitness;
   final int IMAGE_HEIGHT;
@@ -51,84 +53,71 @@ public class GA extends Stage
   ArrayList<Triangle> DNA;
   private FitnessFunction checkFitness;
   Random random = new Random();
-  boolean mutationDirection; // Let false but decreasing, and true be increasing.
-  //Create Render object. In doing so all of the fields for it are 
-  //initialized/set up. 
-  private Renderer imageRenderer; 
+  boolean mutationDirection; // Let false be decreasing, and true be
+                             // increasing.
+
+  // Create Render object. In doing so all of the fields for it are
+  // initialized/set up.
+  private Renderer imageRenderer;
   boolean wasImprovement;
   private int geneMutationNum;
   private int triangleNum;
   int mutations;
 
-  GA(ArrayList<Triangle> DNA, double initialFitness, Image originalImage, int IMAGE_WIDTH, int IMAGE_HEIGHT)
+  // Only ever values 1 through 5. Used by the GA to increase the mutation step
+  // value.
+  private int improvementCombo;
+
+  private Image perspectiveImage;
+  private NewMain main;
+
+  public GA(ArrayList<Triangle> DNA, double initialFitness, Image originalImage, int IMAGE_WIDTH, int IMAGE_HEIGHT, NewMain m)
   {
     this.IMAGE_WIDTH = IMAGE_WIDTH;
     this.IMAGE_HEIGHT = IMAGE_HEIGHT;
-    imageRenderer = new Renderer(IMAGE_WIDTH,IMAGE_HEIGHT);
+    imageRenderer = new Renderer(IMAGE_WIDTH, IMAGE_HEIGHT);
     this.originalImage = originalImage;
     BufferedImage temp = SwingFXUtils.fromFXImage(originalImage, null);
     this.checkFitness = new FitnessFunction(temp);
     this.parentFitness = initialFitness;
-    this.wasImprovement = false; // We want to start with a random gene mutation.
+    this.wasImprovement = false; // We want to start with a random gene
+                                 // mutation.
     this.childFitness = 0;
     this.DNA = DNA;
-    // Start the GA.
-    startGA();
+
+    main = m;
   }
 
-  private void startGA()
-  {
-    bp = new BorderPane();
-    root = new Group();
-    root.getChildren().add(bp);
-    Scene scene = new Scene(root);
-    this.setScene(scene);
-
-    // If you want to see how the program works with a random initial
-    // population you can click this. Note it is much slower than the
-    // other initial population because of overlap and more lower alpha
-    // values (which requires much more computation for some reason).
-    // The rendering speed is something that is going to have to be
-    // improved, I think I have found a way (with openGL) but I still
-    // need to make sure it works before pushing it.
-    // randomPop();
-
-    // This for loop is for the number of mutations. Since currently
-    // it only shows the image after all mutations have finished we
-    // can't put it in an infinite loop. Note the larger the number the longer
-    // it takes especially if you start with a random population. Also you will
-    // notice not much changes during the mutation because the step size is
-    // very small for the mutations (size of 1), and currently mutations
-    // that result in a lower fitness are ignored.
-    long startTime = System.nanoTime();
-
-    for (int i = 0; i < 500; i++)
-    {
-      System.out.println(i);
-      ++mutations;
-      Mutate();
-    }
-  
-
-  long endTime = System.nanoTime();
-
-  long duration = (endTime - startTime); 
-  System.out.println(duration);
-  }
-  private void Mutate()
+  /**
+   * Called by the ApplicationLoop class. Performs a single mutation per call.
+   */
+  public void Mutate()
   {
     // If the last mutation was an improvement (better fitness)
     // Then do it again, otherwise do a new random gene mutation.
     if (wasImprovement)
     {
+      increaseCombo();
       selectGeneFollowingImprovement();
     }
     else
     {
+      improvementCombo = 1;
       selectGeneFollowingNoImprovement();
     }
     // Check if last mutation was an improvement.
     wasImprovement = checkIfMutationWasImprovement();
+  }
+
+  /**
+   * Used to limit the value to a max of 5.
+   */
+  private void increaseCombo()
+  {
+    if (improvementCombo < 5)
+    {
+      improvementCombo++;
+    }
   }
 
   // For selecting a random gene to mutate, first pick a random number 1-10
@@ -154,7 +143,11 @@ public class GA extends Stage
     // from the list because the triangleNum references a triangle at a specific
     // index, thus that triangle should always be at that index.
     Triangle triangle = DNA.get(triangleNum);
-    TriangleMutation mutateTriangle = new TriangleMutation(triangle, 1);
+
+    // ImprovementCombo is ALWAYS 1 here! Only increment/decrement by 1 after
+    // following no improvement
+    TriangleMutation mutateTriangle = new TriangleMutation(triangle, improvementCombo);
+
     // Next select a random gene from the triangle.
     geneMutationNum = random.nextInt(10) + 1;
     // Pick random direction.
@@ -286,7 +279,6 @@ public class GA extends Stage
     }
     // Update the triangle following the mutation.
     triangle.updateTriangle();
-
   }
 
   /**
@@ -296,7 +288,7 @@ public class GA extends Stage
   {
     // Same triangle and same direction.
     Triangle triangle = DNA.get(triangleNum);
-    TriangleMutation mutateTriangle = new TriangleMutation(triangle, 1);
+    TriangleMutation mutateTriangle = new TriangleMutation(triangle, improvementCombo);
 
     // Same mutation type.
     switch (geneMutationNum)
@@ -424,19 +416,17 @@ public class GA extends Stage
    */
   private double FitnessTest()
   {
-	    //Pass the genome/DNA to the renderer class to render the triangles off-screen
-	    //to an eventual buffered image using OpenGL/JOGL.
-		imageRenderer.render(DNA);
-		//Convert buffered Image to an FX image.
-		Image perspectiveImage = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
-		//Check new fitness.
-		checkFitness.calculateFitness(imageRenderer.getBuff());
-		//Set the image, and fitness to a screen.
-		bp.setTop(new ImageView(perspectiveImage));
-		bp.setBottom(new Text("Fitness: " + checkFitness.getFitness()));
-		return checkFitness.getFitness();
+    // Pass the genome/DNA to the renderer class to render the triangles
+    // off-screen
+    // to an eventual buffered image using OpenGL/JOGL.
+    imageRenderer.render(DNA);
+    // Convert buffered Image to an FX image.
+    perspectiveImage = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
+    // Check new fitness.
+    checkFitness.calculateFitness(imageRenderer.getBuff());
+    return checkFitness.getFitness();
   }
-  
+
   /**
    * 
    * @return If the last mutation was an improvement (e.g the childs fitness is
@@ -447,6 +437,9 @@ public class GA extends Stage
     childFitness = FitnessTest();
     if (childFitness > parentFitness)
     {
+      main.updateInfo(perspectiveImage, childFitness); // update main with new
+                                                       // best image and fitness
+
       System.out.println("Improvement from " + parentFitness + ", new best fitness: " + childFitness);
       parentFitness = childFitness;
       return true;
@@ -465,7 +458,7 @@ public class GA extends Stage
   private void undo()
   {
     Triangle triangle = DNA.get(triangleNum);
-    TriangleMutation mutateTriangle = new TriangleMutation(triangle, 1);
+    TriangleMutation mutateTriangle = new TriangleMutation(triangle, improvementCombo);
     // Toggle direction other way.
     if (mutationDirection)
     {
