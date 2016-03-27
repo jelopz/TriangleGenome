@@ -60,8 +60,6 @@ public class startupController
     {
       Stage stage = (Stage) startButton.getScene().getWindow();
       stage.close();
-      InitialPopulation viewInitialPopulation = new InitialPopulation(main.originalImage, main);
-      viewInitialPopulation.show();
       main.createMainWindow();
     }
   }

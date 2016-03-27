@@ -3,6 +3,7 @@ package Application;
 import java.io.IOException;
 
 import TriangleGenome.GA;
+import TriangleGenome.InitialPopulation;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -24,13 +25,14 @@ import javafx.stage.Stage;
  * Begin in the start class in NewMain. This creates the initial popup window
  * which asks you to upload an image and then start. These buttons are handled
  * in the startupController class. This acts very similarly to the original GUI.
- * Upon pressing the start button: The initialPopulation is created, the GA is
- * initialized and passed to this Main class. (This happens in
- * initialPopulations constructor by calling main.setGA method after the
- * creation of the GA) The popup window is closed then the main window is
- * created.
+ * Upon pressing the start button: The popup window is closed then the main
+ * window is created.
  * 
  * At this point the startupController is irrelevent.
+ * 
+ * The initialPopulation is created, the GA is initialized and passed to this
+ * Main class. (This happens in initialPopulations constructor by calling
+ * main.setGA method after the creation of the GA)
  * 
  * Now we're shown a new window with the initial population's image and fitness
  * displayed, and buttons. All these things are handled in the mainController
@@ -52,7 +54,8 @@ public class NewMain extends Application
   private startupController startupController;
   private Image displayedPop;
   private double displayedFitness;
-  boolean isRunning; // used to let the ApplicationLoop know when to run or not
+  boolean isRunning; // used to let the ApplicationLoop know when to run or
+  // not
   GA ga;
 
   /**
@@ -80,6 +83,11 @@ public class NewMain extends Application
   }
 
   /**
+   * First creates the initialPopulation, which then proceeds to initialize the
+   * GA. A reference to the GA is passed back to main immediately (Happens in
+   * the InitialPopulation constructor) The initial population is immediately
+   * displayed on the main window pending the start of the pathfinding loop.
+   * 
    * The main application window. Currently has two buttons, start or stop,
    * which controls the pathfinding algorithm. If you press start, the algorithm
    * begins and one of the most fit images found is displayed to the screen
@@ -91,6 +99,10 @@ public class NewMain extends Application
    */
   public void createMainWindow() throws IOException
   {
+
+    InitialPopulation viewInitialPopulation = new InitialPopulation(originalImage, this);
+    viewInitialPopulation.show();
+
     FXMLLoader loader = new FXMLLoader(getClass().getResource("GAFXML.fxml"));
     Parent root = loader.load();
 
