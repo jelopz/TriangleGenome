@@ -410,7 +410,6 @@ public class GA extends Stage
   private boolean checkIfHardMutateWasImprovement()
   {
 	  childFitness = FitnessTest();
-	    System.out.println("Child: " + childFitness + " parent: " + parentFitness);
 	    if (childFitness > parentFitness)
 	    {
 	      main.updateInfo(perspectiveImage, childFitness); // update main with new
