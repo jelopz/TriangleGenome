@@ -22,4 +22,9 @@ public class Tribe {
 	{
 		return this.genomes;
 	}
+	
+	public void addGenome(Genome genome)
+	{
+		this.genomes.add(genome);
+	}
 }
