@@ -32,7 +32,14 @@ public class CrossOverMutation {
 	private ArrayList<Integer> childsGeneList;
 	private boolean crossOverMode; //Let true represent single point and false represent double point. 
 	private int hammingDistance;
-	CrossOverMutation(Tribe tribe, Genome mother, Genome father, boolean crossOverMode)
+
+	/**
+	 * Instead of making an object for each cross over a single object can be made
+	 * and then to perform a cross over mutation all you have to do is call this
+	 * method with the correct parameters using the instantiation of the cross over
+	 * object where ever that may be. 
+	 */
+	public void invokeCrossOverMutation(Tribe tribe, Genome mother, Genome father, boolean crossOverMode)
 	{
 		this.tribe = tribe;
 		this.mother = mother.getDNA();
