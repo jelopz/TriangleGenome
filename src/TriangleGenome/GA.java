@@ -26,12 +26,12 @@ import javafx.scene.text.Text;
  * improvement is found, improvementCombo is increased to 2, and the mutation
  * following the first improvement increases/decreases a single value by 2 now.
  * Then 3, up to 5. After consecutive improvements, the value can not be higher
- * than 5. For example, we can never increase the alpha value by more than 5 per step.
- * The value is decreased back to 1 upon finding a mutation with no improvement.
- * After selecting a gene to mutate following NO improvement, improvementCombo
- * is ALWAYS 1. improvementCombo is only ever greater than 1 following
- * improvements, thus, values are only increased or decreased by more than 1
- * IMMEDIATELY following improvements
+ * than 5. For example, we can never increase the alpha value by more than 5 per
+ * step. The value is decreased back to 1 upon finding a mutation with no
+ * improvement. After selecting a gene to mutate following NO improvement,
+ * improvementCombo is ALWAYS 1. improvementCombo is only ever greater than 1
+ * following improvements, thus, values are only increased or decreased by more
+ * than 1 IMMEDIATELY following improvements
  * 
  * The mutate method is used by the animationloop in the main class to perform
  * the algorithm. Each time mutate is called, a single step in the algorithm is
@@ -62,7 +62,6 @@ public class GA extends Stage
   private Renderer imageRenderer;
   boolean wasImprovement;
   private int geneMutationNum;
-  boolean hardMutateWasImprovment;
   private int triangleNum;
   int mutations;
 
@@ -91,31 +90,44 @@ public class GA extends Stage
   }
 
   /**
+   * Used to toggle the mutation type from the GUI
+   * 
+   * @param type
+   *          If hard mutate is on or off
+   */
+  public void setMutateType(boolean type)
+  {
+    IS_HARD_MUTATE_MODE = type;
+  }
+
+  /**
    * Called by the ApplicationLoop class. Performs a single mutation per call.
    */
   public void Mutate()
   {
-	  if(IS_HARD_MUTATE_MODE)
-	  {
-	  hardMutate();
-	  }
-	  else
-	  {	  
-    // If the last mutation was an improvement (better fitness)
-    // Then do it again, otherwise do a new random gene mutation.
-    if (wasImprovement)
+    if (IS_HARD_MUTATE_MODE)
     {
-      increaseCombo();
-      selectGeneFollowingImprovement();
+      System.out.print("Hard Mutate:  ");
+      hardMutate();
     }
     else
     {
-      improvementCombo = 1;
-      selectGeneFollowingNoImprovement();
+      System.out.print("Soft Mutate:  ");
+      // If the last mutation was an improvement (better fitness)
+      // Then do it again, otherwise do a new random gene mutation.
+      if (wasImprovement)
+      {
+        increaseCombo();
+        selectGeneFollowingImprovement();
+      }
+      else
+      {
+        improvementCombo = 1;
+        selectGeneFollowingNoImprovement();
+      }
+      // Check if last mutation was an improvement.
+      wasImprovement = checkIfMutationWasImprovement();
     }
-    // Check if last mutation was an improvement.
-    wasImprovement = checkIfMutationWasImprovement();
-	}
   }
 
   /**
@@ -290,184 +302,119 @@ public class GA extends Stage
     triangle.updateTriangle();
   }
 
-  
   private void hardMutate()
   {
-	// First select a random triangle
-	    triangleNum = random.nextInt(200);
-	    // It is very important never to change the order or remove triangles
-	    // from the list because the triangleNum references a triangle at a specific
-	    // index, thus that triangle should always be at that index.
-	    Triangle triangle = DNA.get(triangleNum);
+    // First select a random triangle
+    triangleNum = random.nextInt(200);
+    // It is very important never to change the order or remove triangles
+    // from the list because the triangleNum references a triangle at a specific
+    // index, thus that triangle should always be at that index.
+    Triangle triangle = DNA.get(triangleNum);
 
-	    int prevAlpha, prevRed,prevGreen,prevBlue,prevP1x,prevP1y,prevP2x,
-	    prevP2y, prevP3x, prevP3y;
-	    prevAlpha=prevRed=prevGreen=prevBlue=prevP1x=prevP1y=prevP2x=
-	    prevP2y= prevP3x=prevP3y=0;
-	    
+    int prevValue = 0; // use a single integer to hold all the values. Doesn't
+                       // cause any problems since we can only mutate one of the
+                       // genes at a time.
 
-	    // Next select a random gene from the triangle.
-	    geneMutationNum = random.nextInt(10) + 1;
+    // Next select a random gene from the triangle.
+    geneMutationNum = random.nextInt(10) + 1;
 
-	    // If the gene value is on the border (e.g can't go higher or lower)
-	    // then change the direction).
-	    switch (geneMutationNum)
-	    {
-	      case 1:
-	    	  prevAlpha = triangle.getAlpha();
-	    	  triangle.setAlpha(random.nextInt(255));
-	        break;
-	      case 2:
-	    	  prevRed = triangle.getRed();
-	    	  triangle.setRed(random.nextInt(255));
-	        break;
-	      case 3:
-	    	  prevGreen = triangle.getGreen();
-	    	  triangle.setGreen(random.nextInt(255));
-	        break;
-	      case 4:
-	    	  prevBlue = triangle.getBlue();
-	    	  triangle.setBlue(random.nextInt(255));
-	        break;
-	      case 5:
-	    	  prevP1x = triangle.getP1().x;
-	    	  triangle.setP1(new Point (random.nextInt(IMAGE_WIDTH), triangle.getP1().y));
-	        break;
-	      case 6:
-	    	  prevP1y = triangle.getP1().y;
-	    	  triangle.setP1(new Point (triangle.getP1().x, random.nextInt(IMAGE_HEIGHT)));
-	        break;
-	      case 7:
-	    	  prevP2x = triangle.getP2().x;
-	    	  triangle.setP2(new Point (random.nextInt(IMAGE_WIDTH), triangle.getP2().y));
-	        break;
-	      case 8:
-	    	  prevP2y = triangle.getP2().y;
-	    	  triangle.setP2(new Point (triangle.getP2().x, random.nextInt(IMAGE_HEIGHT)));
-	        break;
-	      case 9:
-	    	  prevP3x = triangle.getP3().x;
-	    	  triangle.setP3(new Point (random.nextInt(IMAGE_WIDTH), triangle.getP3().y));
-	        break;
-	      case 10:
-	    	  prevP3y = triangle.getP3().y;
-	    	  triangle.setP3(new Point (triangle.getP3().x, random.nextInt(IMAGE_HEIGHT)));
-	        break;
-	      default:
-	        break; // Should never reach here.
-	    }
-	    
-	    // Update the triangle following the mutation.
-	    triangle.updateTriangle();
-	    
-	    
-		  hardMutateWasImprovment = checkIfHardMutateWasImprovement();
-		  if(!hardMutateWasImprovment)
-		  {
-			  switch(geneMutationNum)
-			  {
-		      case 1:
-		    	  undoHardMutate(triangleNum,geneMutationNum,prevAlpha);
-		        break;
-		      case 2:
-		    	  undoHardMutate(triangleNum,geneMutationNum,prevRed);
-		        break;
-		      case 3:
-		    	  undoHardMutate(triangleNum,geneMutationNum,prevGreen);
-		        break;
-		      case 4:
-		    	  undoHardMutate(triangleNum,geneMutationNum,prevBlue);
-		        break;
-		      case 5:
-		    	  undoHardMutate(triangleNum,geneMutationNum,prevP1x);
-		        break;
-		      case 6:
-		    	  undoHardMutate(triangleNum,geneMutationNum,prevP1y);
-		        break;
-		      case 7:
-		    	  undoHardMutate(triangleNum,geneMutationNum,prevP2x);
-		        break;
-		      case 8:
-		    	  undoHardMutate(triangleNum,geneMutationNum,prevP2y);
-		        break;
-		      case 9:
-		    	  undoHardMutate(triangleNum,geneMutationNum,prevP3x);
-		        break;
-		      case 10:
-		    	  undoHardMutate(triangleNum,geneMutationNum,prevP3y);
-		        break;
-		      default:
-		        break; // Should never reach here.
-			  }
-			//  undoHardMutate(triangleNum,geneMutationNum,);
-		  }
-	    
-	    
-	  
+    // If the gene value is on the border (e.g can't go higher or lower)
+    // then change the direction).
+    switch (geneMutationNum)
+    {
+      case 1:
+        prevValue = triangle.getAlpha();
+        triangle.setAlpha(random.nextInt(255));
+        break;
+      case 2:
+        prevValue = triangle.getRed();
+        triangle.setRed(random.nextInt(255));
+        break;
+      case 3:
+        prevValue = triangle.getGreen();
+        triangle.setGreen(random.nextInt(255));
+        break;
+      case 4:
+        prevValue = triangle.getBlue();
+        triangle.setBlue(random.nextInt(255));
+        break;
+      case 5:
+        prevValue = triangle.getP1().x;
+        triangle.setP1(new Point(random.nextInt(IMAGE_WIDTH), triangle.getP1().y));
+        break;
+      case 6:
+        prevValue = triangle.getP1().y;
+        triangle.setP1(new Point(triangle.getP1().x, random.nextInt(IMAGE_HEIGHT)));
+        break;
+      case 7:
+        prevValue = triangle.getP2().x;
+        triangle.setP2(new Point(random.nextInt(IMAGE_WIDTH), triangle.getP2().y));
+        break;
+      case 8:
+        prevValue = triangle.getP2().y;
+        triangle.setP2(new Point(triangle.getP2().x, random.nextInt(IMAGE_HEIGHT)));
+        break;
+      case 9:
+        prevValue = triangle.getP3().x;
+        triangle.setP3(new Point(random.nextInt(IMAGE_WIDTH), triangle.getP3().y));
+        break;
+      case 10:
+        prevValue = triangle.getP3().y;
+        triangle.setP3(new Point(triangle.getP3().x, random.nextInt(IMAGE_HEIGHT)));
+        break;
+      default:
+        break; // Should never reach here.
+    }
+
+    // Update the triangle following the mutation.
+    triangle.updateTriangle();
+
+    if (!checkIfMutationWasImprovement())
+    {
+      undoHardMutate(triangleNum, geneMutationNum, prevValue);
+    }
   }
-  
-  
-  private boolean checkIfHardMutateWasImprovement()
-  {
-	  childFitness = FitnessTest();
-	    if (childFitness > parentFitness)
-	    {
-	      main.updateInfo(perspectiveImage, childFitness); // update main with new
-	                                                       // best image and fitness
 
-	      System.out.println("Improvement from " + parentFitness + ", new best fitness: " + childFitness);
-	      parentFitness = childFitness;
-	      return true;
-	    }
-	    else
-	    {
-	      System.out.println("Not Improvement from " + parentFitness);
-	      undo();
-	      return false;
-	    }
-  }
-  
   private void undoHardMutate(int triangleNum, int geneNum, int prevGeneVal)
   {
-	  
-	 switch(geneNum)
-	 {
-     case 1:
-    	 DNA.get(triangleNum).setAlpha(prevGeneVal);
-       break;
-     case 2:
-    	 DNA.get(triangleNum).setRed(prevGeneVal);
-       break;
-     case 3:
-    	 DNA.get(triangleNum).setGreen(prevGeneVal);
-       break;
-     case 4:
-    	 DNA.get(triangleNum).setBlue(prevGeneVal);
-       break;
-     case 5:
-   	  	DNA.get(triangleNum).setP1(new Point(prevGeneVal, DNA.get(triangleNum).getP1().y));
-       break;
-     case 6:
-    	 DNA.get(triangleNum).setP1(new Point(DNA.get(triangleNum).getP1().x,prevGeneVal));
-       break;
-     case 7:
-    	 DNA.get(triangleNum).setP2(new Point(prevGeneVal, DNA.get(triangleNum).getP2().y));
-       break;
-     case 8:
-    	 DNA.get(triangleNum).setP2(new Point(DNA.get(triangleNum).getP2().x,prevGeneVal));
-       break;
-     case 9:
-    	 DNA.get(triangleNum).setP3(new Point(prevGeneVal, DNA.get(triangleNum).getP3().y));
-       break;
-     case 10:
-    	 DNA.get(triangleNum).setP3(new Point(DNA.get(triangleNum).getP3().x,prevGeneVal));
-       break;
-     default:
-       break; // Should never reach here.
-   
-	 }
+    switch (geneNum)
+    {
+      case 1:
+        DNA.get(triangleNum).setAlpha(prevGeneVal);
+        break;
+      case 2:
+        DNA.get(triangleNum).setRed(prevGeneVal);
+        break;
+      case 3:
+        DNA.get(triangleNum).setGreen(prevGeneVal);
+        break;
+      case 4:
+        DNA.get(triangleNum).setBlue(prevGeneVal);
+        break;
+      case 5:
+        DNA.get(triangleNum).setP1(new Point(prevGeneVal, DNA.get(triangleNum).getP1().y));
+        break;
+      case 6:
+        DNA.get(triangleNum).setP1(new Point(DNA.get(triangleNum).getP1().x, prevGeneVal));
+        break;
+      case 7:
+        DNA.get(triangleNum).setP2(new Point(prevGeneVal, DNA.get(triangleNum).getP2().y));
+        break;
+      case 8:
+        DNA.get(triangleNum).setP2(new Point(DNA.get(triangleNum).getP2().x, prevGeneVal));
+        break;
+      case 9:
+        DNA.get(triangleNum).setP3(new Point(prevGeneVal, DNA.get(triangleNum).getP3().y));
+        break;
+      case 10:
+        DNA.get(triangleNum).setP3(new Point(DNA.get(triangleNum).getP3().x, prevGeneVal));
+        break;
+      default:
+        break; // Should never reach here.
+
+    }
   }
-  
+
   /**
    * If the previous mutation was successful then do it again.
    */
@@ -622,7 +569,6 @@ public class GA extends Stage
   private boolean checkIfMutationWasImprovement()
   {
     childFitness = FitnessTest();
-    System.out.println("Child: " + childFitness + " parent: " + parentFitness);
     if (childFitness > parentFitness)
     {
       main.updateInfo(perspectiveImage, childFitness); // update main with new

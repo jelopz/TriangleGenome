@@ -4,6 +4,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
@@ -32,6 +34,9 @@ public class mainController
   @FXML
   private Text fitnessText;
 
+  @FXML
+  private ComboBox<String> myCB;
+
   private NewMain main;
 
   @FXML
@@ -47,6 +52,28 @@ public class mainController
   }
 
   /**
+   * First, stops the loop. Then, calls main to tell the GA what type of
+   * mutation to run
+   * 
+   * @param event
+   */
+  @FXML
+  void comboBoxHandler(ActionEvent event)
+  {
+    main.stopLoop();
+    String selection = myCB.getValue();
+
+    if (selection == "Soft Mutate")
+    {
+      main.setMutationType(false);
+    }
+    else if (selection == "Hard Mutate")
+    {
+      main.setMutationType(true);
+    }
+  }
+
+  /**
    * Gives the controller a reference to main to be able to communicate when
    * buttons are pressed
    * 
@@ -55,6 +82,8 @@ public class mainController
   public void initController(NewMain main)
   {
     this.main = main;
+    myCB.getItems().addAll("Soft Mutate", "Hard Mutate"); // Populates the combo
+                                                          // box
   }
 
   /**

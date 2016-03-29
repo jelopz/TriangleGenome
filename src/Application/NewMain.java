@@ -54,8 +54,7 @@ public class NewMain extends Application
   private startupController startupController;
   private Image displayedPop;
   private double displayedFitness;
-  boolean isRunning; // used to let the ApplicationLoop know when to run or
-  // not
+  boolean isRunning; // used to let the ApplicationLoop know when to run
   GA ga;
 
   /**
@@ -178,6 +177,17 @@ public class NewMain extends Application
   public void stopLoop()
   {
     isRunning = false;
+  }
+
+  /**
+   * Called by the mainController to tell the GA what kind of mutation to apply
+   * 
+   * @param type
+   *          true if Hard Mutation, false if Soft Mutation
+   */
+  public void setMutationType(boolean type)
+  {
+    ga.setMutateType(type);
   }
 
   public static void main(String[] args)
