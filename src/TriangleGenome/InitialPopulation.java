@@ -131,26 +131,54 @@ public class InitialPopulation extends Stage
     // Calculate the initial population
     CalculateInitialPopulation(image);
 
-    // Grab the new image consisting of the initial population.
-    perspectiveImage = createNewPerspectiveImage();
-
     // Convert the initial image into a buffered image.
     BufferedImage temp = SwingFXUtils.fromFXImage(image, null);
     // Initialize the fitness function object with the bufferedImage
     // version of the original image.
     FitnessFunction startFitness = new FitnessFunction(temp);
-    // Convert the perspective image to a buffered image.
-    BufferedImage temp2 = SwingFXUtils.fromFXImage(perspectiveImage.getImage(), null);
-    // Now calculate the fitness of the perspective image.
-    startFitness.calculateFitness(temp2);
-    initialFitness = startFitness.getFitness();
+
+    // Create 5 perspective images with different colored background
+    // The 5 images are the exact same with exception of the background color
+    Color[] colors = new Color[]
+    { Color.BLACK, Color.WHITE, Color.RED, Color.GREEN, Color.BLUE };
+    ImageView[] candidates = new ImageView[5];
+    BufferedImage[] candidateTemps = new BufferedImage[5];
+    double[] fitnessValues = new double[5];
+    int currentBest = 0;
+
+    for (int i = 0; i < 5; i++)
+    {
+      // Create the initial population with the correct colored background
+      candidates[i] = createNewPerspectiveImage(colors[i]);
+
+      // Convert the perspective image to a bufferd image
+      candidateTemps[i] = SwingFXUtils.fromFXImage(candidates[i].getImage(), null);
+
+      // Calculates the fitness of the perspective image
+      startFitness.calculateFitness(candidateTemps[i]);
+      fitnessValues[i] = startFitness.getFitness();
+
+      // Keep track of which one has the highest fitness throughout the loop.
+      if (fitnessValues[i] > fitnessValues[currentBest])
+      {
+        currentBest = i;
+      }
+
+      System.out.println(i + "  :  " + fitnessValues[i]);
+    }
+
+    System.out.println("currentBest" + currentBest);
+
+    // Sets the image with the most fit background and its respective initial
+    // fitness
+    perspectiveImage = candidates[currentBest];
+    initialFitness = fitnessValues[currentBest];
 
     // Initialize the GA with the initial population and give main a reference
     // to it and the initial population and fitness
     GA g = new GA(test, initialFitness, image, IMAGE_WIDTH, IMAGE_HEIGHT, main);
     main.setGA(g, perspectiveImage.getImage(), initialFitness);
 
-    Pane backgroundPane = new Pane();
     Pane fitnessFunctionDisplay = new Pane();
     Text fitnessDisplay = new Text("Fitness: " + initialFitness);
     fitnessDisplay.setFont(Font.font("Verdana", FontWeight.BOLD, 70));
@@ -356,21 +384,26 @@ public class InitialPopulation extends Stage
   // }
   ArrayList<Triangle> test;
 
-  private ImageView createNewPerspectiveImage()
+  private ImageView createNewPerspectiveImage(Color c)
   {
-    // Get random genome from the tribe to be the start photo.
-    test = tribes.get(0).getGenomesInTribe().get(random.nextInt(2000)).getDNA();
-    System.out.println(test.size());
+    // Get first genome from the tribe to be the start photo.
+    //
+    // This genome is no longer randomly selected as we need to start on the
+    // same one for each background color. If this genome was random, then there
+    // would be more things different than just the background color.
+    test = tribes.get(0).getGenomesInTribe().get(0).getDNA();
+    // System.out.println(test.size());
     Graphics genome = writableImage.createGraphics();
     // This might really effect anything or it might
     // have a big effect, what ever we set the background color
     // to e.g black or white it will play as the base of the image.
-    genome.setColor(java.awt.Color.BLACK);
+    genome.setColor(c);
     genome.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
     // Draw each triangle.
     for (Triangle triangle : test)
     {
-      System.out.println(triangle.getRed() + " " + triangle.getGreen() + " " + triangle.getBlue());
+      // System.out.println(triangle.getRed() + " " + triangle.getGreen() + " "
+      // + triangle.getBlue());
       genome.setColor(triangle.getColor());
       genome.fillPolygon(triangle.getTriangle());
     }
