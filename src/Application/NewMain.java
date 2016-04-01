@@ -1,5 +1,6 @@
 package Application;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import TriangleGenome.GA;
@@ -200,6 +201,7 @@ public class NewMain extends Application
    * been over half a second, we draw the most fit image we have to screen and
    * update the value
    */
+  boolean startThreads = true;
   class ApplicationLoop extends AnimationTimer
   {
     private long lastTime;
@@ -220,9 +222,39 @@ public class NewMain extends Application
           lastTime = thisTime;
           updateDisplay();
         }
-        ga.Mutate();
+        //Start the threads (this is done once, and there is currently
+        //only one thread). 
+        if(startThreads)
+        {
+        	startThreads = false;
+            WorkerThread  thread = new WorkerThread();
+        	thread.start();
+        	
+        }
       }
     }
   }
+  /**
+   * 
+   * Each worker thread handles a single tribe. 
+   * Currently there is only one tribe but once we create
+   * more threads and subsequent tribes we probably
+   * will either have to have more than one instantiation
+   * of GA or put some of the methodology inside of the
+   * worker threads run method. 
+   *
+   */
+  public class WorkerThread extends Thread{
 
+
+
+	  public void run()	  
+	  {
+ 
+		  while(true)
+		  {
+			  ga.Mutate();
+		  }
+	  }
+  }
 }

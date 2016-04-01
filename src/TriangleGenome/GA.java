@@ -68,10 +68,10 @@ public class GA extends Stage
   // Only ever values 1 through 5. Used by the GA to increase the mutation step
   // value.
   private int improvementCombo;
-
   private Image perspectiveImage;
   private NewMain main;
-
+  private int generations = 0;
+  private int improvements = 0;
   public GA(ArrayList<Triangle> DNA, double initialFitness, Image originalImage, int IMAGE_WIDTH, int IMAGE_HEIGHT, NewMain m)
   {
     this.IMAGE_WIDTH = IMAGE_WIDTH;
@@ -107,7 +107,8 @@ public class GA extends Stage
   {
     if (IS_HARD_MUTATE_MODE)
     {
-      System.out.print("Hard Mutate:  ");
+      ++generations;
+      System.out.println("Generation: " + generations + "Improvements: " + improvements);
       hardMutate();
     }
     else
@@ -377,6 +378,7 @@ public class GA extends Stage
 
   private void undoHardMutate(int triangleNum, int geneNum, int prevGeneVal)
   {
+	  System.out.println("here");
     switch (geneNum)
     {
       case 1:
@@ -411,8 +413,11 @@ public class GA extends Stage
         break;
       default:
         break; // Should never reach here.
-
+      
+        
     }
+    DNA.get(triangleNum).updateTriangle(); //Make sure not to delete this line like I did..
+
   }
 
   /**
@@ -557,6 +562,7 @@ public class GA extends Stage
     // Convert buffered Image to an FX image.
     perspectiveImage = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
     // Check new fitness.
+
     checkFitness.calculateFitness(imageRenderer.getBuff());
     return checkFitness.getFitness();
   }
@@ -573,7 +579,8 @@ public class GA extends Stage
     {
       main.updateInfo(perspectiveImage, childFitness); // update main with new
                                                        // best image and fitness
-
+      ++improvements;
+     
       System.out.println("Improvement from " + parentFitness + ", new best fitness: " + childFitness);
       parentFitness = childFitness;
       return true;
@@ -581,7 +588,7 @@ public class GA extends Stage
     else
     {
       System.out.println("Not Improvement from " + parentFitness);
-      undo();
+   //   undo();
       return false;
     }
   }

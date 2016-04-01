@@ -113,8 +113,8 @@ public class InitialPopulation extends Stage
     }
 
     // Make sure the type includes alpha since we have to take account for it,
-    // ARGB is alpha, red, green, blue.
-    this.writableImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+    // ARGB is alpha, red, green, blue. (Currently set to RGB for testing)
+    this.writableImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
     // this.pixelWriter = writableImage.getPixelWriter();
     this.reader = image.getPixelReader();
     // Using grid method we know there will be 10 rows.
@@ -128,8 +128,6 @@ public class InitialPopulation extends Stage
 
     originalImage = new ImageView(image);
 
-    // Calculate the initial population
-    CalculateInitialPopulation(image);
 
     // Convert the initial image into a buffered image.
     BufferedImage temp = SwingFXUtils.fromFXImage(image, null);
@@ -139,14 +137,17 @@ public class InitialPopulation extends Stage
 
     // Create 5 perspective images with different colored background
     // The 5 images are the exact same with exception of the background color
+    // White and black are probably the best two choices to choose from because
+    // other colors often have elements of white or black (which can be 
+    // usefully when things are transparent). 
     Color[] colors = new Color[]
-    { Color.BLACK, Color.WHITE, Color.RED, Color.GREEN, Color.BLUE };
-    ImageView[] candidates = new ImageView[5];
-    BufferedImage[] candidateTemps = new BufferedImage[5];
-    double[] fitnessValues = new double[5];
+    { Color.BLACK, Color.WHITE};
+    ImageView[] candidates = new ImageView[2];
+    BufferedImage[] candidateTemps = new BufferedImage[2];
+    double[] fitnessValues = new double[2];
     int currentBest = 0;
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 2; i++)
     {
       // Create the initial population with the correct colored background
       candidates[i] = createNewPerspectiveImage(colors[i]);
@@ -231,157 +232,9 @@ public class InitialPopulation extends Stage
     return new Genome(DNA);
   }
 
-  /**
-   * Method to calculate the initial population.
-   * 
-   * @param Start
-   *          Image
-   */
-  private void CalculateInitialPopulation(Image originalImage)
-  {
-    Triangle triangle1;
-    Triangle triangle2;
-    // It seems all the pictures only have extra height pixels
-    // if they end up having any extra pixels.
-    int offset = 0;
-    // Iterate through grid creating two triangle objects at a time
-    // (The two triangles you would see when splitting a rectangle down
-    // the diagonal).
-    for (int i = 0; i < 10; i++)
-    {
-      for (int j = 0; j < 10; j++)
-      {
-        // Add extra pixels to the last row, if we want we could
-        // more evenly distribute them over the rows but I'm not sure
-        // that will make much of a difference.
-        if (i == 9 && leftOverPixelsHeight > 0)
-        {
-          offset = (int) leftOverPixelsHeight;
-        }
+ 
 
-        // Calculate the vertices of each new triangle and set them to their
-        // respective triangle objects, the triangles are created in pairs of
-        // two
-        // because we are iterating over the squares of the board and each
-        // square
-        // consists of two triangles.
-        triangle1 = new Triangle();
-        triangle1.setP1(new Point(j * triangleWidth, i * triangleHeight));
-        triangle1.setP2(new Point(j * triangleWidth, (i + 1) * triangleHeight + offset));
-        triangle1.setP3(new Point((j + 1) * triangleWidth, (i + 1) * triangleHeight + offset));
-        triangle1.setAlpha(150);// Set to semi-transparent , this is something
-                                // we can play around with.
-        triangle2 = new Triangle();
-        triangle2.setP1(new Point(j * triangleWidth, i * triangleHeight));
-        triangle2.setP2(new Point((j + 1) * triangleWidth, i * triangleHeight));
-        triangle2.setP3(new Point((j + 1) * triangleWidth, (i + 1) * triangleHeight + offset));
-        triangle2.setAlpha(150);// Set to semi-transparent , this is something
-                                // we can play around with.
-        // Update the triangles with the new data that was set.
-        triangle1.updateTriangle();
-        triangle2.updateTriangle();
-        // Get the start x/y location for the triangles for calculating
-        // their average RGB.
-        int startX = j * triangleWidth;
-        int startY = i * triangleHeight;
-        // Calculate the average RGB of pixels contained in each of the
-        // triangles
-        // and set that average RGB color as the color of the triangle.
-        calculateAverageRGB(triangle1, triangleWidth, triangleHeight + offset, startX, startY);
-        calculateAverageRGB(triangle2, triangleWidth, triangleHeight + offset, startX, startY);
-
-        // Add the two triangle objects to the list of triangles.
-        DNA.add(triangle1);
-        DNA.add(triangle2);
-
-      }
-    }
-  }
-
-  /**
-   * @param Triangle
-   *          object, with height and width of the triangle (which is also the
-   *          height and width of the bounding box), and the start x/y.
-   * 
-   *          Method for iteration of triangles is using bounding rectangular
-   *          boxes and checking if each pixel in the bounding box, if its
-   *          inside the triangle then the RGB values of the pixel are used for
-   *          calculation. Another method that could be done which we might want
-   *          to look into later is triangle rasterization which allows for
-   *          accessing all pixels in a bounding area defined by 3 vertices
-   *          (this method is usually used for drawling triangles pixel by pixel
-   *          or line by line).
-   */
-  private void calculateAverageRGB(Triangle triangle, int width, int height, int startX, int startY)
-  {
-
-    int boundingBoxWidth = width;
-    int boundingBoxHeight = height;
-    int pixelCount = 0;
-    double blueCount = 0;
-    double redCount = 0;
-    double greenCount = 0;
-    int newRedValue = 0;
-    int newBlueValue = 0;
-    int newGreenValue = 0;
-    // Iterate through the bounding box, if the pixel is in the triangle
-    // then increment the pixel count and the counts for red, blue and green.
-    for (int i = startX; i < boundingBoxWidth + startX; i++)
-    {
-      for (int j = startY; j < boundingBoxHeight + startY; j++)
-      {
-        if (triangle.getTriangle().contains(i, j))
-        {
-          ++pixelCount;
-          // Note the getRed/blue/green methods return a value
-          // from 0.0 to 1.0 not 0 to 255.
-          redCount += reader.getColor(i, j).getRed();
-          greenCount += reader.getColor(i, j).getGreen();
-          blueCount += reader.getColor(i, j).getBlue();
-        }
-      }
-    }
-
-    // Average the average RGB value for the triangular region and set
-    // that as the RGB value of the new triangle.
-    newRedValue = (int) ((redCount / pixelCount) * (255));
-    newGreenValue = (int) ((greenCount / pixelCount) * (255));
-    newBlueValue = (int) ((blueCount / pixelCount) * (255));
-    triangle.setRed(newRedValue);
-    triangle.setGreen(newGreenValue);
-    triangle.setBlue(newBlueValue);
-    // Update the triangle with its new color values.
-    triangle.updateTriangle();
-  }
-
-  /**
-   * This method draws all of the triangles (java.awt polygons) to the buffered
-   * image and then the buffered image is converted to a FXImage which is set
-   * inside of a image view and returned.
-   * 
-   * @return ImageView of the initialPopulation.
-   */
-  // private ImageView createNewPerspectiveImage()
-  // {
-  // Graphics genome = writableImage.createGraphics();
-  // //This might really effect anything or it might
-  // //have a big effect, what ever we set the background color
-  // //to e.g black or white it will play as the base of the image.
-  // genome.setColor(java.awt.Color.BLACK);
-  // genome.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
-  // //Draw each triangle.
-  // for(Triangle triangle: DNA)
-  // {
-  // genome.setColor(triangle.getColor());
-  // genome.drawPolygon(triangle.getTriangle());
-  // genome.fillPolygon(triangle.getTriangle());
-  // }
-  // //Convert buffered image to FXImage, set in a image view and return it.
-  // ImageView imgView = new ImageView();
-  // imgView.setImage(SwingFXUtils.toFXImage(writableImage, null));
-  //
-  // return imgView;
-  // }
+  
   ArrayList<Triangle> test;
 
   private ImageView createNewPerspectiveImage(Color c)
@@ -402,8 +255,6 @@ public class InitialPopulation extends Stage
     // Draw each triangle.
     for (Triangle triangle : test)
     {
-      // System.out.println(triangle.getRed() + " " + triangle.getGreen() + " "
-      // + triangle.getBlue());
       genome.setColor(triangle.getColor());
       genome.fillPolygon(triangle.getTriangle());
     }

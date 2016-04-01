@@ -1,15 +1,6 @@
 package TriangleGenome;
 
-import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelReader;
-import javafx.scene.paint.Color;
-import java.awt.image.DataBufferByte;
 import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
-import javafx.scene.image.Image;
-import java.awt.image.DataBufferInt;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 /**
  * 
@@ -39,7 +30,12 @@ public class FitnessFunction {
 	//its not really possible to get 100% fitness under these conditions.
 	//as the photos will never be exactly alike we could normalize it to make
 	//it more realistic and have a 75% percent fitness be considered our 100%. 
+	BufferedImage test;
 	
+	public void setTest(BufferedImage test)
+	{
+		this.test = test;
+	}
 	/**
 	 * 
 	 * @param Original Image, Perspective Image. 
@@ -53,10 +49,13 @@ public class FitnessFunction {
 	 */
 	public void calculateFitness(BufferedImage perspectiveImage)
 	{
+
 		//The images dimensions should be the same for both photos. 
 		this.IMAGE_HEIGHT = perspectiveImage.getHeight();
 		this.IMAGE_WIDTH = perspectiveImage.getWidth();
 		int error = 0;
+		int error2 = 0;
+		double perror2 = 0;
 		double percentError = 0;
 		//Iterate through the images (they have the same dimensions), and
 		//get integer representing the color channels at each pixel location.
@@ -66,11 +65,12 @@ public class FitnessFunction {
 		//to get the rgb values (this is actually the exact same method that 
 		//the getRed() and other methods use to get the value). Note we might
 		//have to factor in the alpha channel but I am not sure. 
+		//int red2;
 		for(int y = 0; y < IMAGE_HEIGHT; y++)
 		{
 			for(int x = 0; x < IMAGE_WIDTH; x++)
 			{	
-			
+				
 				int rgb1 = originalImage.getRGB(x, y);
 				int red1 = (rgb1 >> 16) & 0x000000FF;
 				int green1 = (rgb1 >> 8 ) & 0x000000FF;
@@ -80,11 +80,13 @@ public class FitnessFunction {
 				int red2 = (rgb2 >> 16) & 0x000000FF;
 				int green2 = (rgb2 >> 8 ) & 0x000000FF;
 				int blue2 = (rgb2) & 0x000000FF;
+
 				//For each pair of pixels find the differential between
 				//each of the color channels and add it to the total error. 
 			    error += ((Math.abs(red1-red2)+Math.abs(green1-green2)+Math.abs(blue1-blue2)));
 			}
 		}
+	
 		//Multiple by 100 since we want a percentage, and divide by the
 		//dimension of the image and a value of 765 (all possibilities of the
 		//three color channels 255*3).
@@ -94,12 +96,17 @@ public class FitnessFunction {
 		this.fitness = percentError;
 
 	}
+	double fit2;
 	/**
 	 * @return The fitness. 
 	 */
 	public double getFitness()
 	{
 		return this.fitness;
+	}
+	public double get2()
+	{
+		return fit2;
 	}
 	
 	
