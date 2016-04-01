@@ -77,9 +77,7 @@ public class Renderer {
 		// environment/configuration.
 		vImage = gc.createCompatibleVolatileImage(IMAGE_WIDTH, IMAGE_HEIGHT, Transparency.TRANSLUCENT);
 		do {
-			System.out.println("two");
 			Graphics2D genome = vImage.createGraphics();
-
 			genome.setColor(java.awt.Color.BLACK);
 			genome.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
 			// Draw each triangle.

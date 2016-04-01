@@ -60,8 +60,10 @@ public class InitialPopulation extends Stage
   private ImageView originalImage;
   private ImageView perspectiveImage;
   private BufferedImage writableImage;
+  private Renderer imageRenderer; 
   private Random random = new Random();
   private double initialFitness;
+  FitnessFunction startFitness;
   int IMAGE_WIDTH;
   int IMAGE_HEIGHT;
   // For this initial population all triangles have the
@@ -74,7 +76,8 @@ public class InitialPopulation extends Stage
 
   // The tribes population can range form 2000 to 10000, we will have to test
   // to see what the best initial population would be.
-  private int INITIAL_TRIBE_POPULATIONS = 2000;
+  //(Set to 100 for better performance when testing). 
+  private int INITIAL_TRIBE_POPULATIONS = 100;
 
   // Due to the fact that it is very unlikely to have a picture consisting
   // of a pixel height/width both divisible by 10 its most likely that
@@ -106,11 +109,8 @@ public class InitialPopulation extends Stage
     // The images should have the same height/width.
     this.IMAGE_HEIGHT = (int) image.getHeight();
     this.IMAGE_WIDTH = (int) image.getWidth();
+    this.imageRenderer = new Renderer(IMAGE_WIDTH,IMAGE_HEIGHT);
 
-    for (int i = 0; i < NUM_TRIBES; i++)
-    {
-      tribes.add(createTribe());
-    }
 
     // Make sure the type includes alpha since we have to take account for it,
     // ARGB is alpha, red, green, blue. (Currently set to RGB for testing)
@@ -133,8 +133,11 @@ public class InitialPopulation extends Stage
     BufferedImage temp = SwingFXUtils.fromFXImage(image, null);
     // Initialize the fitness function object with the bufferedImage
     // version of the original image.
-    FitnessFunction startFitness = new FitnessFunction(temp);
-
+    startFitness = new FitnessFunction(temp);
+    for (int i = 0; i < NUM_TRIBES; i++)
+    {
+      tribes.add(createTribe());
+    }
     // Create 5 perspective images with different colored background
     // The 5 images are the exact same with exception of the background color
     // White and black are probably the best two choices to choose from because
@@ -198,16 +201,45 @@ public class InitialPopulation extends Stage
     this.setScene(scene);
   }
 
+  //Create the members of the tribe in a sorted manor. 
   private Tribe createTribe()
   {
     ArrayList<Genome> genomes = new ArrayList<>();
+    Genome genome;
     for (int i = 0; i < INITIAL_TRIBE_POPULATIONS; i++)
     {
-      genomes.add(createGenome());
-    }
+
+		genome = createGenome();
+		imageRenderer.render(genome.getDNA());
+		//Check new fitness.
+		
+		startFitness.calculateFitness(imageRenderer.getBuff());
+		genome.setFitness(startFitness.getFitness());	
+		//Insert the genome into the tribe sorted so that the genomes
+		//in the tribe go from the most fit to the least fit as the 
+		//index increases. 
+		insertSorted(genome,genomes);
+
+}
+
     return new Tribe(genomes);
   }
 
+  private void insertSorted(Genome genome, ArrayList<Genome> genomes)
+  {
+	  for(int i = 0; i < genomes.size(); i++)
+	  {
+		  if(genomes.get(i).getFitness() > genome.getFitness())continue;
+		  
+		  genomes.add(i,genome);
+		  return;
+	  }
+	  
+	  //Append to very end of list;	  
+	  genomes.add(genome);
+	  
+	  
+  }
   private Genome createGenome()
   {
     // 200 triangles per genome.

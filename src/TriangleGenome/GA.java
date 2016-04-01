@@ -378,7 +378,7 @@ public class GA extends Stage
 
   private void undoHardMutate(int triangleNum, int geneNum, int prevGeneVal)
   {
-	  System.out.println("here");
+	 // System.out.println("here");
     switch (geneNum)
     {
       case 1:

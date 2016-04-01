@@ -54,8 +54,6 @@ public class FitnessFunction {
 		this.IMAGE_HEIGHT = perspectiveImage.getHeight();
 		this.IMAGE_WIDTH = perspectiveImage.getWidth();
 		int error = 0;
-		int error2 = 0;
-		double perror2 = 0;
 		double percentError = 0;
 		//Iterate through the images (they have the same dimensions), and
 		//get integer representing the color channels at each pixel location.
@@ -96,7 +94,7 @@ public class FitnessFunction {
 		this.fitness = percentError;
 
 	}
-	double fit2;
+
 	/**
 	 * @return The fitness. 
 	 */
@@ -104,10 +102,7 @@ public class FitnessFunction {
 	{
 		return this.fitness;
 	}
-	public double get2()
-	{
-		return fit2;
-	}
+
 	
 	
 }
