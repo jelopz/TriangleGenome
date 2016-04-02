@@ -1,5 +1,7 @@
 package TriangleGenome;
 
+import java.awt.Color;
+
 //import com.jogamp.opengl.DefaultGLCapabilitiesChooser;
 //import com.jogamp.opengl.GL;
 //import com.jogamp.opengl.GL2;
@@ -56,6 +58,7 @@ import java.awt.image.VolatileImage;
 public class Renderer {
     public int IMAGE_WIDTH;
     public int IMAGE_HEIGHT;
+    private Color backGroundColor;
     GraphicsEnvironment ge;
 	GraphicsConfiguration gc;
 	// private final GLProfile glp;
@@ -78,7 +81,7 @@ public class Renderer {
 		vImage = gc.createCompatibleVolatileImage(IMAGE_WIDTH, IMAGE_HEIGHT, Transparency.TRANSLUCENT);
 		do {
 			Graphics2D genome = vImage.createGraphics();
-			genome.setColor(java.awt.Color.BLACK);
+			genome.setColor(backGroundColor);
 			genome.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
 			// Draw each triangle.
 			for (Triangle triangle : DNA) {
@@ -136,11 +139,13 @@ public class Renderer {
     }
     //This method is only called once so all the triangles are constatly
     //being drawn to one signel bufferedImage and then cleared? 
-    public Renderer(int IMAGE_WIDTH, int IMAGE_HEIGHT) {
+    public Renderer(int IMAGE_WIDTH, int IMAGE_HEIGHT, Color backGroundColor) {
     	this.IMAGE_WIDTH = IMAGE_WIDTH;
     	this.IMAGE_HEIGHT = IMAGE_HEIGHT;
+    	this.backGroundColor = backGroundColor;
          ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
          gc = ge.getDefaultScreenDevice().getDefaultConfiguration();
+         image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
     	//Define the capabilities a rendering context should support.
 //        glp = GLProfile.getDefault();
 //        caps = new GLCapabilities(glp);
@@ -165,9 +170,7 @@ public class Renderer {
 //        //Create buffer utility that supports alpha channel. 
 //        bufferUtil = new GLReadBufferUtil(true, false);
 //        //Create buffered image. 
-//        image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
-        image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
-       
+//        image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);    
         //Get an integer array with each entry representing a pixel. 
        // imageArr = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
         //Wrap the array in an IntBuffer so that when ever a change is made to
@@ -196,6 +199,11 @@ public class Renderer {
 //		gl.glEnd();
 //	}
 
+    public void setBackGroundColor(Color backGroundColor)
+    {
+    	this.backGroundColor = backGroundColor;
+    }
+    
 	/**
 	 * 
 	 * @return The genome/DNA rendered to a buffered Image. 

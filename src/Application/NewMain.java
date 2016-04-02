@@ -2,9 +2,11 @@ package Application;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import TriangleGenome.GA;
 import TriangleGenome.InitialPopulation;
+import TriangleGenome.Tribe;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -50,13 +52,15 @@ public class NewMain extends Application
   // Filechooser
   FileChooser fileChooser;
   Image originalImage;
-
+  private int NUM_OF_THREADS = 2;;
   private mainController mainController;
   private startupController startupController;
   private Image displayedPop;
   private double displayedFitness;
   boolean isRunning; // used to let the ApplicationLoop know when to run
   GA ga;
+  private ArrayList<Tribe> tribes;
+  private ArrayList<GA> tribesGA;
 
   /**
    * The creation of the initial window, a popup that asks you to load an image.
@@ -74,7 +78,8 @@ public class NewMain extends Application
 
     startupController = loader.getController();
     startupController.initController(this);
-
+    
+    
     isRunning = false;
 
     primaryStage.setTitle("Choose File");
@@ -100,9 +105,11 @@ public class NewMain extends Application
   public void createMainWindow() throws IOException
   {
 
-    InitialPopulation viewInitialPopulation = new InitialPopulation(originalImage, this);
+    InitialPopulation viewInitialPopulation = new InitialPopulation(originalImage, this,NUM_OF_THREADS);
     viewInitialPopulation.show();
-
+    
+    tribes = viewInitialPopulation.getTribes();
+    tribesGA = viewInitialPopulation.getTribesGAs();
     FXMLLoader loader = new FXMLLoader(getClass().getResource("GAFXML.fxml"));
     Parent root = loader.load();
 
@@ -159,6 +166,24 @@ public class NewMain extends Application
    */
   public void updateDisplay()
   {
+	//Find the fitest genome from all the tribes (should be at the front of the 
+	//list at all times... and display that tribes genome.
+	int bestTribe= 0; //Start with saying best is the first one
+	double bestFit = tribesGA.get(0).getFit(); //start with first tribe fit.
+	//It seems that the tribe that starts with the best initial fitness
+	//most of the time keeps the best fitness during hill climbing.
+	//Sometimes one tribe over takes the other for the best genome.
+	for(int i = 1; i < NUM_OF_THREADS; i++)
+	{
+		if(tribesGA.get(i).getFit() > bestFit)
+		{
+			bestTribe = i;
+			bestFit = tribesGA.get(i).getFit();
+			
+		}
+	}
+	System.out.println("Tribe with fitest member, tribe: " + bestTribe);
+	updateInfo(tribesGA.get(bestTribe).getGenome(), tribesGA.get(bestTribe).getFit());
     mainController.updateDisplay(displayedPop, displayedFitness);
   }
 
@@ -220,15 +245,21 @@ public class NewMain extends Application
         if ((thisTime - lastTime) / 1E9 > .5)
         {
           lastTime = thisTime;
+          //Updates display with the most fit overall genome from all
+          //of the tribes. 
           updateDisplay();
         }
         //Start the threads (this is done once, and there is currently
         //only one thread). 
         if(startThreads)
         {
+        	
         	startThreads = false;
-            WorkerThread  thread = new WorkerThread();
+        	for(int i = 0; i < NUM_OF_THREADS; i++)
+        	{
+            WorkerThread  thread = new WorkerThread(tribes.get(i),tribesGA.get(i),i);
         	thread.start();
+        	}
         	
         }
       }
@@ -246,8 +277,15 @@ public class NewMain extends Application
    */
   public class WorkerThread extends Thread{
 
-
-
+	  Tribe tribe;
+	  GA ga;
+	  int tribeNum;
+	  WorkerThread(Tribe tribe, GA ga, int tribeNum)
+	  {
+		  this.tribe = tribe;
+		  this.ga = ga;
+		  this.tribeNum = tribeNum;
+	  }
 	  public void run()	  
 	  {
  
