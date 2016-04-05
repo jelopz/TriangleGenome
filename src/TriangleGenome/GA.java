@@ -73,22 +73,27 @@ public class GA extends Stage
   private NewMain main;
   private int generations = 0;
   private int improvements = 0;
-  public GA(Tribe tribe, double initialFitness, Image originalImage, int IMAGE_WIDTH, int IMAGE_HEIGHT, NewMain m, Color backGroundColor)
+
+  private double bestFit;
+  private Image bestGenome;
+
+  public GA(Tribe tribe, double initialFitness, Image originalImage, Image g, int IMAGE_WIDTH, int IMAGE_HEIGHT, NewMain m, Color backGroundColor)
   {
-	this.tribe = tribe;
+    this.tribe = tribe;
     this.IMAGE_WIDTH = IMAGE_WIDTH;
     this.IMAGE_HEIGHT = IMAGE_HEIGHT;
-    imageRenderer = new Renderer(IMAGE_WIDTH, IMAGE_HEIGHT,backGroundColor);
+    imageRenderer = new Renderer(IMAGE_WIDTH, IMAGE_HEIGHT, backGroundColor);
     this.originalImage = originalImage;
     BufferedImage temp = SwingFXUtils.fromFXImage(originalImage, null);
     this.checkFitness = new FitnessFunction(temp);
     this.parentFitness = initialFitness;
     this.wasImprovement = false; // We want to start with a random gene
                                  // mutation.
-    this.childFitness = 0;
-    //The fittest member in the tribe should be at the front of the arrayList. 
+    this.childFitness = initialFitness;
+    // The fittest member in the tribe should be at the front of the arrayList.
     this.DNA = tribe.getGenomesInTribe().get(0).getDNA();
 
+    bestGenome = g;
     main = m;
   }
 
@@ -111,12 +116,13 @@ public class GA extends Stage
     if (IS_HARD_MUTATE_MODE)
     {
       ++generations;
-     // System.out.println("Generation: " + generations + "Improvements: " + improvements);
+      // System.out.println("Generation: " + generations + "Improvements: " +
+      // improvements);
       hardMutate();
     }
     else
     {
-    //  System.out.print("Soft Mutate:  ");
+      // System.out.print("Soft Mutate: ");
       // If the last mutation was an improvement (better fitness)
       // Then do it again, otherwise do a new random gene mutation.
       if (wasImprovement)
@@ -381,7 +387,7 @@ public class GA extends Stage
 
   private void undoHardMutate(int triangleNum, int geneNum, int prevGeneVal)
   {
-	 // System.out.println("here");
+    // System.out.println("here");
     switch (geneNum)
     {
       case 1:
@@ -416,10 +422,10 @@ public class GA extends Stage
         break;
       default:
         break; // Should never reach here.
-      
-        
+
     }
-    DNA.get(triangleNum).updateTriangle(); //Make sure not to delete this line like I did..
+    DNA.get(triangleNum).updateTriangle(); // Make sure not to delete this line
+                                           // like I did..
 
   }
 
@@ -570,9 +576,6 @@ public class GA extends Stage
     return checkFitness.getFitness();
   }
 
-  double bestFit;
-  Image bestGenome;
-  
   /**
    * 
    * @return If the last mutation was an improvement (e.g the childs fitness is
@@ -583,30 +586,31 @@ public class GA extends Stage
     childFitness = FitnessTest();
     if (childFitness > parentFitness)
     {
-      bestFit = childFitness;
       bestGenome = perspectiveImage;
       ++improvements;
-     
-     // System.out.println("Improvement from " + parentFitness + ", new best fitness: " + childFitness);
+
+      // System.out.println("Improvement from " + parentFitness + ", new best
+      // fitness: " + childFitness);
       parentFitness = childFitness;
       return true;
     }
     else
     {
-   //   System.out.println("Not Improvement from " + parentFitness);
+      // System.out.println("Not Improvement from " + parentFitness);
       return false;
     }
   }
 
   public double getFit()
   {
-	  return bestFit;
+    return childFitness;
   }
+
   public Image getGenome()
   {
-	  return bestGenome;
+    return bestGenome;
   }
-  
+
   /**
    * Undo the last mutation following no improvement in the fitness.
    */

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import TriangleGenome.GA;
+import TriangleGenome.Genome;
 import TriangleGenome.InitialPopulation;
 import TriangleGenome.Tribe;
 import javafx.animation.AnimationTimer;
@@ -52,15 +53,20 @@ public class NewMain extends Application
   // Filechooser
   FileChooser fileChooser;
   Image originalImage;
-  private int NUM_OF_THREADS = 2;;
+  int NUM_OF_THREADS = 2;;
+  GA ga;
+  ArrayList<Tribe> tribes;
+  ArrayList<GA> tribesGA;
+
+  boolean isRunning; // used to let the ApplicationLoop know when to run
   private mainController mainController;
-  private startupController startupController;
   private Image displayedPop;
   private double displayedFitness;
-  boolean isRunning; // used to let the ApplicationLoop know when to run
-  GA ga;
-  private ArrayList<Tribe> tribes;
-  private ArrayList<GA> tribesGA;
+  private boolean viewToggle; // Show the best fit genome or the user selected
+                              // one? true = best fit, false = user selection
+
+  private int tribeDisplayed; // If (!viewtoggle), we display the
+  // tribesGA.get(tribeDisplayed) image
 
   /**
    * The creation of the initial window, a popup that asks you to load an image.
@@ -69,22 +75,18 @@ public class NewMain extends Application
   public void start(Stage primaryStage) throws Exception
   {
     FXMLLoader loader = new FXMLLoader(getClass().getResource("startupFXML.fxml"));
-    Parent root = loader.load();
+    // Parent root = loader.load();
 
     fileChooser = new FileChooser();
     fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Image files", new String[]
     { ".png", ".bmp", ".jpg", ".gif" }));
     fileChooser.setTitle("Image Selector");
 
-    startupController = loader.getController();
-    startupController.initController(this);
-    
-    
     isRunning = false;
 
-    primaryStage.setTitle("Choose File");
-    primaryStage.setScene(new Scene(root));
-    primaryStage.show();
+    viewToggle = true;
+
+    createMainWindow();
   }
 
   /**
@@ -105,11 +107,12 @@ public class NewMain extends Application
   public void createMainWindow() throws IOException
   {
 
-    InitialPopulation viewInitialPopulation = new InitialPopulation(originalImage, this,NUM_OF_THREADS);
-    viewInitialPopulation.show();
-    
-    tribes = viewInitialPopulation.getTribes();
-    tribesGA = viewInitialPopulation.getTribesGAs();
+    // InitialPopulation viewInitialPopulation = new
+    // InitialPopulation(originalImage, this,NUM_OF_THREADS);
+    // viewInitialPopulation.show();
+    //
+    // tribes = viewInitialPopulation.getTribes();
+    // tribesGA = viewInitialPopulation.getTribesGAs();
     FXMLLoader loader = new FXMLLoader(getClass().getResource("GAFXML.fxml"));
     Parent root = loader.load();
 
@@ -161,29 +164,87 @@ public class NewMain extends Application
   }
 
   /**
+   * Called only by the mainController class. Used to cycle through the best fit
+   * genomes from each tribe before the GA starts
+   */
+  public void updateDisplayPREGA()
+  {
+    // Find the fitest genome from all the tribes (should be at the front of the
+    // list at all times... and display that tribes genome.
+    int bestTribe = 0; // Start with saying best is the first one
+    // double bestFit = tribesGA.get(0).getFit(); // start with first tribe fit.
+    // It seems that the tribe that starts with the best initial fitness
+    // most of the time keeps the best fitness during hill climbing.
+    // Sometimes one tribe over takes the other for the best genome.
+
+    double bestFit = tribes.get(0).getGenomesInTribe().get(0).getFitness();
+
+    if (viewToggle)
+    {
+      double f;
+      for (int i = 1; i < NUM_OF_THREADS; i++)
+      {
+        f = tribes.get(i).getGenomesInTribe().get(0).getFitness();
+        if (f > bestFit)
+        {
+          bestTribe = i;
+          bestFit = f;
+        }
+      }
+
+      System.out.println("Tribe with fitest member, tribe: " + bestTribe);
+      System.out.println(bestFit);
+      updateInfo(tribes.get(bestTribe).getGenomesInTribe().get(0).getImg().getImage(), bestFit);
+    }
+    else
+    {
+      bestFit = tribes.get(tribeDisplayed).getGenomesInTribe().get(0).getFitness();
+      updateInfo(tribes.get(tribeDisplayed).getGenomesInTribe().get(0).getImg().getImage(), bestFit);
+      System.out.println("Showing user selection, tribe: " + tribeDisplayed);
+      System.out.println(bestFit);
+
+    }
+
+    mainController.updateDisplay(displayedPop, displayedFitness);
+  }
+
+  /**
    * Called by the Application loop every half second to update the screen with
    * the image with the highest fitness
    */
   public void updateDisplay()
   {
-	//Find the fitest genome from all the tribes (should be at the front of the 
-	//list at all times... and display that tribes genome.
-	int bestTribe= 0; //Start with saying best is the first one
-	double bestFit = tribesGA.get(0).getFit(); //start with first tribe fit.
-	//It seems that the tribe that starts with the best initial fitness
-	//most of the time keeps the best fitness during hill climbing.
-	//Sometimes one tribe over takes the other for the best genome.
-	for(int i = 1; i < NUM_OF_THREADS; i++)
-	{
-		if(tribesGA.get(i).getFit() > bestFit)
-		{
-			bestTribe = i;
-			bestFit = tribesGA.get(i).getFit();
-			
-		}
-	}
-	System.out.println("Tribe with fitest member, tribe: " + bestTribe);
-	updateInfo(tribesGA.get(bestTribe).getGenome(), tribesGA.get(bestTribe).getFit());
+    // Find the fitest genome from all the tribes (should be at the front of the
+    // list at all times... and display that tribes genome.
+    int bestTribe = 0; // Start with saying best is the first one
+    double bestFit = tribesGA.get(0).getFit(); // start with first tribe fit.
+    // It seems that the tribe that starts with the best initial fitness
+    // most of the time keeps the best fitness during hill climbing.
+    // Sometimes one tribe over takes the other for the best genome.
+
+    if (viewToggle)
+    {
+      double f;
+      for (int i = 1; i < NUM_OF_THREADS; i++)
+      {
+        f = tribesGA.get(i).getFit();
+        if (f > bestFit)
+        {
+          bestTribe = i;
+          bestFit = f;
+        }
+      }
+
+      System.out.println("Tribe with fitest member, tribe: " + bestTribe);
+      System.out.println(bestFit);
+      updateInfo(tribesGA.get(bestTribe).getGenome(), bestFit);
+    }
+    else
+    {
+      bestFit = tribesGA.get(tribeDisplayed).getFit();
+      updateInfo(tribesGA.get(tribeDisplayed).getGenome(), bestFit);
+    }
+
     mainController.updateDisplay(displayedPop, displayedFitness);
   }
 
@@ -205,6 +266,16 @@ public class NewMain extends Application
     isRunning = false;
   }
 
+  public void toggleView(boolean b)
+  {
+    viewToggle = b;
+  }
+
+  public void setTribeDisplayed(int i)
+  {
+    tribeDisplayed = i;
+  }
+
   /**
    * Called by the mainController to tell the GA what kind of mutation to apply
    * 
@@ -214,6 +285,36 @@ public class NewMain extends Application
   public void setMutationType(boolean type)
   {
     ga.setMutateType(type);
+  }
+
+  public void printAllGenomeFitness()
+  {
+    int g = 0;
+    int f = 0;
+    Genome bestGenome = tribes.get(0).getGenomesInTribe().get(0);
+    Genome potential;
+    double bestFit = bestGenome.getFitness();
+    System.out.println("First genome fitness " + bestFit);
+    for (int i = 0; i < 2; i++)
+    {
+      bestGenome = tribes.get(i).getGenomesInTribe().get(0);
+      bestFit = bestGenome.getFitness();
+      System.out.println("tribe " + i + " initial genome fitness:  " + bestFit);
+
+      for (int j = 0; j < 100; j++)
+      {
+        potential = tribes.get(i).getGenomesInTribe().get(j);
+        if (potential.getFitness() > bestFit)
+        {
+          g = i;
+          f = j;
+          bestGenome = potential;
+          bestFit = bestGenome.getFitness();
+          System.out.println("next best fitness in tribe:" + i + " genome:" + j + "  with fit: " + bestFit);
+        }
+        System.out.println("genome: " + j + " - fitness: " + potential.getFitness());
+      }
+    }
   }
 
   public static void main(String[] args)
@@ -227,6 +328,7 @@ public class NewMain extends Application
    * update the value
    */
   boolean startThreads = true;
+
   class ApplicationLoop extends AnimationTimer
   {
     private long lastTime;
@@ -242,57 +344,74 @@ public class NewMain extends Application
       if (isRunning)
       {
         thisTime = System.nanoTime();
+
         if ((thisTime - lastTime) / 1E9 > .5)
         {
           lastTime = thisTime;
-          //Updates display with the most fit overall genome from all
-          //of the tribes. 
+          // Updates display with the most fit overall genome from all
+          // of the tribes.
           updateDisplay();
         }
-        //Start the threads (this is done once, and there is currently
-        //only one thread). 
-        if(startThreads)
+
+        mainController.setElapsedTime(thisTime);
+        // Start the threads (this is done once, and there is currently
+        // only one thread).
+        if (startThreads)
         {
-        	
-        	startThreads = false;
-        	for(int i = 0; i < NUM_OF_THREADS; i++)
-        	{
-            WorkerThread  thread = new WorkerThread(tribes.get(i),tribesGA.get(i),i);
-        	thread.start();
-        	}
-        	
+
+          startThreads = false;
+          for (int i = 0; i < NUM_OF_THREADS; i++)
+          {
+            WorkerThread thread = new WorkerThread(tribes.get(i), tribesGA.get(i), i);
+            thread.start();
+          }
+
         }
       }
     }
   }
+
   /**
    * 
-   * Each worker thread handles a single tribe. 
-   * Currently there is only one tribe but once we create
-   * more threads and subsequent tribes we probably
-   * will either have to have more than one instantiation
-   * of GA or put some of the methodology inside of the
-   * worker threads run method. 
+   * Each worker thread handles a single tribe. Currently there is only one
+   * tribe but once we create more threads and subsequent tribes we probably
+   * will either have to have more than one instantiation of GA or put some of
+   * the methodology inside of the worker threads run method.
    *
    */
-  public class WorkerThread extends Thread{
+  public class WorkerThread extends Thread
+  {
 
-	  Tribe tribe;
-	  GA ga;
-	  int tribeNum;
-	  WorkerThread(Tribe tribe, GA ga, int tribeNum)
-	  {
-		  this.tribe = tribe;
-		  this.ga = ga;
-		  this.tribeNum = tribeNum;
-	  }
-	  public void run()	  
-	  {
- 
-		  while(true)
-		  {
-			  ga.Mutate();
-		  }
-	  }
+    Tribe tribe;
+    GA ga;
+    int tribeNum;
+
+    WorkerThread(Tribe tribe, GA ga, int tribeNum)
+    {
+      this.tribe = tribe;
+      this.ga = ga;
+      this.tribeNum = tribeNum;
+    }
+
+    public void run()
+    {
+
+      while (true)
+      {
+        if (isRunning)
+        {
+          ga.Mutate();
+        }
+        else
+        {
+          doNothing();
+        }
+      }
+    }
+    
+    private void doNothing()
+    {
+      System.out.println(" ");
+    }
   }
 }
