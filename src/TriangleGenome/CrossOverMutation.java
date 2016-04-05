@@ -32,7 +32,22 @@ public class CrossOverMutation {
 	private ArrayList<Integer> childsGeneList;
 	private boolean crossOverMode; //Let true represent single point and false represent double point. 
 	private int hammingDistance;
-
+	private FitnessFunction fitnessTest;
+	private Renderer imageRenderer;
+	private int IMAGE_WIDTH;
+	private int IMAGE_HEIGHT;
+	private boolean CLONE_PREVENTION = false;
+	
+	
+	CrossOverMutation(FitnessFunction fitnessTest, Renderer imageRenderer, int IMAGE_WIDTH, int IMAGE_HEIGHT)
+	{
+		this.fitnessTest = fitnessTest;
+		this.imageRenderer = imageRenderer;
+		this.IMAGE_WIDTH = IMAGE_WIDTH;
+		this.IMAGE_HEIGHT = IMAGE_HEIGHT;
+	}
+	
+	
 	/**
 	 * Instead of making an object for each cross over a single object can be made
 	 * and then to perform a cross over mutation all you have to do is call this
@@ -51,6 +66,8 @@ public class CrossOverMutation {
 		this.childsGeneList = new ArrayList<>();
 		//Create the parents gene lists and calculate the hamming distance.
 		createGeneListsAndCalculateHammingDistance();
+		if(!CLONE_PREVENTION)
+		{
 		//Depending on the mode perform a single or double point cross over.
 		if(crossOverMode) //If true single point. 
 		{
@@ -62,6 +79,11 @@ public class CrossOverMutation {
 		}
 		//Add the child to the appropriate tribe. 
 		addChildToTribe();
+		}
+		else
+		{
+			CLONE_PREVENTION=false;
+		}
 	}
 	
 	/**
@@ -135,9 +157,15 @@ public class CrossOverMutation {
 			      break;
 			      default:
 			      break;
-			      
+			    
 			}
+			
+				 // System.out.println("ham: " + hammingDistance);
 			}
+		}
+		if(hammingDistance <=2)
+		{
+			CLONE_PREVENTION = true;
 		}
 	}
 	/**
@@ -149,7 +177,7 @@ public class CrossOverMutation {
 	private void singlePointCrossOver()
 	{
 		int x = 1 + random.nextInt(hammingDistance-1);
-	
+		System.out.println("single point");
 		//inclusive x;
 		for(int i = 0; i <= x; i++)
 		{
@@ -255,14 +283,44 @@ public class CrossOverMutation {
 			//Update triangle after changes made. 
 			childTriangle.updateTriangle();
 			childsDNA.add(childTriangle);
-		}
+		}	
+		Genome childGenome = new Genome(childsDNA);
 		
-		//I assume we should calculate the child's fitness before adding
-		//them to the tribe but I might be wrong. So possibly at this point
-		//we should calculate the child's fitness. 
-		
-		tribe.addGenome(new Genome(childsDNA));
+		imageRenderer.render(childGenome.getDNA());
+		//Check new fitness.		
+		fitnessTest.calculateFitness(imageRenderer.getBuff());
+		childGenome.setFitness(fitnessTest.getFitness());	
+		insertSorted(childGenome, tribe.getGenomesInTribe());
+		deleteWeakest();
+
 	}
 	
+	  /**
+	   * Insert the child genome into the tribe in a sorted manor. 
+	   * @param genome
+	   * @param genomes
+	   */
+	  private void insertSorted(Genome genome, ArrayList<Genome> genomes)
+	  {
+		  System.out.println("here2: " + genomes.size());
+		  for(int i = 0; i < genomes.size(); i++)
+		  {
+			  if(genomes.get(i).getFitness() > genome.getFitness())continue;
+			  
+			  genomes.add(i,genome);
+			  System.out.println("index: " + i);
+			  return;
+		  }
+		  
+		  //Append to very end of list;	  
+		  genomes.add(genome);
+		  
+		
+		  
+	  }
+	  private void deleteWeakest()
+	  {
+		  tribe.getGenomesInTribe().remove(tribe.getGenomesInTribe().size()-1);
+	  }
 	
 }

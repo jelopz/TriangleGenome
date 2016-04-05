@@ -25,282 +25,240 @@ import java.util.Random;
  * improvement and the GA wants to again decrease r, the value remains 0 and
  * causes no improvement - So, the GA moves on.
  */
-public class TriangleMutation
-{
-  Random random = new Random();
-  Triangle triangle;
-  int stepValue;
+public class TriangleMutation {
+	Random random = new Random();
+	private int IMAGE_WIDTH;
+	private int IMAGE_HEIGHT;
 
-  /**
-   * 
-   * @param triangle
-   *          the triangle that will have genes mutated
-   * @param step
-   *          the value to increase or decrease a gene by
-   */
-  TriangleMutation(Triangle triangle, int step)
-  {
-    this.triangle = triangle;
-    stepValue = step;
-  }
+	TriangleMutation(int IMAGE_WIDTH, int IMAGE_HEIGHT) {
+		this.IMAGE_HEIGHT = IMAGE_HEIGHT;
+		this.IMAGE_WIDTH = IMAGE_WIDTH;
+	}
 
-  public void mutateP1X(boolean direction)
-  {
-    if (direction)
-    {
-      triangle.setP1(new Point((triangle.getP1().x + stepValue), triangle.getP1().y));
-    }
-    else
-    {
-      triangle.setP1(new Point((triangle.getP1().x - stepValue), triangle.getP1().y));
-    }
-  }
+	public void mutateP1X(Triangle triangle, int stepSize, boolean direction) {
+		int value = triangle.getP1().x;
 
-  public void mutateP1Y(boolean direction)
-  {
-    if (direction)
-    {
-      triangle.setP1(new Point((triangle.getP1().x), triangle.getP1().y + stepValue));
-    }
-    else
-    {
-      triangle.setP1(new Point((triangle.getP1().x), triangle.getP1().y - stepValue));
-    }
-  }
+		if (direction) {
+			value += stepSize;
+			if (!isMinOrMaxXPointComponent(value)) {
+				triangle.setP1(new Point((triangle.getP1().x) + stepSize, triangle.getP1().y));
+			} else {
+				triangle.setP1(new Point(IMAGE_WIDTH, triangle.getP1().y));
+			}
+		} else {
+			value -= stepSize;
+			if (!isMinOrMaxXPointComponent(value)) {
+				triangle.setP1(new Point((triangle.getP1().x) - stepSize, triangle.getP1().y));
+			} else {
+				triangle.setP1(new Point(0, triangle.getP1().y));
+			}
+		}
+	}
 
-  public void mutateP2X(boolean direction)
-  {
-    if (direction)
-    {
-      triangle.setP2(new Point((triangle.getP2().x + stepValue), triangle.getP2().y));
-    }
-    else
-    {
-      triangle.setP2(new Point((triangle.getP2().x - stepValue), triangle.getP2().y));
-    }
-  }
+	public void mutateP1Y(Triangle triangle, int stepSize, boolean direction) {
+		int value = triangle.getP1().y;
 
-  public void mutateP2Y(boolean direction)
-  {
-    if (direction)
-    {
-      triangle.setP2(new Point((triangle.getP2().x), triangle.getP2().y + stepValue));
-    }
-    else
-    {
-      triangle.setP2(new Point((triangle.getP2().x), triangle.getP2().y - stepValue));
-    }
-  }
+		if (direction) {
+			value += stepSize;
+			if (!isMinOrMaxYPointComponent(value)) {
+				triangle.setP1(new Point(triangle.getP1().x, triangle.getP1().y + stepSize));
+			} else {
+				triangle.setP1(new Point(triangle.getP1().x, IMAGE_HEIGHT));
+			}
+		} else {
+			value -= stepSize;
+			if (!isMinOrMaxYPointComponent(value)) {
+				triangle.setP1(new Point(triangle.getP1().x, triangle.getP1().y - stepSize));
+			} else {
+				triangle.setP1(new Point(triangle.getP1().x, 0));
+			}
+		}
+	}
 
-  public void mutateP3X(boolean direction)
-  {
-    if (direction)
-    {
-      triangle.setP3(new Point((triangle.getP3().x + stepValue), triangle.getP3().y));
-    }
-    else
-    {
-      triangle.setP3(new Point((triangle.getP3().x - stepValue), triangle.getP3().y));
-    }
-  }
+	public void mutateP2X(Triangle triangle, int stepSize, boolean direction) {
+		int value = triangle.getP2().x;
 
-  public void mutateP3Y(boolean direction)
-  {
-    if (direction)
-    {
-      triangle.setP3(new Point((triangle.getP3().x), triangle.getP3().y + stepValue));
-    }
-    else
-    {
-      triangle.setP3(new Point((triangle.getP3().x), triangle.getP3().y - stepValue));
-    }
-  }
+		if (direction) {
+			value += stepSize;
+			if (!isMinOrMaxXPointComponent(value)) {
+				triangle.setP2(new Point((triangle.getP2().x) + stepSize, triangle.getP2().y));
+			} else {
+				triangle.setP2(new Point(IMAGE_WIDTH, triangle.getP2().y));
+			}
+		} else {
+			value -= stepSize;
+			if (!isMinOrMaxXPointComponent(value)) {
+				triangle.setP2(new Point((triangle.getP2().x) - stepSize, triangle.getP2().y));
+			} else {
+				triangle.setP2(new Point(0, triangle.getP2().y));
+			}
+		}
+	}
 
-  public void mutateAlpha(boolean direction)
-  {
-    int value = triangle.getAlpha();
+	public void mutateP2Y(Triangle triangle, int stepSize, boolean direction) {
+		int value = triangle.getP2().y;
 
-    if (isValidRGBAMutation(direction, value))
-    {
-      if (direction)
-      {
-        value += stepValue;
-        if (!isMinOrMaxRGBA(value))
-        {
-          triangle.setAlpha(value);
-        }
-        else
-        {
-          triangle.setAlpha(255);
-        }
-      }
-      else
-      {
-        value -= stepValue;
-        if (!isMinOrMaxRGBA(value))
-        {
-          triangle.setAlpha(value);
-        }
-        else
-        {
-          triangle.setAlpha(0);
-        }
-      }
-    }
-  }
+		if (direction) {
+			value += stepSize;
+			if (!isMinOrMaxYPointComponent(value)) {
+				triangle.setP2(new Point(triangle.getP2().x, triangle.getP2().y + stepSize));
+			} else {
+				triangle.setP2(new Point(triangle.getP2().x, IMAGE_HEIGHT));
+			}
+		} else {
+			value -= stepSize;
+			if (!isMinOrMaxYPointComponent(value)) {
+				triangle.setP2(new Point(triangle.getP2().x, triangle.getP2().y - stepSize));
+			} else {
+				triangle.setP2(new Point(triangle.getP2().x, 0));
+			}
+		}
+	}
 
-  public void mutateRed(boolean direction)
-  {
-    int value = triangle.getRed();
+	public void mutateP3X(Triangle triangle, int stepSize, boolean direction) {
+		int value = triangle.getP3().x;
 
-    if (isValidRGBAMutation(direction, value))
-    {
-      if (direction)
-      {
-        value += stepValue;
-        if (!isMinOrMaxRGBA(value))
-        {
-          triangle.setRed(value);
-        }
-        else
-        {
-          triangle.setRed(255);
-        }
-      }
-      else
-      {
-        value -= stepValue;
-        if (!isMinOrMaxRGBA(value))
-        {
-          triangle.setRed(value);
-        }
-        else
-        {
-          triangle.setRed(0);
-        }
-      }
-    }
-  }
+		if (direction) {
+			value += stepSize;
+			if (!isMinOrMaxXPointComponent(value)) {
+				triangle.setP3(new Point((triangle.getP3().x) + stepSize, triangle.getP3().y));
+			} else {
+				triangle.setP3(new Point(IMAGE_WIDTH, triangle.getP3().y));
+			}
+		} else {
+			value -= stepSize;
+			if (!isMinOrMaxXPointComponent(value)) {
+				triangle.setP3(new Point((triangle.getP3().x) - stepSize, triangle.getP3().y));
+			} else {
+				triangle.setP3(new Point(0, triangle.getP3().y));
+			}
+		}
+	}
 
-  public void mutateBlue(boolean direction)
-  {
-    int value = triangle.getBlue();
+	public void mutateP3Y(Triangle triangle, int stepSize, boolean direction) {
+		int value = triangle.getP3().y;
 
-    if (isValidRGBAMutation(direction, value))
-    {
-      if (direction)
-      {
-        value += stepValue;
-        if (!isMinOrMaxRGBA(value))
-        {
-          triangle.setBlue(value);
-        }
-        else
-        {
-          triangle.setBlue(255);
-        }
-      }
-      else
-      {
-        value -= stepValue;
-        if (!isMinOrMaxRGBA(value))
-        {
-          triangle.setBlue(value);
-        }
-        else
-        {
-          triangle.setBlue(0);
-        }
-      }
-    }
-  }
+		if (direction) {
+			value += stepSize;
+			if (!isMinOrMaxYPointComponent(value)) {
+				triangle.setP3(new Point(triangle.getP3().x, triangle.getP3().y + stepSize));
+			} else {
+				triangle.setP3(new Point(triangle.getP3().x, IMAGE_HEIGHT));
+			}
+		} else {
+			value -= stepSize;
+			if (!isMinOrMaxYPointComponent(value)) {
+				triangle.setP3(new Point(triangle.getP3().x, triangle.getP3().y - stepSize));
+			} else {
+				triangle.setP3(new Point(triangle.getP3().x, 0));
+			}
+		}
+	}
 
-  public void mutateGreen(boolean direction)
-  {
-    int value = triangle.getGreen();
+	public void mutateAlpha(Triangle triangle, int stepSize, boolean direction) {
+		int value = triangle.getAlpha();
+		if (direction) {
+			value += stepSize;
+			if (!isMinOrMaxRGBA(value)) {
+				triangle.setAlpha(value);
+			} else {
+				triangle.setAlpha(255);
+			}
+		} else {
+			value -= stepSize;
+			if (!isMinOrMaxRGBA(value)) {
+				triangle.setAlpha(value);
+			} else {
+				triangle.setAlpha(0);
+			}
+		}
+	}
 
-    if (isValidRGBAMutation(direction, value))
-    {
-      if (direction)
-      {
-        value += stepValue;
-        if (!isMinOrMaxRGBA(value))
-        {
-          triangle.setGreen(value);
-        }
-        else
-        {
-          triangle.setGreen(255);
-        }
-      }
-      else
-      {
-        value -= stepValue;
-        if (!isMinOrMaxRGBA(value))
-        {
-          triangle.setGreen(value);
-        }
-        else
-        {
-          triangle.setGreen(0);
-        }
-      }
-    }
-  }
+	public void mutateRed(Triangle triangle, int stepSize, boolean direction) {
+		int value = triangle.getRed();
+		if (direction) {
+			value += stepSize;
+			if (!isMinOrMaxRGBA(value)) {
+				triangle.setRed(value);
+			} else {
+				triangle.setRed(255);
+			}
+		} else {
+			value -= stepSize;
+			if (!isMinOrMaxRGBA(value)) {
+				triangle.setRed(value);
+			} else {
+				triangle.setRed(0);
+			}
+		}
+	}
 
-  /**
-   * @param value
-   *          the specific r,g,b, or a value (range 0-255) of the triangle
-   * @return true if the value is <= 0 or >= 255
-   */
-  private boolean isMinOrMaxRGBA(int value)
-  {
-    if (value <= 0 || value >= 255)
-    {
-      return true;
-    }
-    return false;
-  }
+	public void mutateBlue(Triangle triangle, int stepSize, boolean direction) {
+		int value = triangle.getBlue();
 
-  /**
-   * Determines if a mutation we are trying to make to an RGBA value is valid or
-   * not. There are two invalid moves, decreasing 0 or increasing 255. If the
-   * value is any number between (but not including) 0 and 255, there is no
-   * invalid mutation.
-   * 
-   * @param direction
-   *          true if increasing, false if decreasing
-   * @param value
-   *          the specific r,g,b, or a value of the triangle
-   * @return true if a valid mutation
-   */
-  private boolean isValidRGBAMutation(boolean direction, int value)
-  {
-    if (!isMinOrMaxRGBA(value))
-    {
-      // if the initial value is not a min or max we can alter the value 100%
-      return true;
-    }
-    else
-    {
-      if (value == 0 && !direction)
-      {
-        // if the initial value is 0 and we're trying to decrease, detect an
-        // illegal mutation
-        return false;
-      }
-      else if (value == 255 && direction)
-      {
-        // if the initial value is 255 and we're trying to increase, detect an
-        // illegal mutation
-        return false;
-      }
-      else
-      {
-        // we are attempting to increase a min or decrease a max, which is legal
-        return true;
-      }
-    }
-  }
+		if (direction) {
+			value += stepSize;
+			if (!isMinOrMaxRGBA(value)) {
+				triangle.setBlue(value);
+			} else {
+				triangle.setBlue(255);
+			}
+		} else {
+			value -= stepSize;
+			if (!isMinOrMaxRGBA(value)) {
+				triangle.setBlue(value);
+			} else {
+				triangle.setBlue(0);
+			}
+		}
+	}
+
+	public void mutateGreen(Triangle triangle, int stepSize, boolean direction) {
+		int value = triangle.getGreen();
+
+		if (direction) {
+			value += stepSize;
+			if (!isMinOrMaxRGBA(value)) {
+				triangle.setGreen(value);
+			} else {
+				triangle.setGreen(255);
+			}
+		} else {
+			value -= stepSize;
+			if (!isMinOrMaxRGBA(value)) {
+				triangle.setGreen(value);
+			} else {
+				triangle.setGreen(0);
+			}
+		}
+	}
+
+	private boolean isMinOrMaxXPointComponent(int value) {
+		if (value < 0 || value > IMAGE_WIDTH) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private boolean isMinOrMaxYPointComponent(int value) {
+		if (value < 0 || value > IMAGE_HEIGHT) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param value
+	 *            the specific r,g,b, or a value (range 0-255) of the triangle
+	 * @return true if the value is <= 0 or >= 255
+	 */
+	private boolean isMinOrMaxRGBA(int value) {
+		if (value <= 0 || value >= 255) {
+			return true;
+		}
+		return false;
+	}
 
 }
