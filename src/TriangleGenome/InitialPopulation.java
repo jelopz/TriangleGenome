@@ -226,7 +226,7 @@ public class InitialPopulation extends Stage
     }
 
     // For now just use the first tribes GA.
-    main.setGA(tribesGA.get(0), perspectiveImage.getImage(), initialFitness);
+//    main.setGA(tribesGA.get(0), perspectiveImage.getImage(), initialFitness);
   }
 
   public ArrayList<Tribe> getTribes()

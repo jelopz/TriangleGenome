@@ -77,7 +77,8 @@ public class GA extends Stage
   private double bestFit;
   private Image bestGenome;
 
-  public GA(Tribe tribe, double initialFitness, Image originalImage, Image g, int IMAGE_WIDTH, int IMAGE_HEIGHT, NewMain m, Color backGroundColor)
+  public GA(Tribe tribe, double initialFitness, Image originalImage, Image g, int IMAGE_WIDTH,
+      int IMAGE_HEIGHT, NewMain m, Color backGroundColor)
   {
     this.tribe = tribe;
     this.IMAGE_WIDTH = IMAGE_WIDTH;

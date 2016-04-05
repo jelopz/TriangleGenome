@@ -48,6 +48,9 @@ public class NewMain extends Application
   private int tribeDisplayed; // If (!viewtoggle), we display the
   // tribesGA.get(tribeDisplayed) image
 
+  private int genomeDisplayed;
+  private boolean genomeViewer;
+
   /**
    * The creation of the initial window, a popup that asks you to load an image.
    * Once loaded, the user will press start and then the main window is created.
@@ -55,13 +58,15 @@ public class NewMain extends Application
   public void start(Stage primaryStage) throws Exception
   {
     fileChooser = new FileChooser();
-    fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Image files", new String[]
+    fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Image files",
+        new String[]
     { ".png", ".bmp", ".jpg", ".gif" }));
     fileChooser.setTitle("Image Selector");
 
     isRunning = false;
 
     viewToggle = true;
+    genomeViewer = false;
 
     createMainWindow();
   }
@@ -121,12 +126,12 @@ public class NewMain extends Application
    * @param imgFitness
    *          the initial fitness
    */
-  public void setGA(GA g, Image img, double imgFitness)
-  {
-    ga = g;
-    displayedPop = img;
-    displayedFitness = imgFitness;
-  }
+//  public void setGA(GA g, Image img, double imgFitness)
+//  {
+//    ga = g;
+//    displayedPop = img;
+//    displayedFitness = imgFitness;
+//  }
 
   /**
    * Called by the GA when an improved fitness is found.
@@ -173,8 +178,17 @@ public class NewMain extends Application
     }
     else
     {
-      bestFit = tribesGA.get(tribeDisplayed).getFit();
-      updateInfo(tribesGA.get(tribeDisplayed).getGenome(), bestFit);
+      if (!genomeViewer)
+      {
+        bestFit = tribesGA.get(tribeDisplayed).getFit();
+        updateInfo(tribesGA.get(tribeDisplayed).getGenome(), bestFit);
+      }
+      else
+      {
+        Genome g = tribes.get(tribeDisplayed).getGenomesInTribe().get(genomeDisplayed);
+        bestFit = g.getFitness();
+        updateInfo(g.getImg().getImage(), bestFit);
+      }
     }
 
     mainController.updateDisplay(displayedPop, displayedFitness);
@@ -206,6 +220,17 @@ public class NewMain extends Application
   public void setTribeDisplayed(int i)
   {
     tribeDisplayed = i;
+  }
+
+  public void setGenomeDisplayed(int i)
+  {
+    System.out.println(i);
+    genomeDisplayed = i;
+  }
+
+  public void setGenomeViewer(boolean b)
+  {
+    genomeViewer = b;
   }
 
   /**
@@ -242,7 +267,8 @@ public class NewMain extends Application
           f = j;
           bestGenome = potential;
           bestFit = bestGenome.getFitness();
-          System.out.println("next best fitness in tribe:" + i + " genome:" + j + "  with fit: " + bestFit);
+          System.out.println("next best fitness in tribe:" + i + " genome:" + j + "  with fit: "
+              + bestFit);
         }
         System.out.println("genome: " + j + " - fitness: " + potential.getFitness());
       }

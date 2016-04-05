@@ -27,7 +27,8 @@
       <Text fx:id="totalPopulationText" layoutX="296.0" layoutY="454.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Population: N/A  " />
       <Text layoutX="20.0" layoutY="474.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Current Average Generations per Second: N/A  " />
       <Text layoutX="23.0" layoutY="555.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Make sure to upload and initialize before pressing start" wrappingWidth="243.501953125" />
-      <ComboBox fx:id="tribeBox" layoutX="295.0" layoutY="506.0" onAction="#tribeBoxHandler" prefWidth="150.0" promptText="Display Options" />
+      <ComboBox fx:id="tribeBox" layoutX="295.0" layoutY="469.0" onAction="#tribeBoxHandler" prefWidth="150.0" promptText="Display Options" />
       <Button fx:id="printGenomes" layoutX="508.0" layoutY="506.0" mnemonicParsing="false" onAction="#printButtonHandler" text="Print All Genome Fitness" />
+      <ComboBox fx:id="genomeViewerBox" layoutX="295.0" layoutY="506.0" onAction="#genomeViewerBoxHandler" prefWidth="150.0" promptText="Genome Viewer" />
 	</children>
 </AnchorPane>

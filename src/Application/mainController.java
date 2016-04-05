@@ -58,6 +58,9 @@ public class mainController
   private ComboBox<String> tribeBox;
 
   @FXML
+  private ComboBox<String> genomeViewerBox;
+
+  @FXML
   private Button printGenomes;
 
   private NewMain main;
@@ -71,7 +74,7 @@ public class mainController
   private int totalPopulation;
 
   @FXML
-  void startButtonHandler(ActionEvent event)
+      void startButtonHandler(ActionEvent event)
   {
     if (!main.isRunning)
     {
@@ -82,7 +85,7 @@ public class mainController
   }
 
   @FXML
-  void stopButtonHandler(ActionEvent event)
+      void stopButtonHandler(ActionEvent event)
   {
     if (main.isRunning)
     {
@@ -97,7 +100,7 @@ public class mainController
    * @param event
    */
   @FXML
-  void fileButtonHandler(ActionEvent event)
+      void fileButtonHandler(ActionEvent event)
   {
     File file = main.fileChooser.showOpenDialog(null);
     if (file != null)
@@ -117,20 +120,22 @@ public class mainController
    * @param event
    */
   @FXML
-  void findInitialPopulation(ActionEvent event)
+      void findInitialPopulation(ActionEvent event)
   {
-    InitialPopulation viewInitialPopulation = new InitialPopulation(main.originalImage, main, main.NUM_OF_THREADS);
+    InitialPopulation viewInitialPopulation = new InitialPopulation(main.originalImage, main,
+        main.NUM_OF_THREADS);
 
     main.tribes = viewInitialPopulation.getTribes();
     main.tribesGA = viewInitialPopulation.getTribesGAs();
 
     myImageViewer.setImage(viewInitialPopulation.getInitImage());
-    fitnessText.setText("Current Best Fitness: " + String.valueOf(viewInitialPopulation.getInitFitness()));
+    fitnessText.setText("Current Best Fitness: " + String.valueOf(viewInitialPopulation
+        .getInitFitness()));
     main.setTotalPopulation();
   }
 
   @FXML
-  void printButtonHandler(ActionEvent event)
+      void printButtonHandler(ActionEvent event)
   {
     main.printAllGenomeFitness();
   }
@@ -142,7 +147,7 @@ public class mainController
    * @param event
    */
   @FXML
-  void comboBoxHandler(ActionEvent event)
+      void comboBoxHandler(ActionEvent event)
   {
     main.stopLoop();
     String selection = myCB.getValue();
@@ -158,29 +163,45 @@ public class mainController
   }
 
   @FXML
-  void tribeBoxHandler(ActionEvent event)
+      void genomeViewerBoxHandler(ActionEvent event)
+  {
+    main.setGenomeDisplayed(Integer.parseInt(genomeViewerBox.getValue()));
+    main.updateDisplay();
+  }
+
+  @FXML
+      void tribeBoxHandler(ActionEvent event)
   {
     String selection = tribeBox.getValue();
     main.toggleView(true);
-    if (selection == "Best Fit Tribe")
+    if (selection == "Best Fit From All Tribes")
     {
       main.toggleView(true);
-      System.out.println("best fit");
       main.updateDisplay();
     }
     else
     {
       main.toggleView(false);
 
-      if (selection == "Tribe 0")
+      if (selection == "Best Fit From Tribe 0")
       {
-        System.out.println("0");
         main.setTribeDisplayed(0);
+        main.setGenomeViewer(false);
       }
-      else
+      else if (selection == "Best Fit From Tribe 1")
       {
-        System.out.println("1");
         main.setTribeDisplayed(1);
+        main.setGenomeViewer(false);
+      }
+      else if (selection == "Specific Genome From Tribe 0")
+      {
+        main.setTribeDisplayed(0);
+        main.setGenomeViewer(true);
+      }
+      else // specific genome from tribe 1
+      {
+        main.setTribeDisplayed(1);
+        main.setGenomeViewer(true);
       }
 
       main.updateDisplay();
@@ -193,7 +214,9 @@ public class mainController
     if (t / 1E9 >= 1) // if it's been a second and it's time to update timer
     {
       t = thisTime - startTime + stashedTime; // elapsed time in nanoseconds
-      String s = String.format("%02d:%02d:%02d", TimeUnit.NANOSECONDS.toHours(t), TimeUnit.NANOSECONDS.toMinutes(t) % TimeUnit.HOURS.toMinutes(1), TimeUnit.NANOSECONDS.toSeconds(t) % TimeUnit.MINUTES.toSeconds(1));
+      String s = String.format("%02d:%02d:%02d", TimeUnit.NANOSECONDS.toHours(t),
+          TimeUnit.NANOSECONDS.toMinutes(t) % TimeUnit.HOURS.toMinutes(1), TimeUnit.NANOSECONDS
+              .toSeconds(t) % TimeUnit.MINUTES.toSeconds(1));
       elapsedTimeText.setText("Elapsed Time: " + s);
       lastTime = thisTime;
     }
@@ -211,11 +234,17 @@ public class mainController
 
     // Populates the combo box
     myCB.getItems().addAll("Soft Mutate", "Hard Mutate");
-    tribeBox.getItems().addAll("Best Fit Tribe", "Tribe 0", "Tribe 1");
+    tribeBox.getItems().addAll("Best Fit From All Tribes", "Best Fit From Tribe 0",
+        "Best Fit From Tribe 1", "Specific Genome From Tribe 0", "Specific Genome From Tribe 1");
 
     stashedTime = 0;
-    
+
     totalPopulation = 0;
+
+    for (int i = 0; i < 100; i++)
+    {
+      genomeViewerBox.getItems().add(String.valueOf(i));
+    }
   }
 
   /**
@@ -230,7 +259,7 @@ public class mainController
     myImageViewer.setImage(img);
     fitnessText.setText("Current Best Fitness: " + fitness);
   }
-  
+
   public void setTotalPopulation(int i)
   {
     totalPopulation = i;
