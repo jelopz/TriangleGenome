@@ -125,7 +125,7 @@ public class GA extends Stage
 	    		//Perform random mutation. 
 				randomMutate(); 
 				++generations;
-				System.out.println(generations);
+//				System.out.println(generations);
 				//Undo mutation if unsuccessful. 
 				if (!checkIfRandomMutationWasImprovement())
 			    {
@@ -266,7 +266,7 @@ public class GA extends Stage
 		  {
 			  ++generations;
 		      ++improvements;
-			  System.out.println(generations);
+//			  System.out.println(generations);
 			  if(stepSize  < MAX_STEP_SIZE)
 			  {
 			  ++stepSize;
@@ -360,7 +360,7 @@ public class GA extends Stage
 	    if(checkFitness.getFitness() > parentFitness&&!hitBound)
 	    {
 	    	parentFitness = checkFitness.getFitness();
-	    	System.out.println("Step was a success, stepSize: " + stepSize);
+//	    	System.out.println("Step was a success, stepSize: " + stepSize);
 	    	bestFit = checkFitness.getFitness();
 	    	bestGenome = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
 	    	return true;  
@@ -583,7 +583,7 @@ public class GA extends Stage
 
   public double getFit()
   {
-    return childFitness;
+    return parentFitness;
   }
 
   public Image getGenome()
