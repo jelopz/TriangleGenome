@@ -249,6 +249,16 @@ public class NewMain extends Application
     }
   }
 
+  public void setTotalPopulation()
+  {
+    int pop = 0;
+    for (int i = 0; i < tribes.size(); i++)
+    {
+      pop += tribes.get(0).getTribePopulation();
+    }
+    mainController.setTotalPopulation(pop);
+  }
+
   public static void main(String[] args)
   {
     launch();

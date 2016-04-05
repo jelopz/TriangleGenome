@@ -49,6 +49,9 @@ public class mainController
   private Text elapsedTimeText;
 
   @FXML
+  private Text totalPopulationText;
+
+  @FXML
   private ComboBox<String> myCB;
 
   @FXML
@@ -64,6 +67,8 @@ public class mainController
                             // the GA. Without this the timer would restart to
                             // 00:00:00 everytime the GA is stopped then
                             // restarted using GUI
+
+  private int totalPopulation;
 
   @FXML
   void startButtonHandler(ActionEvent event)
@@ -121,6 +126,7 @@ public class mainController
 
     myImageViewer.setImage(viewInitialPopulation.getInitImage());
     fitnessText.setText("Current Best Fitness: " + String.valueOf(viewInitialPopulation.getInitFitness()));
+    main.setTotalPopulation();
   }
 
   @FXML
@@ -208,6 +214,8 @@ public class mainController
     tribeBox.getItems().addAll("Best Fit Tribe", "Tribe 0", "Tribe 1");
 
     stashedTime = 0;
+    
+    totalPopulation = 0;
   }
 
   /**
@@ -221,5 +229,11 @@ public class mainController
   {
     myImageViewer.setImage(img);
     fitnessText.setText("Current Best Fitness: " + fitness);
+  }
+  
+  public void setTotalPopulation(int i)
+  {
+    totalPopulation = i;
+    totalPopulationText.setText("Total Population: " + String.valueOf(totalPopulation));
   }
 }
