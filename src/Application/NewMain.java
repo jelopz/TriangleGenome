@@ -24,26 +24,6 @@ import javafx.stage.Stage;
  * done outside of it's own respective realm, they need to go through this main
  * class to do it.
  * 
- * Current flow of the whole application:
- * 
- * Begin in the start class in NewMain. This creates the initial popup window
- * which asks you to upload an image and then start. These buttons are handled
- * in the startupController class. This acts very similarly to the original GUI.
- * Upon pressing the start button: The popup window is closed then the main
- * window is created.
- * 
- * At this point the startupController is irrelevent.
- * 
- * The initialPopulation is created, the GA is initialized and passed to this
- * Main class. (This happens in initialPopulations constructor by calling
- * main.setGA method after the creation of the GA)
- * 
- * Now we're shown a new window with the initial population's image and fitness
- * displayed, and buttons. All these things are handled in the mainController
- * class. Upon creation of the main window we also initialize the
- * ApplicationLoop, which is a part of main responsible for iterating the GA.
- * When a button is pressed on the GUI, the mainController handles what to do.
- * 
  * As of now, the animationloop tells the mainController to update the image and
  * fitness value every half a second.
  */
@@ -74,9 +54,6 @@ public class NewMain extends Application
    */
   public void start(Stage primaryStage) throws Exception
   {
-    FXMLLoader loader = new FXMLLoader(getClass().getResource("startupFXML.fxml"));
-    // Parent root = loader.load();
-
     fileChooser = new FileChooser();
     fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Image files", new String[]
     { ".png", ".bmp", ".jpg", ".gif" }));
@@ -161,51 +138,6 @@ public class NewMain extends Application
   {
     displayedPop = img;
     displayedFitness = d;
-  }
-
-  /**
-   * Called only by the mainController class. Used to cycle through the best fit
-   * genomes from each tribe before the GA starts
-   */
-  public void updateDisplayPREGA()
-  {
-    // Find the fitest genome from all the tribes (should be at the front of the
-    // list at all times... and display that tribes genome.
-    int bestTribe = 0; // Start with saying best is the first one
-    // double bestFit = tribesGA.get(0).getFit(); // start with first tribe fit.
-    // It seems that the tribe that starts with the best initial fitness
-    // most of the time keeps the best fitness during hill climbing.
-    // Sometimes one tribe over takes the other for the best genome.
-
-    double bestFit = tribes.get(0).getGenomesInTribe().get(0).getFitness();
-
-    if (viewToggle)
-    {
-      double f;
-      for (int i = 1; i < NUM_OF_THREADS; i++)
-      {
-        f = tribes.get(i).getGenomesInTribe().get(0).getFitness();
-        if (f > bestFit)
-        {
-          bestTribe = i;
-          bestFit = f;
-        }
-      }
-
-      System.out.println("Tribe with fitest member, tribe: " + bestTribe);
-      System.out.println(bestFit);
-      updateInfo(tribes.get(bestTribe).getGenomesInTribe().get(0).getImg().getImage(), bestFit);
-    }
-    else
-    {
-      bestFit = tribes.get(tribeDisplayed).getGenomesInTribe().get(0).getFitness();
-      updateInfo(tribes.get(tribeDisplayed).getGenomesInTribe().get(0).getImg().getImage(), bestFit);
-      System.out.println("Showing user selection, tribe: " + tribeDisplayed);
-      System.out.println(bestFit);
-
-    }
-
-    mainController.updateDisplay(displayedPop, displayedFitness);
   }
 
   /**
@@ -395,7 +327,6 @@ public class NewMain extends Application
 
     public void run()
     {
-
       while (true)
       {
         if (isRunning)
@@ -404,14 +335,16 @@ public class NewMain extends Application
         }
         else
         {
-          doNothing();
+          try
+          {
+            Thread.sleep(500);
+          }
+          catch (InterruptedException e)
+          {
+            e.printStackTrace();
+          }
         }
       }
-    }
-    
-    private void doNothing()
-    {
-      System.out.println(" ");
     }
   }
 }

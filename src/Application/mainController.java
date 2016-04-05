@@ -64,14 +64,10 @@ public class mainController
                             // the GA. Without this the timer would restart to
                             // 00:00:00 everytime the GA is stopped then
                             // restarted using GUI
-  private String s;
-
-  private boolean preGA;
 
   @FXML
   void startButtonHandler(ActionEvent event)
   {
-    preGA = false;
     if (!main.isRunning)
     {
       main.startLoop();
@@ -164,14 +160,7 @@ public class mainController
     {
       main.toggleView(true);
       System.out.println("best fit");
-      if (preGA)
-      {
-        main.updateDisplayPREGA();
-      }
-      else
-      {
-        main.updateDisplay();
-      }
+      main.updateDisplay();
     }
     else
     {
@@ -188,14 +177,7 @@ public class mainController
         main.setTribeDisplayed(1);
       }
 
-      if (preGA)
-      {
-        main.updateDisplayPREGA();
-      }
-      else
-      {
-        main.updateDisplay();
-      }
+      main.updateDisplay();
     }
   }
 
@@ -226,7 +208,6 @@ public class mainController
     tribeBox.getItems().addAll("Best Fit Tribe", "Tribe 0", "Tribe 1");
 
     stashedTime = 0;
-    preGA = true;
   }
 
   /**
