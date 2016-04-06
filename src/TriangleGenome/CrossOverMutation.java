@@ -126,34 +126,34 @@ public class CrossOverMutation {
 			    	  if(mothersTriangle.getBlue()!=fathersTriangle.getBlue())++hammingDistance;
 			      break;
 			      case 5:
-			    	  mothersGeneList.add(mothersTriangle.getP1().x);
-			    	  fathersGeneList.add(fathersTriangle.getP1().x);
-			    	  if(mothersTriangle.getP1().x!=fathersTriangle.getP1().x)++hammingDistance;
+			    	  mothersGeneList.add(mothersTriangle.getP1x());
+			    	  fathersGeneList.add(fathersTriangle.getP1x());
+			    	  if(mothersTriangle.getP1x()!=fathersTriangle.getP1x())++hammingDistance;
 			      break;
 			      case 6:
-			    	  mothersGeneList.add(mothersTriangle.getP1().y);
-			    	  fathersGeneList.add(fathersTriangle.getP1().y);
-			    	  if(mothersTriangle.getP1().y!=fathersTriangle.getP1().y)++hammingDistance;
+			    	  mothersGeneList.add(mothersTriangle.getP1y());
+			    	  fathersGeneList.add(fathersTriangle.getP1y());
+			    	  if(mothersTriangle.getP1y()!=fathersTriangle.getP1y())++hammingDistance;
 			      break;
 			      case 7:
-			    	  mothersGeneList.add(mothersTriangle.getP2().x);
-			    	  fathersGeneList.add(fathersTriangle.getP2().x);
-			    	  if(mothersTriangle.getP2().x!=fathersTriangle.getP2().x)++hammingDistance;
+			    	  mothersGeneList.add(mothersTriangle.getP2x());
+			    	  fathersGeneList.add(fathersTriangle.getP2x());
+			    	  if(mothersTriangle.getP2x()!=fathersTriangle.getP2x())++hammingDistance;
 			      break;
 			      case 8:
-			    	  mothersGeneList.add(mothersTriangle.getP2().y);
-			    	  fathersGeneList.add(fathersTriangle.getP2().y);
-			    	  if(mothersTriangle.getP2().y!=fathersTriangle.getP2().y)++hammingDistance;
+			    	  mothersGeneList.add(mothersTriangle.getP2y());
+			    	  fathersGeneList.add(fathersTriangle.getP2y());
+			    	  if(mothersTriangle.getP2y()!=fathersTriangle.getP2y())++hammingDistance;
 			      break;
 			      case 9:
-			    	  mothersGeneList.add(mothersTriangle.getP3().x);
-			    	  fathersGeneList.add(fathersTriangle.getP3().x);
-			    	  if(mothersTriangle.getP3().x!=fathersTriangle.getP3().x)++hammingDistance;
+			    	  mothersGeneList.add(mothersTriangle.getP3x());
+			    	  fathersGeneList.add(fathersTriangle.getP3x());
+			    	  if(mothersTriangle.getP3x()!=fathersTriangle.getP3x())++hammingDistance;
 			      break;
 			      case 10:
-			    	  mothersGeneList.add(mothersTriangle.getP3().y);
-			    	  fathersGeneList.add(fathersTriangle.getP3().y);
-			    	  if(mothersTriangle.getP3().y!=fathersTriangle.getP3().y)++hammingDistance;
+			    	  mothersGeneList.add(mothersTriangle.getP3y());
+			    	  fathersGeneList.add(fathersTriangle.getP3y());
+			    	  if(mothersTriangle.getP3y()!=fathersTriangle.getP3y())++hammingDistance;
 			      break;
 			      default:
 			      break;
@@ -258,22 +258,22 @@ public class CrossOverMutation {
 			    	  childTriangle.setBlue(childsGeneList.get(childGeneIndex));
 			      break;
 			      case 5:	
-			    	  //wait for y to set full point. 
+			    	  childTriangle.setP1x(childsGeneList.get(childGeneIndex));
 			      break;
 			      case 6:
-			    	  childTriangle.setP1(new Point(childsGeneList.get(childGeneIndex-1),childsGeneList.get(childGeneIndex)));
+			    	  childTriangle.setP1y(childsGeneList.get(childGeneIndex));
 			      break;
 			      case 7:
-			    	  //wait for y to set full point. 
+			    	  childTriangle.setP2x(childsGeneList.get(childGeneIndex));
 			      break;
 			      case 8:
-			    	  childTriangle.setP2(new Point(childsGeneList.get(childGeneIndex-1),childsGeneList.get(childGeneIndex)));
+			    	  childTriangle.setP2y(childsGeneList.get(childGeneIndex));
 			      break;
 			      case 9:
-			    	  //wait for y to set full point. 
+			    	  childTriangle.setP3x(childsGeneList.get(childGeneIndex));
 			      break;
 			      case 10:
-			    	  childTriangle.setP3(new Point(childsGeneList.get(childGeneIndex-1),childsGeneList.get(childGeneIndex)));
+			    	  childTriangle.setP3y(childsGeneList.get(childGeneIndex));
 			      break;
 			      default:
 			      break;

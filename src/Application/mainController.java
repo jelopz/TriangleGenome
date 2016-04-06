@@ -149,6 +149,7 @@ public class mainController
     main.tribes = viewInitialPopulation.getTribes();
     main.tribesGA = viewInitialPopulation.getTribesGAs();
 
+    System.out.println("SIZE: " + main.tribesGA.size());
     myImageViewer.setImage(viewInitialPopulation.getInitImage());
     fitnessText.setText("Current Best Fitness: " + String.valueOf(viewInitialPopulation
         .getInitFitness()));

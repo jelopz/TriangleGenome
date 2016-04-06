@@ -58,6 +58,9 @@ import java.awt.image.VolatileImage;
 public class Renderer {
     public int IMAGE_WIDTH;
     public int IMAGE_HEIGHT;
+    private int[] xPoints;
+    private int[] yPoints;
+    private int numPoints;
     private Color backGroundColor;
     GraphicsEnvironment ge;
 	GraphicsConfiguration gc;
@@ -78,7 +81,7 @@ public class Renderer {
 		this.DNA = DNA;
 		// Create volatile image based off the systems
 		// environment/configuration.
-		vImage = gc.createCompatibleVolatileImage(IMAGE_WIDTH, IMAGE_HEIGHT, Transparency.TRANSLUCENT);
+	
 		do {
 			Graphics2D genome = vImage.createGraphics();
 			genome.setColor(backGroundColor);
@@ -86,7 +89,13 @@ public class Renderer {
 			// Draw each triangle.
 			for (Triangle triangle : DNA) {
 				genome.setColor(triangle.getColor());
-				genome.fillPolygon(triangle.getTriangle());
+				xPoints[0] = triangle.getP1x();
+				xPoints[1] = triangle.getP2x();
+				xPoints[2] = triangle.getP3x();
+				yPoints[0] = triangle.getP1y();
+				yPoints[1] = triangle.getP2y();
+				yPoints[2] = triangle.getP3y();
+				genome.fillPolygon(xPoints,yPoints,numPoints);
 				if (vImage.contentsLost()) {
 					System.out.println("LOST CONTENTS");
 				}
@@ -143,9 +152,13 @@ public class Renderer {
     	this.IMAGE_WIDTH = IMAGE_WIDTH;
     	this.IMAGE_HEIGHT = IMAGE_HEIGHT;
     	this.backGroundColor = backGroundColor;
+    	this.numPoints = 3;
+    	this.xPoints = new int[3];
+    	this.yPoints = new int[3];
          ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
          gc = ge.getDefaultScreenDevice().getDefaultConfiguration();
          image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
+     	 vImage = gc.createCompatibleVolatileImage(IMAGE_WIDTH, IMAGE_HEIGHT, Transparency.TRANSLUCENT);
     	//Define the capabilities a rendering context should support.
 //        glp = GLProfile.getDefault();
 //        caps = new GLCapabilities(glp);

@@ -24,7 +24,6 @@ public class Genome {
 	Genome(ArrayList<Triangle> DNA)
 	{
 		this.DNA = DNA;
-		img = new ImageView();
 	}
 
 	
@@ -48,14 +47,5 @@ public class Genome {
 		return this.fitness;
 	}
 	
-	public void setImg(WritableImage g)
-	{
-	  img.setImage(g);
-	}
-	
-	public ImageView getImg()
-	{
-	  return img;
-	}
 	
 }

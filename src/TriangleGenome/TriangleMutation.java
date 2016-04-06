@@ -36,121 +36,121 @@ public class TriangleMutation {
 	}
 
 	public void mutateP1X(Triangle triangle, int stepSize, boolean direction) {
-		int value = triangle.getP1().x;
+		int value = triangle.getP1x();
 
 		if (direction) {
 			value += stepSize;
 			if (!isMinOrMaxXPointComponent(value)) {
-				triangle.setP1(new Point((triangle.getP1().x) + stepSize, triangle.getP1().y));
+				triangle.setP1x(triangle.getP1x()+stepSize);
 			} else {
-				triangle.setP1(new Point(IMAGE_WIDTH, triangle.getP1().y));
+				triangle.setP1x(IMAGE_WIDTH);
 			}
 		} else {
 			value -= stepSize;
 			if (!isMinOrMaxXPointComponent(value)) {
-				triangle.setP1(new Point((triangle.getP1().x) - stepSize, triangle.getP1().y));
+				triangle.setP1x(triangle.getP1x()-stepSize);
 			} else {
-				triangle.setP1(new Point(0, triangle.getP1().y));
+				triangle.setP1x(0);
 			}
 		}
 	}
 
 	public void mutateP1Y(Triangle triangle, int stepSize, boolean direction) {
-		int value = triangle.getP1().y;
+		int value = triangle.getP1y();
 
 		if (direction) {
 			value += stepSize;
 			if (!isMinOrMaxYPointComponent(value)) {
-				triangle.setP1(new Point(triangle.getP1().x, triangle.getP1().y + stepSize));
+				triangle.setP1y(triangle.getP1y() + stepSize);
 			} else {
-				triangle.setP1(new Point(triangle.getP1().x, IMAGE_HEIGHT));
+				triangle.setP1y(IMAGE_HEIGHT);
 			}
 		} else {
 			value -= stepSize;
 			if (!isMinOrMaxYPointComponent(value)) {
-				triangle.setP1(new Point(triangle.getP1().x, triangle.getP1().y - stepSize));
+				triangle.setP1y(triangle.getP1y() - stepSize);
 			} else {
-				triangle.setP1(new Point(triangle.getP1().x, 0));
+				triangle.setP1y(0);
 			}
 		}
 	}
 
 	public void mutateP2X(Triangle triangle, int stepSize, boolean direction) {
-		int value = triangle.getP2().x;
+		int value = triangle.getP2x();
 
 		if (direction) {
 			value += stepSize;
 			if (!isMinOrMaxXPointComponent(value)) {
-				triangle.setP2(new Point((triangle.getP2().x) + stepSize, triangle.getP2().y));
+				triangle.setP2x(triangle.getP2x()+stepSize);
 			} else {
-				triangle.setP2(new Point(IMAGE_WIDTH, triangle.getP2().y));
+				triangle.setP2x(IMAGE_WIDTH);
 			}
 		} else {
 			value -= stepSize;
 			if (!isMinOrMaxXPointComponent(value)) {
-				triangle.setP2(new Point((triangle.getP2().x) - stepSize, triangle.getP2().y));
+				triangle.setP2x(triangle.getP2x()-stepSize);
 			} else {
-				triangle.setP2(new Point(0, triangle.getP2().y));
+				triangle.setP2x(0);
 			}
 		}
 	}
 
 	public void mutateP2Y(Triangle triangle, int stepSize, boolean direction) {
-		int value = triangle.getP2().y;
+		int value = triangle.getP2y();
 
 		if (direction) {
 			value += stepSize;
 			if (!isMinOrMaxYPointComponent(value)) {
-				triangle.setP2(new Point(triangle.getP2().x, triangle.getP2().y + stepSize));
+				triangle.setP2y(triangle.getP2y() + stepSize);
 			} else {
-				triangle.setP2(new Point(triangle.getP2().x, IMAGE_HEIGHT));
+				triangle.setP2y(IMAGE_HEIGHT);
 			}
 		} else {
 			value -= stepSize;
 			if (!isMinOrMaxYPointComponent(value)) {
-				triangle.setP2(new Point(triangle.getP2().x, triangle.getP2().y - stepSize));
+				triangle.setP2y(triangle.getP2y() - stepSize);
 			} else {
-				triangle.setP2(new Point(triangle.getP2().x, 0));
+				triangle.setP2y(0);
 			}
 		}
 	}
 
 	public void mutateP3X(Triangle triangle, int stepSize, boolean direction) {
-		int value = triangle.getP3().x;
+		int value = triangle.getP3x();
 
 		if (direction) {
 			value += stepSize;
 			if (!isMinOrMaxXPointComponent(value)) {
-				triangle.setP3(new Point((triangle.getP3().x) + stepSize, triangle.getP3().y));
+				triangle.setP3x(triangle.getP3x()+stepSize);
 			} else {
-				triangle.setP3(new Point(IMAGE_WIDTH, triangle.getP3().y));
+				triangle.setP3x(IMAGE_WIDTH);
 			}
 		} else {
 			value -= stepSize;
 			if (!isMinOrMaxXPointComponent(value)) {
-				triangle.setP3(new Point((triangle.getP3().x) - stepSize, triangle.getP3().y));
+				triangle.setP3x(triangle.getP3x()-stepSize);
 			} else {
-				triangle.setP3(new Point(0, triangle.getP3().y));
+				triangle.setP3x(0);
 			}
 		}
 	}
 
 	public void mutateP3Y(Triangle triangle, int stepSize, boolean direction) {
-		int value = triangle.getP3().y;
+		int value = triangle.getP3y();
 
 		if (direction) {
 			value += stepSize;
 			if (!isMinOrMaxYPointComponent(value)) {
-				triangle.setP3(new Point(triangle.getP3().x, triangle.getP3().y + stepSize));
+				triangle.setP3y(triangle.getP3y() + stepSize);
 			} else {
-				triangle.setP3(new Point(triangle.getP3().x, IMAGE_HEIGHT));
+				triangle.setP3y(IMAGE_HEIGHT);
 			}
 		} else {
 			value -= stepSize;
 			if (!isMinOrMaxYPointComponent(value)) {
-				triangle.setP3(new Point(triangle.getP3().x, triangle.getP3().y - stepSize));
+				triangle.setP3y(triangle.getP3y() - stepSize);
 			} else {
-				triangle.setP3(new Point(triangle.getP3().x, 0));
+				triangle.setP3y(0);
 			}
 		}
 	}

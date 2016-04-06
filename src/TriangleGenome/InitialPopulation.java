@@ -222,13 +222,16 @@ public class InitialPopulation extends Stage
     for (int i = 0; i < NUM_TRIBES; i++)
     {
       Genome gen = tribes.get(i).getGenomesInTribe().get(0);
-      tribesGA.add(new GA(tribes.get(i), gen.getFitness(), image, gen.getImg().getImage(), IMAGE_WIDTH, IMAGE_HEIGHT, main, backGroundColor));
+      tribesGA.add(new GA(tribes.get(i), gen.getFitness(), image, IMAGE_WIDTH, IMAGE_HEIGHT, main, backGroundColor));
     }
 
     // For now just use the first tribes GA.
 //    main.setGA(tribesGA.get(0), perspectiveImage.getImage(), initialFitness);
   }
 
+  
+  
+  
   public ArrayList<Tribe> getTribes()
   {
     return tribes;
@@ -259,8 +262,6 @@ public class InitialPopulation extends Stage
       startFitness.calculateFitness(imageRenderer.getBuff());
 
       imageRenderer.render(genome.getDNA());
-      BufferedImage img = imageRenderer.getBuff();
-      genome.setImg(SwingFXUtils.toFXImage(img, null));
       genome.setFitness(startFitness.getFitness());
       // Insert the genome into the tribe sorted so that the genomes
       // in the tribe go from the most fit to the least fit as the
@@ -293,9 +294,6 @@ public class InitialPopulation extends Stage
         imageRenderer.render(genome.getDNA());
         startFitness.calculateFitness(imageRenderer.getBuff());
         genome.setFitness(startFitness.getFitness());
-
-        BufferedImage img = imageRenderer.getBuff();
-        genome.setImg(SwingFXUtils.toFXImage(img, null));
         genome.setFitness(startFitness.getFitness());
 
         insertSorted(genome, newGenomes);
@@ -334,9 +332,12 @@ public class InitialPopulation extends Stage
       triangle.setRed(random.nextInt(255));
       triangle.setBlue(random.nextInt(255));
       triangle.setGreen(random.nextInt(255));
-      triangle.setP1(new Point(random.nextInt(IMAGE_WIDTH), random.nextInt(IMAGE_HEIGHT)));
-      triangle.setP2(new Point(random.nextInt(IMAGE_WIDTH), random.nextInt(IMAGE_HEIGHT)));
-      triangle.setP3(new Point(random.nextInt(IMAGE_WIDTH), random.nextInt(IMAGE_HEIGHT)));
+      triangle.setP1x(random.nextInt(IMAGE_WIDTH));
+      triangle.setP2x(random.nextInt(IMAGE_WIDTH));
+      triangle.setP3x(random.nextInt(IMAGE_WIDTH));
+      triangle.setP1y(random.nextInt(IMAGE_HEIGHT));
+      triangle.setP2y(random.nextInt(IMAGE_HEIGHT));
+      triangle.setP3y(random.nextInt(IMAGE_HEIGHT));
       triangle.updateTriangle();
       DNA.add(triangle);
 

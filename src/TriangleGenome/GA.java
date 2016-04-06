@@ -92,7 +92,7 @@ public class GA extends Stage
   private double previousItFitness = 0;
   private Image bestGenome;
 
-  public GA(Tribe tribe, double initialFitness, Image originalImage, Image initialGenome,
+  public GA(Tribe tribe, double initialFitness, Image originalImage,
       int IMAGE_WIDTH, int IMAGE_HEIGHT, NewMain m, Color backGroundColor)
   {
     this.tribe = tribe;
@@ -105,16 +105,25 @@ public class GA extends Stage
     this.parentFitness = initialFitness;
     this.wasImprovement = false; // We want to start with a random gene
                                  // mutation.
-    bestGenome = initialGenome;
+    
+    
     this.adaptiveMutation = new TriangleMutation(IMAGE_WIDTH, IMAGE_HEIGHT);
     this.childFitness = 0;
     // The fittest member in the tribe should be at the front of the arrayList.
     this.DNA = tribe.getGenomesInTribe().get(0).getDNA();
+    imageRenderer.render(DNA);
+    bestGenome = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
     this.crossOverMutation = new CrossOverMutation(checkFitness, imageRenderer, IMAGE_WIDTH,
         IMAGE_HEIGHT);
     main = m;
   }
 
+  public Renderer getRenderer()
+  {
+	  return imageRenderer;
+  }
+  
+  
   /**
    * Used to toggle the mutation type from the GUI
    * 
@@ -213,7 +222,7 @@ public class GA extends Stage
         }
         break;
       case 5:
-        if (temp.getP1().x > prevValue)
+        if (temp.getP1x() > prevValue)
         {
           direction = true;
         }
@@ -223,7 +232,7 @@ public class GA extends Stage
         }
         break;
       case 6:
-        if (temp.getP1().y > prevValue)
+        if (temp.getP1y() > prevValue)
         {
           direction = true;
         }
@@ -233,7 +242,7 @@ public class GA extends Stage
         }
         break;
       case 7:
-        if (temp.getP2().x > prevValue)
+        if (temp.getP2x() > prevValue)
         {
           direction = true;
         }
@@ -243,7 +252,7 @@ public class GA extends Stage
         }
         break;
       case 8:
-        if (temp.getP2().y > prevValue)
+        if (temp.getP2y() > prevValue)
         {
           direction = true;
         }
@@ -253,7 +262,7 @@ public class GA extends Stage
         }
         break;
       case 9:
-        if (temp.getP3().x > prevValue)
+        if (temp.getP3x() > prevValue)
         {
           direction = true;
         }
@@ -263,7 +272,7 @@ public class GA extends Stage
         }
         break;
       case 10:
-        if (temp.getP3().y > prevValue)
+        if (temp.getP3y() > prevValue)
         {
           direction = true;
         }
@@ -345,37 +354,37 @@ public class GA extends Stage
       case 5:
         adaptiveMutation.mutateP1X(triangle, stepSize, mutationDirection);
         triangle.updateTriangle();
-        if (triangle.getP1().x == 0 || triangle.getP1().x == IMAGE_WIDTH)
+        if (triangle.getP1x() == 0 || triangle.getP1x() == IMAGE_WIDTH)
           hitBound = true;
         break;
       case 6:
         adaptiveMutation.mutateP1Y(triangle, stepSize, mutationDirection);
         triangle.updateTriangle();
-        if (triangle.getP1().y == 0 || triangle.getP1().y == IMAGE_WIDTH)
+        if (triangle.getP1y() == 0 || triangle.getP1y() == IMAGE_WIDTH)
           hitBound = true;
         break;
       case 7:
         adaptiveMutation.mutateP2X(triangle, stepSize, mutationDirection);
         triangle.updateTriangle();
-        if (triangle.getP2().x == 0 || triangle.getP2().x == IMAGE_WIDTH)
+        if (triangle.getP2x() == 0 || triangle.getP2x() == IMAGE_WIDTH)
           hitBound = true;
         break;
       case 8:
         adaptiveMutation.mutateP2Y(triangle, stepSize, mutationDirection);
         triangle.updateTriangle();
-        if (triangle.getP2().y == 0 || triangle.getP2().y == IMAGE_WIDTH)
+        if (triangle.getP2y() == 0 || triangle.getP2y() == IMAGE_WIDTH)
           hitBound = true;
         break;
       case 9:
         adaptiveMutation.mutateP3X(triangle, stepSize, mutationDirection);
         triangle.updateTriangle();
-        if (triangle.getP3().x == 0 || triangle.getP3().x == IMAGE_WIDTH)
+        if (triangle.getP3x() == 0 || triangle.getP3x() == IMAGE_WIDTH)
           hitBound = true;
         break;
       case 10:
         adaptiveMutation.mutateP3Y(triangle, stepSize, mutationDirection);
         triangle.updateTriangle();
-        if (triangle.getP3().y == 0 || triangle.getP3().y == IMAGE_WIDTH)
+        if (triangle.getP3y() == 0 || triangle.getP3y() == IMAGE_WIDTH)
           hitBound = true;
         break;
       default:
@@ -500,28 +509,28 @@ public class GA extends Stage
         triangle.setBlue(random.nextInt(255));
         break;
       case 5:
-        prevValue = triangle.getP1().x;
-        triangle.setP1(new Point(random.nextInt(IMAGE_WIDTH), triangle.getP1().y));
+        prevValue = triangle.getP1x();
+        triangle.setP1x(random.nextInt(IMAGE_WIDTH));
         break;
       case 6:
-        prevValue = triangle.getP1().y;
-        triangle.setP1(new Point(triangle.getP1().x, random.nextInt(IMAGE_HEIGHT)));
+        prevValue = triangle.getP1y();
+        triangle.setP1y(random.nextInt(IMAGE_HEIGHT));
         break;
       case 7:
-        prevValue = triangle.getP2().x;
-        triangle.setP2(new Point(random.nextInt(IMAGE_WIDTH), triangle.getP2().y));
+        prevValue = triangle.getP2x();
+        triangle.setP2x(random.nextInt(IMAGE_WIDTH));
         break;
       case 8:
-        prevValue = triangle.getP2().y;
-        triangle.setP2(new Point(triangle.getP2().x, random.nextInt(IMAGE_HEIGHT)));
+        prevValue = triangle.getP2y();
+        triangle.setP2y(random.nextInt(IMAGE_HEIGHT));
         break;
       case 9:
-        prevValue = triangle.getP3().x;
-        triangle.setP3(new Point(random.nextInt(IMAGE_WIDTH), triangle.getP3().y));
+        prevValue = triangle.getP3x();
+        triangle.setP3x(random.nextInt(IMAGE_WIDTH));
         break;
       case 10:
-        prevValue = triangle.getP3().y;
-        triangle.setP3(new Point(triangle.getP3().x, random.nextInt(IMAGE_HEIGHT)));
+        prevValue = triangle.getP3y();
+        triangle.setP3y(random.nextInt(IMAGE_HEIGHT));
         break;
       default:
         break; // Should never reach here.
@@ -556,22 +565,22 @@ public class GA extends Stage
         DNA.get(triangleNum).setBlue(prevGeneVal);
         break;
       case 5:
-        DNA.get(triangleNum).setP1(new Point(prevGeneVal, DNA.get(triangleNum).getP1().y));
+        DNA.get(triangleNum).setP1x(prevGeneVal);
         break;
       case 6:
-        DNA.get(triangleNum).setP1(new Point(DNA.get(triangleNum).getP1().x, prevGeneVal));
+        DNA.get(triangleNum).setP1y(prevGeneVal);
         break;
       case 7:
-        DNA.get(triangleNum).setP2(new Point(prevGeneVal, DNA.get(triangleNum).getP2().y));
+        DNA.get(triangleNum).setP2x(prevGeneVal);
         break;
       case 8:
-        DNA.get(triangleNum).setP2(new Point(DNA.get(triangleNum).getP2().x, prevGeneVal));
+        DNA.get(triangleNum).setP2y(prevGeneVal);
         break;
       case 9:
-        DNA.get(triangleNum).setP3(new Point(prevGeneVal, DNA.get(triangleNum).getP3().y));
+        DNA.get(triangleNum).setP3x(prevGeneVal);
         break;
       case 10:
-        DNA.get(triangleNum).setP3(new Point(DNA.get(triangleNum).getP3().x, prevGeneVal));
+        DNA.get(triangleNum).setP3y(prevGeneVal);
         break;
       default:
         break; // Should never reach here.

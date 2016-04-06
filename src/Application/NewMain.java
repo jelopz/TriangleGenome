@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import TriangleGenome.GA;
 import TriangleGenome.Genome;
 import TriangleGenome.InitialPopulation;
+import TriangleGenome.Renderer;
 import TriangleGenome.Triangle;
 import TriangleGenome.Tribe;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -35,7 +37,7 @@ public class NewMain extends Application
   // Filechooser
   FileChooser fileChooser;
   Image originalImage;
-  int NUM_OF_THREADS = 2;;
+  int NUM_OF_THREADS = 2;
   GA ga;
   ArrayList<Tribe> tribes;
   ArrayList<GA> tribesGA;
@@ -199,7 +201,10 @@ public class NewMain extends Application
       {
         Genome g = tribes.get(tribeDisplayed).getGenomesInTribe().get(genomeDisplayed);
         bestFit = g.getFitness();
-        updateInfo(g.getImg().getImage(), bestFit);
+        //Get one of the GA's render object (doesn't matter which one)
+        Renderer renderGenome = tribesGA.get(0).getRenderer();
+        renderGenome.render(g.getDNA());
+        updateInfo(SwingFXUtils.toFXImage(renderGenome.getBuff(), null), bestFit);
       }
     }
 
@@ -364,13 +369,12 @@ public class NewMain extends Application
   public void updateTribesList(ArrayList<Triangle> DNA, double fit, Image img, GA g)
   {
     Genome gen = null;
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < NUM_OF_THREADS; i++)
     {
       if (tribesGA.get(i).equals(g))
       {
         gen = tribes.get(i).getGenomesInTribe().get(0);
         gen.setDNA(DNA);
-        gen.setImg((WritableImage) img);
         gen.setFitness(fit);
       }
     }

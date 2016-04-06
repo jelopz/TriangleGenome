@@ -19,6 +19,13 @@ public class Triangle
   private Point p1;
   private Point p2;
   private Point p3;
+  private int p1x;
+  private int p1y;
+  private int p2x;
+  private int p2y;
+  private int p3x;
+  private int p3y;
+  
   private int red;
   private int green;
   private int blue;
@@ -26,64 +33,54 @@ public class Triangle
   private Color color;
   private Polygon triangle; //For ease of display each triangle is 
   //represented as a Polygon. 
-  
-  /**
-   * Constructor initializes point objects and polygon object. 
-   */
-  public Triangle(){
-    p1 = new Point();
-    p2 = new Point();
-    p3 = new Point();
-    triangle = new Polygon(new int[]{p1.x, p2.x, p3.x} , new int[]{p1.y, p2.y, p3.y}, 3);
-  }
 
-  /**
-   * 
-   * @return The first vertex.
-   */
-  public Point getP1()
+  public int getP1x()
   {
-    return p1;
+	  return p1x;
   }
-
-  /**
-   * @param p1 - Point to represent new first vertex value.
-   */
-  public void setP1(Point p1)
+  public int getP1y()
   {
-    this.p1 = p1;
+	  return p1y;
   }
-
-  /**
-   * @return The second vertex.
-   */
-  public Point getP2()
+  public int getP2x()
   {
-    return p2;
+	  return p2x;
   }
-
-  /**
-   * @param p2 - Point to represent new second vertex value.
-   */
-  public void setP2(Point p2)
+  public int getP2y()
   {
-    this.p2 = p2;
+	  return p2y;
   }
-
-  /**
-   * @return The third vertex.
-   */
-  public Point getP3()
+  public int getP3x()
   {
-    return p3;
+	  return p3x;
   }
-
-  /**
-   * @param p3 - Point to represent new third vertex value.
-   */
-  public void setP3(Point p3)
+  public int getP3y()
   {
-    this.p3 = p3;
+	  return p3y;
+  }
+  public void setP1x(int p1x)
+  {
+	  this.p1x = p1x;
+  }
+  public void setP1y(int p1y)
+  {
+	  this.p1y = p1y;
+  }
+  public void setP2x(int p2x)
+  {
+	  this.p2x = p2x;
+  }
+  public void setP2y(int p2y)
+  {
+	  this.p2y = p2y;
+  }
+  public void setP3x(int p3x)
+  {
+	  this.p1x = p1x;
+  }
+  public void setP3y(int p3y)
+  {
+	  this.p3y = p3y;
   }
 
   /**
@@ -173,7 +170,6 @@ public class Triangle
   
   public void updateTriangle(){	 
 	//Update the color and the vertices of the triangle. 
-	triangle = new Polygon(new int[]{p1.x, p2.x, p3.x} , new int[]{p1.y, p2.y, p3.y}, 3);
     color = new Color(red, green, blue, alpha);
   }
 }
