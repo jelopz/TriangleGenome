@@ -33,6 +33,11 @@ public class Genome {
 		return this.DNA;
 	}
 	
+	public void setDNA(ArrayList<Triangle> DNA)
+	{
+	  this.DNA = DNA;
+	}
+	
 	public void setFitness(double fitness)
 	{
 		this.fitness = fitness;

@@ -147,6 +147,7 @@ public class GA extends Stage
       {
         // Random mutation resulted in an improvement now we
         // Adaptively climb our prospective hill.
+        main.updateTribesList(DNA, parentFitness, bestGenome, this);
         ++improvements;
         adaptivelyClimbHill();
       }
@@ -285,6 +286,7 @@ public class GA extends Stage
       ++hillclimbChildren;
       if (takeStep(stepSize)) // Resulted in improvement
       {
+        main.updateTribesList(DNA, parentFitness, bestGenome, this);
         ++improvements;
         // System.out.println(generations);
         if (stepSize < MAX_STEP_SIZE)

@@ -128,6 +128,7 @@ public class mainController
       String path = file.toURI().toString();
       main.originalImage = new Image(path, 500, 500, true, true);
       System.out.println("Loaded Image: " + path);
+      initNewButton.setDisable(false);
     }
 
     targetImage.setImage(main.originalImage);
@@ -152,6 +153,12 @@ public class mainController
     fitnessText.setText("Current Best Fitness: " + String.valueOf(viewInitialPopulation
         .getInitFitness()));
     main.setTotalPopulation();
+    chooseFileButton.setDisable(true);
+    initNewButton.setDisable(true);
+    startButton.setDisable(false);
+    stopButton.setDisable(false);
+    tribeBox.setDisable(false);
+    printGenomes.setDisable(false);
   }
 
   @FXML
@@ -196,6 +203,7 @@ public class mainController
     main.toggleView(true);
     if (selection == "Best Fit From All Tribes")
     {
+      genomeViewerBox.setDisable(true);
       main.toggleView(true);
       main.updateDisplay();
     }
@@ -205,21 +213,25 @@ public class mainController
 
       if (selection == "Best Fit From Tribe 0")
       {
+        genomeViewerBox.setDisable(true);
         main.setTribeDisplayed(0);
         main.setGenomeViewer(false);
       }
       else if (selection == "Best Fit From Tribe 1")
       {
+        genomeViewerBox.setDisable(true);
         main.setTribeDisplayed(1);
         main.setGenomeViewer(false);
       }
       else if (selection == "Specific Genome From Tribe 0")
       {
+        genomeViewerBox.setDisable(false);
         main.setTribeDisplayed(0);
         main.setGenomeViewer(true);
       }
       else // specific genome from tribe 1
       {
+        genomeViewerBox.setDisable(false);
         main.setTribeDisplayed(1);
         main.setGenomeViewer(true);
       }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import TriangleGenome.GA;
 import TriangleGenome.Genome;
 import TriangleGenome.InitialPopulation;
+import TriangleGenome.Triangle;
 import TriangleGenome.Tribe;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -15,6 +16,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -344,6 +346,34 @@ public class NewMain extends Application
   public void setMutationType(boolean type)
   {
     ga.setMutateType(type);
+  }
+
+  /**
+   * Updates the information in the ArrayList tribes of the genome being acted
+   * on by the GA. As of now since we're only using the GA on the initial best
+   * fit genome from each tribe so we only change the first genome in the tribe.
+   * 
+   * @param DNA
+   * @param fit
+   * @param img
+   * @param g
+   *          The GA object that called it. Since we can have multiple ones, we
+   *          use this to compare with tribesGA to make sure we edit the correct
+   *          index in the tribes ArrayList
+   */
+  public void updateTribesList(ArrayList<Triangle> DNA, double fit, Image img, GA g)
+  {
+    Genome gen = null;
+    for (int i = 0; i < 2; i++)
+    {
+      if (tribesGA.get(i).equals(g))
+      {
+        gen = tribes.get(i).getGenomesInTribe().get(0);
+        gen.setDNA(DNA);
+        gen.setImg((WritableImage) img);
+        gen.setFitness(fit);
+      }
+    }
   }
 
   public void printAllGenomeFitness()
