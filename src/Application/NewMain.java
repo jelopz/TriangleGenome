@@ -1,5 +1,6 @@
 package Application;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,6 +65,8 @@ public class NewMain extends Application
   private int currentGenerationsPerSecond;
   private int totalGenerationsPerSecond;
   private double deltaFitnessPerSecond;
+  
+  private Renderer render;
 
   /**
    * The creation of the initial window, a popup that asks you to load an image.
@@ -83,6 +86,17 @@ public class NewMain extends Application
     genomeViewer = false;
 
     createMainWindow();
+  }
+  
+  @Override
+  public void stop()
+  {
+    System.exit(0);
+  }
+  
+  public void initRenderer(int w, int h, Color c)
+  {
+    render = new Renderer(w,h,c);
   }
 
   /**
@@ -202,9 +216,8 @@ public class NewMain extends Application
         Genome g = tribes.get(tribeDisplayed).getGenomesInTribe().get(genomeDisplayed);
         bestFit = g.getFitness();
         //Get one of the GA's render object (doesn't matter which one)
-        Renderer renderGenome = tribesGA.get(0).getRenderer();
-        renderGenome.render(g.getDNA());
-        updateInfo(SwingFXUtils.toFXImage(renderGenome.getBuff(), null), bestFit);
+        render.render(g.getDNA());
+        updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), bestFit);
       }
     }
 

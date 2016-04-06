@@ -116,13 +116,15 @@ public class GA extends Stage
     this.crossOverMutation = new CrossOverMutation(checkFitness, imageRenderer, IMAGE_WIDTH,
         IMAGE_HEIGHT);
     main = m;
+    
+    main.initRenderer(IMAGE_WIDTH, IMAGE_HEIGHT, backGroundColor);
   }
-
-  public Renderer getRenderer()
-  {
-	  return imageRenderer;
-  }
-  
+//
+//  public Renderer getRenderer()
+//  {
+//    return imageRenderer;
+//  }
+//  
   
   /**
    * Used to toggle the mutation type from the GUI
