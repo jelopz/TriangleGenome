@@ -42,6 +42,7 @@ public class NewMain extends Application
   GA ga;
   ArrayList<Tribe> tribes;
   ArrayList<GA> tribesGA;
+  ArrayList<Triangle> specificGene;
 
   boolean isRunning; // used to let the ApplicationLoop know when to run
   private mainController mainController;
@@ -54,7 +55,10 @@ public class NewMain extends Application
   // tribesGA.get(tribeDisplayed) image
 
   private int genomeDisplayed;
+  private int geneDisplayed;
+  
   private boolean genomeViewer;
+  private boolean showWholeGenome;
 
   private GA currentGenome;
   private int numGenerations;
@@ -65,7 +69,7 @@ public class NewMain extends Application
   private int currentGenerationsPerSecond;
   private int totalGenerationsPerSecond;
   private double deltaFitnessPerSecond;
-  
+
   private Renderer render;
 
   /**
@@ -82,21 +86,29 @@ public class NewMain extends Application
 
     isRunning = false;
 
+    specificGene = new ArrayList<>();
+    
     viewToggle = true;
     genomeViewer = false;
+    showWholeGenome = true;
 
     createMainWindow();
   }
-  
+
+  public void toggleShowWholeGenome(boolean b)
+  {
+    showWholeGenome = b;
+  }
+
   @Override
   public void stop()
   {
     System.exit(0);
   }
-  
+
   public void initRenderer(int w, int h, Color c)
   {
-    render = new Renderer(w,h,c);
+    render = new Renderer(w, h, c);
   }
 
   /**
@@ -187,7 +199,7 @@ public class NewMain extends Application
     // most of the time keeps the best fitness during hill climbing.
     // Sometimes one tribe over takes the other for the best genome.
 
-    if (viewToggle)
+    if (viewToggle) // selects best fit genome from all tribes
     {
       double f;
       for (int i = 1; i < NUM_OF_THREADS; i++)
@@ -206,18 +218,27 @@ public class NewMain extends Application
     }
     else
     {
-      if (!genomeViewer)
+      if (!genomeViewer) // selects the best fit genome from user selected tribe
       {
         bestFit = tribesGA.get(tribeDisplayed).getFit();
         updateInfo(tribesGA.get(tribeDisplayed).getGenome(), bestFit);
       }
-      else
+      else // selects the user selected genome from the user selected tribe
       {
         Genome g = tribes.get(tribeDisplayed).getGenomesInTribe().get(genomeDisplayed);
         bestFit = g.getFitness();
-        //Get one of the GA's render object (doesn't matter which one)
-        render.render(g.getDNA());
-        updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), bestFit);
+        if (showWholeGenome)
+        {
+          // Get one of the GA's render object (doesn't matter which one)
+          render.render(g.getDNA());
+          updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), bestFit);
+        }
+        else // choose which gene/triangle to display
+        {                    
+          specificGene.add(g.getDNA().get(geneDisplayed));
+          render.render(specificGene);
+          updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), bestFit);
+        }
       }
     }
 
@@ -348,6 +369,12 @@ public class NewMain extends Application
   {
     System.out.println(i);
     genomeDisplayed = i;
+  }
+  
+  public void setGeneDisplayed(int i)
+  {
+    geneDisplayed = i;
+    specificGene.clear();
   }
 
   public void setGenomeViewer(boolean b)

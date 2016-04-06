@@ -79,6 +79,9 @@ public class mainController
   private ComboBox<String> genomeViewerBox;
 
   @FXML
+  private ComboBox<String> geneSelectorBox;
+
+  @FXML
   private Button printGenomes;
 
   private NewMain main;
@@ -198,6 +201,22 @@ public class mainController
   }
 
   @FXML
+      void geneSelectorBoxHandler(ActionEvent event)
+  {
+    if (geneSelectorBox.getValue() == "Show Complete Genome")
+    {
+      main.toggleShowWholeGenome(true);
+    }
+    else
+    {
+      main.toggleShowWholeGenome(false);
+      main.setGeneDisplayed(Integer.parseInt(geneSelectorBox.getValue()));
+    }
+    
+    main.updateDisplay();
+  }
+
+  @FXML
       void tribeBoxHandler(ActionEvent event)
   {
     String selection = tribeBox.getValue();
@@ -215,24 +234,28 @@ public class mainController
       if (selection == "Best Fit From Tribe 0")
       {
         genomeViewerBox.setDisable(true);
+        geneSelectorBox.setDisable(true);
         main.setTribeDisplayed(0);
         main.setGenomeViewer(false);
       }
       else if (selection == "Best Fit From Tribe 1")
       {
         genomeViewerBox.setDisable(true);
+        geneSelectorBox.setDisable(true);
         main.setTribeDisplayed(1);
         main.setGenomeViewer(false);
       }
       else if (selection == "Specific Genome From Tribe 0")
       {
         genomeViewerBox.setDisable(false);
+        geneSelectorBox.setDisable(false);
         main.setTribeDisplayed(0);
         main.setGenomeViewer(true);
       }
       else // specific genome from tribe 1
       {
         genomeViewerBox.setDisable(false);
+        geneSelectorBox.setDisable(false);
         main.setTribeDisplayed(1);
         main.setGenomeViewer(true);
       }
@@ -274,9 +297,16 @@ public class mainController
 
     totalPopulation = 0;
 
+    geneSelectorBox.getItems().add("Show Complete Genome");
+
     for (int i = 0; i < 100; i++)
     {
       genomeViewerBox.getItems().add(String.valueOf(i));
+      geneSelectorBox.getItems().add(String.valueOf(i));
+    }
+    for (int i = 100; i < 200; i++)
+    {
+      geneSelectorBox.getItems().add(String.valueOf(i));
     }
 
     // totalGenerations = 0;
@@ -312,7 +342,8 @@ public class mainController
     this.crossoverChildren.setText("Total Cross-Over Children: " + crossoverChildren);
     currentAvgGPS.setText("Current Average Generations per Second: " + currentGenerationsPerSecond);
     totalAvgGPS.setText("Total Average Generations per Second: " + totalGenerationsPerSecond);
-    bestGenomesFitPerSec.setText("Most Fit Genome's change in fitness/second: " + deltaFitnessPerSecond);
+    bestGenomesFitPerSec.setText("Most Fit Genome's change in fitness/second: "
+        + deltaFitnessPerSecond);
   }
 
   public long getElapsedNanoTime()

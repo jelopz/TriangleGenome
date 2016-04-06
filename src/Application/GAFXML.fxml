@@ -10,7 +10,7 @@
 	<children>
 		<Button fx:id="startButton" disable="true" layoutX="527.0" layoutY="389.0" mnemonicParsing="false" onAction="#startButtonHandler" text="Start" />
 		<Button fx:id="stopButton" disable="true" layoutX="582.0" layoutY="389.0" mnemonicParsing="false" onAction="#stopButtonHandler" text="Stop" />
-		<ComboBox fx:id="myCB" disable="true" layoutX="288.0" layoutY="546.0" onAction="#comboBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="Hard Mutate" visibleRowCount="3">
+		<ComboBox fx:id="myCB" disable="true" layoutX="20.0" layoutY="545.0" onAction="#comboBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="Hard Mutate" visibleRowCount="3">
 		</ComboBox>
       <Button fx:id="chooseFileButton" layoutX="516.0" layoutY="422.0" mnemonicParsing="false" onAction="#fileButtonHandler" text="Upload New Image" />
       <Button fx:id="initNewButton" disable="true" layoutX="516.0" layoutY="453.0" mnemonicParsing="false" onAction="#findInitialPopulation" text="Initialize New Image" />
@@ -25,9 +25,10 @@
       <Text fx:id="totalAvgGPS" layoutX="20.0" layoutY="494.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Average Generations per Second: N/A" wrappingWidth="250.40623486042023" />
       <Text fx:id="totalPopulationText" layoutX="296.0" layoutY="454.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Population: N/A  " />
       <Text fx:id="currentAvgGPS" layoutX="20.0" layoutY="474.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Current Average Generations per Second: N/A  " />
-      <ComboBox fx:id="tribeBox" disable="true" layoutX="295.0" layoutY="469.0" onAction="#tribeBoxHandler" prefWidth="150.0" promptText="Display Options" />
+      <ComboBox fx:id="tribeBox" disable="true" layoutX="280.0" layoutY="469.0" onAction="#tribeBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="Display Options" />
       <Button fx:id="printGenomes" disable="true" layoutX="508.0" layoutY="506.0" mnemonicParsing="false" onAction="#printButtonHandler" text="Print All Genome Fitness" />
-      <ComboBox fx:id="genomeViewerBox" disable="true" layoutX="295.0" layoutY="506.0" onAction="#genomeViewerBoxHandler" prefWidth="150.0" promptText="0" />
+      <ComboBox fx:id="genomeViewerBox" disable="true" layoutX="280.0" layoutY="506.0" onAction="#genomeViewerBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="0" />
       <Text fx:id="bestGenomesFitPerSec" layoutX="20.0" layoutY="394.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Most Fit Genome's change in fitness/second:                     " />
+      <ComboBox fx:id="geneSelectorBox" disable="true" layoutX="280.0" layoutY="545.0" onAction="#geneSelectorBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="Show Complete Genome" />
 	</children>
 </AnchorPane>
