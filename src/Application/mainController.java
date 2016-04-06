@@ -52,6 +52,24 @@ public class mainController
   private Text totalPopulationText;
 
   @FXML
+  private Text totalGenerations;
+
+  @FXML
+  private Text hillclimbChildren;
+
+  @FXML
+  private Text crossoverChildren;
+
+  @FXML
+  private Text currentAvgGPS;
+
+  @FXML
+  private Text totalAvgGPS;
+
+  @FXML
+  private Text bestGenomesFitPerSec;
+
+  @FXML
   private ComboBox<String> myCB;
 
   @FXML
@@ -72,6 +90,8 @@ public class mainController
                             // restarted using GUI
 
   private int totalPopulation;
+
+  private long elapsedNanoTime;
 
   @FXML
       void startButtonHandler(ActionEvent event)
@@ -213,10 +233,10 @@ public class mainController
     long t = thisTime - lastTime;
     if (t / 1E9 >= 1) // if it's been a second and it's time to update timer
     {
-      t = thisTime - startTime + stashedTime; // elapsed time in nanoseconds
-      String s = String.format("%02d:%02d:%02d", TimeUnit.NANOSECONDS.toHours(t),
-          TimeUnit.NANOSECONDS.toMinutes(t) % TimeUnit.HOURS.toMinutes(1), TimeUnit.NANOSECONDS
-              .toSeconds(t) % TimeUnit.MINUTES.toSeconds(1));
+      elapsedNanoTime = thisTime - startTime + stashedTime;
+      String s = String.format("%02d:%02d:%02d", TimeUnit.NANOSECONDS.toHours(elapsedNanoTime),
+          TimeUnit.NANOSECONDS.toMinutes(elapsedNanoTime) % TimeUnit.HOURS.toMinutes(1),
+          TimeUnit.NANOSECONDS.toSeconds(elapsedNanoTime) % TimeUnit.MINUTES.toSeconds(1));
       elapsedTimeText.setText("Elapsed Time: " + s);
       lastTime = thisTime;
     }
@@ -245,6 +265,11 @@ public class mainController
     {
       genomeViewerBox.getItems().add(String.valueOf(i));
     }
+
+    // totalGenerations = 0;
+    // hillclimbChildren = 0;
+    // crossoverChildren = 0;
+    elapsedNanoTime = 0;
   }
 
   /**
@@ -264,5 +289,21 @@ public class mainController
   {
     totalPopulation = i;
     totalPopulationText.setText("Total Population: " + String.valueOf(totalPopulation));
+  }
+
+  public void updateStatistics(int totalGenerations, int hillclimbChildren, int crossoverChildren,
+      int currentGenerationsPerSecond, int totalGenerationsPerSecond, double deltaFitnessPerSecond)
+  {
+    this.totalGenerations.setText("Total Generations: " + totalGenerations);
+    this.hillclimbChildren.setText("Total Hill-Climb Children: " + hillclimbChildren);
+    this.crossoverChildren.setText("Total Cross-Over Children: " + crossoverChildren);
+    currentAvgGPS.setText("Current Average Generations per Second: " + currentGenerationsPerSecond);
+    totalAvgGPS.setText("Total Average Generations per Second: " + totalGenerationsPerSecond);
+    bestGenomesFitPerSec.setText("Most Fit Genome's change in fitness/second: " + deltaFitnessPerSecond);
+  }
+
+  public long getElapsedNanoTime()
+  {
+    return elapsedNanoTime;
   }
 }

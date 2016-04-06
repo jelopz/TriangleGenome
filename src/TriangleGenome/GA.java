@@ -52,13 +52,13 @@ public class GA extends Stage
   final int IMAGE_HEIGHT;
   final int IMAGE_WIDTH;
   private final int MAX_STEP_SIZE = 10; // Eventually large steps are not
-	// helpful for example
-	// a large step in color could skip a color spectrum.
-  Image originalImage;
-  ArrayList<Triangle> DNA;
+  // helpful for example
+  // a large step in color could skip a color spectrum.
+  private Image originalImage;
+  private ArrayList<Triangle> DNA;
   private boolean HILL_CLIMBING_WITHOUT_CROSSOVER = true;
   private FitnessFunction checkFitness;
-  Random random = new Random();
+  private Random random = new Random();
   boolean mutationDirection; // Let false be decreasing, and true be
                              // increasing.
   private Tribe tribe;
@@ -79,12 +79,21 @@ public class GA extends Stage
   private NewMain main;
   private int generations = 0;
   private int improvements = 0;
+  private int hillclimbChildren = 0;
+  private int crossoverChildren = 0;
 
-  private double bestFit;
+  // the previousIt values are used when comparing the change in generations or
+  // fitness from the last iteration. These values are used approximately every
+  // half a second, so the value (generations-previousItGenerations) gives you
+  // the number of generations processed over the last half second.
+  // (parentFitness - previousItFitness) gives you the change in fitness per half
+  // second.  Multiply these values by 2 to get the change per second.
+  private int previousItGenerations = 0;
+  private double previousItFitness = 0;
   private Image bestGenome;
 
-  public GA(Tribe tribe, double initialFitness, Image originalImage, Image g, int IMAGE_WIDTH,
-      int IMAGE_HEIGHT, NewMain m, Color backGroundColor)
+  public GA(Tribe tribe, double initialFitness, Image originalImage, Image initialGenome,
+      int IMAGE_WIDTH, int IMAGE_HEIGHT, NewMain m, Color backGroundColor)
   {
     this.tribe = tribe;
     this.IMAGE_WIDTH = IMAGE_WIDTH;
@@ -96,11 +105,13 @@ public class GA extends Stage
     this.parentFitness = initialFitness;
     this.wasImprovement = false; // We want to start with a random gene
                                  // mutation.
-    this.adaptiveMutation = new TriangleMutation(IMAGE_WIDTH,IMAGE_HEIGHT);
+    bestGenome = initialGenome;
+    this.adaptiveMutation = new TriangleMutation(IMAGE_WIDTH, IMAGE_HEIGHT);
     this.childFitness = 0;
-    //The fittest member in the tribe should be at the front of the arrayList. 
+    // The fittest member in the tribe should be at the front of the arrayList.
     this.DNA = tribe.getGenomesInTribe().get(0).getDNA();
-	this.crossOverMutation = new CrossOverMutation(checkFitness,imageRenderer,IMAGE_WIDTH,IMAGE_HEIGHT);
+    this.crossOverMutation = new CrossOverMutation(checkFitness, imageRenderer, IMAGE_WIDTH,
+        IMAGE_HEIGHT);
     main = m;
   }
 
@@ -120,316 +131,335 @@ public class GA extends Stage
    */
   public void Mutate()
   {
-	    if (HILL_CLIMBING_WITHOUT_CROSSOVER) 
-	    {
-	    		//Perform random mutation. 
-				randomMutate(); 
-				++generations;
-//				System.out.println(generations);
-				//Undo mutation if unsuccessful. 
-				if (!checkIfRandomMutationWasImprovement())
-			    {
-				      undoRandomMutate(triangleNum, geneMutationNum, prevValue);
-				}
-				else
-				{
-					//Random mutation resulted in an improvement now we 
-					//Adaptively climb our prospective hill. 
-					adaptivelyClimbHill();
-				}
-	    }
+    if (HILL_CLIMBING_WITHOUT_CROSSOVER)
+    {
+      // Perform random mutation.
+      randomMutate();
+      ++generations;
+      ++hillclimbChildren;
+      // System.out.println(generations);
+      // Undo mutation if unsuccessful.
+      if (!checkIfRandomMutationWasImprovement())
+      {
+        undoRandomMutate(triangleNum, geneMutationNum, prevValue);
+      }
+      else
+      {
+        // Random mutation resulted in an improvement now we
+        // Adaptively climb our prospective hill.
+        ++improvements;
+        adaptivelyClimbHill();
+      }
+    }
   }
 
   private void adaptivelyClimbHill()
   {
-	  //First find direction of hill climb. 
-	  boolean direction; //Let True be an increase in the genes value and False be a decrease in the genes value. 
-	  //We could calculate the direction value in while doing the random mutation but
-	  //even though it would be less physical code it would be more computations being
-	  //done. 
-	  int stepSize = 1;//Start the step size at 1. 
-	  
-	  boolean continueClimb = true; //Boolean flag to that gets triggered
-	  //when the climb just come to an end following a unsuccessful mutation. 
-	  Triangle temp = DNA.get(triangleNum);
-	  switch(geneMutationNum)
-	  {
+    // First find direction of hill climb.
+    boolean direction = true; // Let True be an increase in the genes value and
+                              // False
+    // be a decrease in the genes value.
+    // We could calculate the direction value in while doing the random mutation
+    // but
+    // even though it would be less physical code it would be more computations
+    // being
+    // done.
+    int stepSize = 1;// Start the step size at 1.
+
+    boolean continueClimb = true; // Boolean flag to that gets triggered
+    // when the climb just come to an end following a unsuccessful mutation.
+    Triangle temp = DNA.get(triangleNum);
+    switch (geneMutationNum)
+    {
       case 1:
-    	  if(temp.getAlpha() > prevValue)
-    	  {
-    		  direction = true;
-    	  }
-    	  else
-    	  {
-    		  direction = false;
-    	  }
-          break;
-        case 2:
-      	  if(temp.getRed() > prevValue)
-      	  {
-      		  direction = true;
-      	  }
-      	  else
-      	  {
-      		  direction = false;
-      	  }
-          break;
-        case 3:
-        	  if(temp.getGreen() > prevValue)
-          	  {
-          		  direction = true;
-          	  }
-          	  else
-          	  {
-          		  direction = false;
-          	  }
-          break;
-        case 4:
-        	  if(temp.getBlue() > prevValue)
-          	  {
-          		  direction = true;
-          	  }
-          	  else
-          	  {
-          		  direction = false;
-          	  }
-          break;
-        case 5:
-        	  if(temp.getP1().x > prevValue)
-          	  {
-          		  direction = true;
-          	  }
-          	  else
-          	  {
-          		  direction = false;
-          	  }
-          break;
-        case 6:
-        	  if(temp.getP1().y > prevValue)
-          	  {
-          		  direction = true;
-          	  }
-          	  else
-          	  {
-          		  direction = false;
-          	  }
-          break;
-        case 7:
-        	  if(temp.getP2().x > prevValue)
-          	  {
-          		  direction = true;
-          	  }
-          	  else
-          	  {
-          		  direction = false;
-          	  }
-          break;
-        case 8:
-        	  if(temp.getP2().y > prevValue)
-          	  {
-          		  direction = true;
-          	  }
-          	  else
-          	  {
-          		  direction = false;
-          	  }
-          break;
-        case 9:
-        	  if(temp.getP3().x > prevValue)
-          	  {
-          		  direction = true;
-          	  }
-          	  else
-          	  {
-          		  direction = false;
-          	  }
-          break;
-        case 10:
-        	  if(temp.getP3().y > prevValue)
-          	  {
-          		  direction = true;
-          	  }
-          	  else
-          	  {
-          		  direction = false;
-          	  }
-          break;
-        default:
-          break; // Should never reach here.
-	  }
-	  
-	  //Keep incrementally climbing the hill until there is a
-	  //non improvement. 
-	  while(continueClimb)
-	  {
-		  if(takeStep(stepSize)) //Resulted in improvement
-		  {
-			  ++generations;
-		      ++improvements;
-//			  System.out.println(generations);
-			  if(stepSize  < MAX_STEP_SIZE)
-			  {
-			  ++stepSize;
-			  }
-		  }
-		  else
-		  {
-			  undoLastStep(stepSize);
-			  stepSize = 1;
-			  continueClimb = false; //Termination condition. 
-		  }
-		  
-	  }
+        if (temp.getAlpha() > prevValue)
+        {
+          direction = true;
+        }
+        else
+        {
+          direction = false;
+        }
+        break;
+      case 2:
+        if (temp.getRed() > prevValue)
+        {
+          direction = true;
+        }
+        else
+        {
+          direction = false;
+        }
+        break;
+      case 3:
+        if (temp.getGreen() > prevValue)
+        {
+          direction = true;
+        }
+        else
+        {
+          direction = false;
+        }
+        break;
+      case 4:
+        if (temp.getBlue() > prevValue)
+        {
+          direction = true;
+        }
+        else
+        {
+          direction = false;
+        }
+        break;
+      case 5:
+        if (temp.getP1().x > prevValue)
+        {
+          direction = true;
+        }
+        else
+        {
+          direction = false;
+        }
+        break;
+      case 6:
+        if (temp.getP1().y > prevValue)
+        {
+          direction = true;
+        }
+        else
+        {
+          direction = false;
+        }
+        break;
+      case 7:
+        if (temp.getP2().x > prevValue)
+        {
+          direction = true;
+        }
+        else
+        {
+          direction = false;
+        }
+        break;
+      case 8:
+        if (temp.getP2().y > prevValue)
+        {
+          direction = true;
+        }
+        else
+        {
+          direction = false;
+        }
+        break;
+      case 9:
+        if (temp.getP3().x > prevValue)
+        {
+          direction = true;
+        }
+        else
+        {
+          direction = false;
+        }
+        break;
+      case 10:
+        if (temp.getP3().y > prevValue)
+        {
+          direction = true;
+        }
+        else
+        {
+          direction = false;
+        }
+        break;
+      default:
+        break; // Should never reach here.
+    }
+
+    mutationDirection = direction;
+
+    // Keep incrementally climbing the hill until there is a
+    // non improvement.
+    while (continueClimb)
+    {
+      ++generations;
+      ++hillclimbChildren;
+      if (takeStep(stepSize)) // Resulted in improvement
+      {
+        ++improvements;
+        // System.out.println(generations);
+        if (stepSize < MAX_STEP_SIZE)
+        {
+          ++stepSize;
+        }
+      }
+      else
+      {
+        undoLastStep(stepSize);
+        stepSize = 1;
+        continueClimb = false; // Termination condition.
+      }
+
+    }
   }
-  
+
   /**
    * 
-   * There is two ways a step can fail, either it results in a fitness less
-   * than its parent or it hits the end range that it can travel in its
-   * current direction, instead of fliping the direction which would just
-   * result in undoing our positive mutations we go back to finding another
-   * hill to climb (aka return false). 
+   * There is two ways a step can fail, either it results in a fitness less than
+   * its parent or it hits the end range that it can travel in its current
+   * direction, instead of fliping the direction which would just result in
+   * undoing our positive mutations we go back to finding another hill to climb
+   * (aka return false).
    */
   private boolean takeStep(int stepSize)
   {
-	  Triangle triangle = DNA.get(triangleNum);
-	  boolean hitBound = false;
-	  switch (geneMutationNum)
-	    {
-	      case 1:
-	        adaptiveMutation.mutateAlpha(triangle,stepSize,mutationDirection);
-	        triangle.updateTriangle();
-	        if(triangle.getAlpha()==0||triangle.getAlpha()==255)hitBound=true;
-	        break;
-	      case 2:
-	        adaptiveMutation.mutateRed(triangle,stepSize,mutationDirection);
-	        triangle.updateTriangle();
-	        if(triangle.getRed()==0||triangle.getRed()==255)hitBound=true;
-	        break;
-	      case 3:
-	        adaptiveMutation.mutateGreen(triangle,stepSize,mutationDirection);
-	        triangle.updateTriangle();
-	        if(triangle.getGreen()==0||triangle.getGreen()==255)hitBound=true;
-	        break;
-	      case 4:
-	        adaptiveMutation.mutateBlue(triangle,stepSize,mutationDirection);
-	        triangle.updateTriangle();
-	        if(triangle.getBlue()==0||triangle.getBlue()==255)hitBound=true;
-	        break;
-	      case 5:
-	        adaptiveMutation.mutateP1X(triangle,stepSize,mutationDirection);
-	        triangle.updateTriangle();
-	        if(triangle.getP1().x==0||triangle.getP1().x==IMAGE_WIDTH)hitBound=true;
-	        break;
-	      case 6:
-	        adaptiveMutation.mutateP1Y(triangle,stepSize,mutationDirection);
-	        triangle.updateTriangle();
-	        if(triangle.getP1().y==0||triangle.getP1().y==IMAGE_WIDTH)hitBound=true;
-	        break;
-	      case 7:
-	        adaptiveMutation.mutateP2X(triangle,stepSize,mutationDirection);
-	        triangle.updateTriangle();
-	        if(triangle.getP2().x==0||triangle.getP2().x==IMAGE_WIDTH)hitBound=true;
-	        break;
-	      case 8:
-	        adaptiveMutation.mutateP2Y(triangle,stepSize,mutationDirection);
-	        triangle.updateTriangle();
-	        if(triangle.getP2().y==0||triangle.getP2().y==IMAGE_WIDTH)hitBound=true;
-	        break;
-	      case 9:
-	        adaptiveMutation.mutateP3X(triangle,stepSize,mutationDirection);
-	        triangle.updateTriangle();
-	        if(triangle.getP3().x==0||triangle.getP3().x==IMAGE_WIDTH)hitBound=true;
-	        break;
-	      case 10:
-	        adaptiveMutation.mutateP3Y(triangle,stepSize,mutationDirection);
-	        triangle.updateTriangle();
-	        if(triangle.getP3().y==0||triangle.getP3().y==IMAGE_WIDTH)hitBound=true;
-	        break;
-	      default:
-	        break; // Should never reach here.
-	    }
-	    // update the triangle following the mutation.
-	    triangle.updateTriangle();
-	    //Check the new fitness. 
-	    imageRenderer.render(DNA);
-	    // Check new fitness.
-	    checkFitness.calculateFitness(imageRenderer.getBuff());
+    Triangle triangle = DNA.get(triangleNum);
+    boolean hitBound = false;
+    switch (geneMutationNum)
+    {
+      case 1:
+        adaptiveMutation.mutateAlpha(triangle, stepSize, mutationDirection);
+        triangle.updateTriangle();
+        if (triangle.getAlpha() == 0 || triangle.getAlpha() == 255)
+          hitBound = true;
+        break;
+      case 2:
+        adaptiveMutation.mutateRed(triangle, stepSize, mutationDirection);
+        triangle.updateTriangle();
+        if (triangle.getRed() == 0 || triangle.getRed() == 255)
+          hitBound = true;
+        break;
+      case 3:
+        adaptiveMutation.mutateGreen(triangle, stepSize, mutationDirection);
+        triangle.updateTriangle();
+        if (triangle.getGreen() == 0 || triangle.getGreen() == 255)
+          hitBound = true;
+        break;
+      case 4:
+        adaptiveMutation.mutateBlue(triangle, stepSize, mutationDirection);
+        triangle.updateTriangle();
+        if (triangle.getBlue() == 0 || triangle.getBlue() == 255)
+          hitBound = true;
+        break;
+      case 5:
+        adaptiveMutation.mutateP1X(triangle, stepSize, mutationDirection);
+        triangle.updateTriangle();
+        if (triangle.getP1().x == 0 || triangle.getP1().x == IMAGE_WIDTH)
+          hitBound = true;
+        break;
+      case 6:
+        adaptiveMutation.mutateP1Y(triangle, stepSize, mutationDirection);
+        triangle.updateTriangle();
+        if (triangle.getP1().y == 0 || triangle.getP1().y == IMAGE_WIDTH)
+          hitBound = true;
+        break;
+      case 7:
+        adaptiveMutation.mutateP2X(triangle, stepSize, mutationDirection);
+        triangle.updateTriangle();
+        if (triangle.getP2().x == 0 || triangle.getP2().x == IMAGE_WIDTH)
+          hitBound = true;
+        break;
+      case 8:
+        adaptiveMutation.mutateP2Y(triangle, stepSize, mutationDirection);
+        triangle.updateTriangle();
+        if (triangle.getP2().y == 0 || triangle.getP2().y == IMAGE_WIDTH)
+          hitBound = true;
+        break;
+      case 9:
+        adaptiveMutation.mutateP3X(triangle, stepSize, mutationDirection);
+        triangle.updateTriangle();
+        if (triangle.getP3().x == 0 || triangle.getP3().x == IMAGE_WIDTH)
+          hitBound = true;
+        break;
+      case 10:
+        adaptiveMutation.mutateP3Y(triangle, stepSize, mutationDirection);
+        triangle.updateTriangle();
+        if (triangle.getP3().y == 0 || triangle.getP3().y == IMAGE_WIDTH)
+          hitBound = true;
+        break;
+      default:
+        break; // Should never reach here.
+    }
+    // update the triangle following the mutation.
+    triangle.updateTriangle();
+    // Check the new fitness.
+    imageRenderer.render(DNA);
+    // Check new fitness.
+    checkFitness.calculateFitness(imageRenderer.getBuff());
 
-	    //If better fitness and no resultant bounds collision return true. 
-	    if(checkFitness.getFitness() > parentFitness&&!hitBound)
-	    {
-	    	parentFitness = checkFitness.getFitness();
-//	    	System.out.println("Step was a success, stepSize: " + stepSize);
-	    	bestFit = checkFitness.getFitness();
-	    	bestGenome = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
-	    	return true;  
-	    }
-	    else
-	    {
-	    	return false;
-	    }
+    // If better fitness and no resultant bounds collision return true.
+    if (checkFitness.getFitness() > parentFitness && !hitBound)
+    {
+      parentFitness = checkFitness.getFitness();
+      // System.out.println("Step was a success, stepSize: " + stepSize);
+      bestGenome = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
+      return true;
+    }
+    else
+    {
+      return false;
+    }
   }
-  
- /**
-  * Undo last adaptive hill climbing step. 
-  * @param stepSize
-  */
+
+  /**
+   * Undo last adaptive hill climbing step.
+   * 
+   * @param stepSize
+   */
   private void undoLastStep(int stepSize)
   {
-	  Triangle triangle = DNA.get(triangleNum);
-	  //To undo the last step we just need to do the same mutation except
-	  //in the opposite direction. 
-	  if(mutationDirection)
-	  {
-		  mutationDirection = false;
-	  }
-	  else
-	  {
-		  mutationDirection = true;
-	  }
-	  switch (geneMutationNum)
-	    {
-	      case 1:
-	        adaptiveMutation.mutateAlpha(triangle,stepSize,mutationDirection);
-	        break;
-	      case 2:
-	        adaptiveMutation.mutateRed(triangle,stepSize,mutationDirection);
-	        break;
-	      case 3:
-	        adaptiveMutation.mutateGreen(triangle,stepSize,mutationDirection);
-	        break;
-	      case 4:
-	        adaptiveMutation.mutateBlue(triangle,stepSize,mutationDirection);
-	        break;
-	      case 5:
-	        adaptiveMutation.mutateP1X(triangle,stepSize,mutationDirection);
-	        break;
-	      case 6:
-	        adaptiveMutation.mutateP1Y(triangle,stepSize,mutationDirection);
-	        break;
-	      case 7:
-	        adaptiveMutation.mutateP2X(triangle,stepSize,mutationDirection);
-	        break;
-	      case 8:
-	        adaptiveMutation.mutateP2Y(triangle,stepSize,mutationDirection);
-	        break;
-	      case 9:
-	        adaptiveMutation.mutateP3X(triangle,stepSize,mutationDirection);
-	        break;
-	      case 10:
-	        adaptiveMutation.mutateP3Y(triangle,stepSize,mutationDirection);
-	        break;
-	      default:
-	        break; // Should never reach here.
-	    }
-	    // update the triangle following the mutation.
-	    triangle.updateTriangle();
+    Triangle triangle = DNA.get(triangleNum);
+    // To undo the last step we just need to do the same mutation except
+    // in the opposite direction.
+    if (mutationDirection)
+    {
+      mutationDirection = false;
+    }
+    else
+    {
+      mutationDirection = true;
+    }
+    switch (geneMutationNum)
+    {
+      case 1:
+        adaptiveMutation.mutateAlpha(triangle, stepSize, mutationDirection);
+        break;
+      case 2:
+        adaptiveMutation.mutateRed(triangle, stepSize, mutationDirection);
+        break;
+      case 3:
+        adaptiveMutation.mutateGreen(triangle, stepSize, mutationDirection);
+        break;
+      case 4:
+        adaptiveMutation.mutateBlue(triangle, stepSize, mutationDirection);
+        break;
+      case 5:
+        adaptiveMutation.mutateP1X(triangle, stepSize, mutationDirection);
+        break;
+      case 6:
+        adaptiveMutation.mutateP1Y(triangle, stepSize, mutationDirection);
+        break;
+      case 7:
+        adaptiveMutation.mutateP2X(triangle, stepSize, mutationDirection);
+        break;
+      case 8:
+        adaptiveMutation.mutateP2Y(triangle, stepSize, mutationDirection);
+        break;
+      case 9:
+        adaptiveMutation.mutateP3X(triangle, stepSize, mutationDirection);
+        break;
+      case 10:
+        adaptiveMutation.mutateP3Y(triangle, stepSize, mutationDirection);
+        break;
+      default:
+        break; // Should never reach here.
+    }
+    // update the triangle following the mutation.
+    triangle.updateTriangle();
   }
-  
+
   /**
-   * Random mutation adding a stochastic element to the hill climbing and 
-   * is used to trigger series of short adaptive climbs. 
+   * Random mutation adding a stochastic element to the hill climbing and is
+   * used to trigger series of short adaptive climbs.
    */
   private void randomMutate()
   {
@@ -440,9 +470,9 @@ public class GA extends Stage
     // index, thus that triangle should always be at that index.
     Triangle triangle = DNA.get(triangleNum);
 
-     prevValue = 0; // use a single integer to hold all the values. Doesn't
-                       // cause any problems since we can only mutate one of the
-                       // genes at a time.
+    prevValue = 0; // use a single integer to hold all the values. Doesn't
+                   // cause any problems since we can only mutate one of the
+                   // genes at a time.
 
     // Next select a random gene from the triangle.
     geneMutationNum = random.nextInt(10) + 1;
@@ -501,7 +531,8 @@ public class GA extends Stage
   }
 
   /**
-   * Undo the random mutation. 
+   * Undo the random mutation.
+   * 
    * @param triangleNum
    * @param geneNum
    * @param prevGeneVal
@@ -544,10 +575,9 @@ public class GA extends Stage
         break; // Should never reach here.
 
     }
-    DNA.get(triangleNum).updateTriangle(); 
+    DNA.get(triangleNum).updateTriangle();
 
   }
-
 
   /**
    * @return the value of the current mutations fitness.
@@ -570,7 +600,8 @@ public class GA extends Stage
     childFitness = FitnessTest();
     if (childFitness > parentFitness)
     {
-      bestGenome = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);;
+      bestGenome = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
+      ;
       ++improvements;
       parentFitness = childFitness;
       return true;
@@ -591,5 +622,39 @@ public class GA extends Stage
     return bestGenome;
   }
 
+  public int getNumGenerations()
+  {
+    return generations;
+  }
+
+  public int getNumHillclimb()
+  {
+    return hillclimbChildren;
+  }
+
+  public int getNumCrossover()
+  {
+    return crossoverChildren;
+  }
+
+  public int getPreviousNumGenerations()
+  {
+    return previousItGenerations;
+  }
+
+  public void updatePreviousGeneration(int numGenerations)
+  {
+    previousItGenerations = numGenerations;
+  }
+  
+  public double getPreviousBestFit()
+  {
+    return previousItFitness;
+  }
+  
+  public void updatePreviousFitness(double fit)
+  {
+    previousItFitness = fit;
+  }
 
 }

@@ -8,8 +8,8 @@
 
 <AnchorPane prefHeight="600.0" prefWidth="740.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Application.mainController">
 	<children>
-		<Button fx:id="startButton" layoutX="329.0" layoutY="368.0" mnemonicParsing="false" onAction="#startButtonHandler" text="Start" />
-		<Button fx:id="stopButton" layoutX="384.0" layoutY="368.0" mnemonicParsing="false" onAction="#stopButtonHandler" text="Stop" />
+		<Button fx:id="startButton" layoutX="527.0" layoutY="389.0" mnemonicParsing="false" onAction="#startButtonHandler" text="Start" />
+		<Button fx:id="stopButton" layoutX="582.0" layoutY="389.0" mnemonicParsing="false" onAction="#stopButtonHandler" text="Stop" />
 		<ComboBox fx:id="myCB" layoutX="288.0" layoutY="546.0" onAction="#comboBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="Hard Mutate" visibleRowCount="3">
 		</ComboBox>
       <Button fx:id="chooseFileButton" layoutX="516.0" layoutY="422.0" mnemonicParsing="false" onAction="#fileButtonHandler" text="Upload New Image" />
@@ -20,15 +20,16 @@
       <Text layoutX="528.0" layoutY="361.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Current Target" />
       <Text layoutX="508.0" layoutY="555.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Right now only upload and initialize once " wrappingWidth="164.5507842907682" />
       <Text fx:id="elapsedTimeText" layoutX="296.0" layoutY="432.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Elapsed Time: N/A" wrappingWidth="164.55078125" />
-      <Text layoutX="20.0" layoutY="414.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Generations: N/A" wrappingWidth="180.310546875" />
-      <Text layoutX="20.0" layoutY="454.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Hill-Climb Children: N/A" wrappingWidth="222.8671875" />
-      <Text layoutX="20.0" layoutY="434.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Cross-Over Children: N/A" wrappingWidth="222.86718968302011" />
-      <Text layoutX="20.0" layoutY="494.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Average Generations per Second: N/A" wrappingWidth="250.40623486042023" />
+      <Text fx:id="totalGenerations" layoutX="20.0" layoutY="414.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Generations: N/A" wrappingWidth="180.310546875" />
+      <Text fx:id="hillclimbChildren" layoutX="20.0" layoutY="454.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Hill-Climb Children: N/A" wrappingWidth="222.8671875" />
+      <Text fx:id="crossoverChildren" layoutX="20.0" layoutY="434.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Cross-Over Children: N/A" wrappingWidth="222.86718968302011" />
+      <Text fx:id="totalAvgGPS" layoutX="20.0" layoutY="494.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Average Generations per Second: N/A" wrappingWidth="250.40623486042023" />
       <Text fx:id="totalPopulationText" layoutX="296.0" layoutY="454.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Population: N/A  " />
-      <Text layoutX="20.0" layoutY="474.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Current Average Generations per Second: N/A  " />
+      <Text fx:id="currentAvgGPS" layoutX="20.0" layoutY="474.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Current Average Generations per Second: N/A  " />
       <Text layoutX="23.0" layoutY="555.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Make sure to upload and initialize before pressing start" wrappingWidth="243.501953125" />
       <ComboBox fx:id="tribeBox" layoutX="295.0" layoutY="469.0" onAction="#tribeBoxHandler" prefWidth="150.0" promptText="Display Options" />
       <Button fx:id="printGenomes" layoutX="508.0" layoutY="506.0" mnemonicParsing="false" onAction="#printButtonHandler" text="Print All Genome Fitness" />
       <ComboBox fx:id="genomeViewerBox" layoutX="295.0" layoutY="506.0" onAction="#genomeViewerBoxHandler" prefWidth="150.0" promptText="Genome Viewer" />
+      <Text fx:id="bestGenomesFitPerSec" layoutX="20.0" layoutY="394.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Most Fit Genome's change in fitness/second:                     " />
 	</children>
 </AnchorPane>

@@ -51,6 +51,16 @@ public class NewMain extends Application
   private int genomeDisplayed;
   private boolean genomeViewer;
 
+  private GA currentGenome;
+  private int numGenerations;
+
+  private int totalGenerations;
+  private int hillclimbChildren;
+  private int crossoverChildren;
+  private int currentGenerationsPerSecond;
+  private int totalGenerationsPerSecond;
+  private double deltaFitnessPerSecond;
+
   /**
    * The creation of the initial window, a popup that asks you to load an image.
    * Once loaded, the user will press start and then the main window is created.
@@ -126,12 +136,12 @@ public class NewMain extends Application
    * @param imgFitness
    *          the initial fitness
    */
-//  public void setGA(GA g, Image img, double imgFitness)
-//  {
-//    ga = g;
-//    displayedPop = img;
-//    displayedFitness = imgFitness;
-//  }
+  // public void setGA(GA g, Image img, double imgFitness)
+  // {
+  // ga = g;
+  // displayedPop = img;
+  // displayedFitness = imgFitness;
+  // }
 
   /**
    * Called by the GA when an improved fitness is found.
@@ -192,6 +202,98 @@ public class NewMain extends Application
     }
 
     mainController.updateDisplay(displayedPop, displayedFitness);
+  }
+
+  private void updateStatistics()
+  {
+    totalGenerations = 0;
+    hillclimbChildren = 0;
+    crossoverChildren = 0;
+    currentGenerationsPerSecond = 0;
+    totalGenerationsPerSecond = 0;
+    deltaFitnessPerSecond = 0;
+    int genomeWithBestFit = 0;
+    double bestFit = tribesGA.get(0).getFit();
+
+    for (int i = 0; i < tribesGA.size(); i++)
+    {
+      currentGenome = tribesGA.get(i);
+      numGenerations = currentGenome.getNumGenerations();
+
+      // The total numbers of generations calculated by all the tribes
+      // get generations value from each GA
+      // send this value to mainController
+      totalGenerations += numGenerations;
+
+      // the total hill climb children
+      hillclimbChildren += currentGenome.getNumHillclimb();
+
+      // the total cross over children
+      crossoverChildren += currentGenome.getNumCrossover();
+
+      // current generations per second averaged over the past second
+      //
+      // my interpretation: the difference between total generations from the
+      // previous second to the current second
+      //
+      // take last second's generation count and this second's generation count
+      // subtract 1st from 2nd
+      // average these values from all tribes
+
+      currentGenerationsPerSecond += numGenerations - currentGenome.getPreviousNumGenerations();
+      currentGenome.updatePreviousGeneration(numGenerations);
+
+      // current generations per second averaged over all time since most recent
+      // pop init
+      //
+      // my interpretation: the total generations per second
+      //
+      // take the current number of total generations divided by time elapsed in
+      // seconds. average these values from all tribes
+      if (mainController.getElapsedNanoTime() < (1 / 1E9))
+      {
+        totalGenerationsPerSecond = 0;
+      }
+      else
+      {
+        totalGenerationsPerSecond += (numGenerations / (mainController.getElapsedNanoTime() / 1E9));
+      }
+
+      // determine which GA has the highest current fitness, so we know which
+      // delta Fitness/sec to display
+      if (i > 0)
+      {
+        if (bestFit < currentGenome.getFit())
+        {
+          genomeWithBestFit = i;
+          bestFit = currentGenome.getFit();
+        }
+      }
+    }
+
+    // Since this method gets called every .5 seconds, we need to multiply
+    // currentGenerationsPerSecond by 2 to get the proper value. Is actually
+    // currentGenerationsPerHalfSecond until the multiplication by 2.
+    currentGenerationsPerSecond = (currentGenerationsPerSecond / tribesGA.size()) * 2;
+
+    totalGenerationsPerSecond = totalGenerationsPerSecond / tribesGA.size();
+
+    // the change in fitness per second of the most fit genome in the
+    // population.
+    //
+    // my interpretation: the difference between the bestFitness right now and
+    // that same GA's bestFitness from a second ago
+    //
+    // take the current best fitness and subtract it from the previous best
+    // fitness. since this method is called every half a second this initially
+    // gives us the change in fitness per half second, thus we multiply it by
+    // two for change in fitness per second.
+
+    deltaFitnessPerSecond = (bestFit - tribesGA.get(genomeWithBestFit).getPreviousBestFit()) * 2;
+    tribesGA.get(genomeWithBestFit).updatePreviousFitness(bestFit);
+
+    mainController.updateStatistics(totalGenerations, hillclimbChildren, crossoverChildren,
+        currentGenerationsPerSecond, totalGenerationsPerSecond, deltaFitnessPerSecond);
   }
 
   /**
@@ -319,6 +421,7 @@ public class NewMain extends Application
           // Updates display with the most fit overall genome from all
           // of the tribes.
           updateDisplay();
+          updateStatistics();
         }
 
         mainController.setElapsedTime(thisTime);
