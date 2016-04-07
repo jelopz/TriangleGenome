@@ -70,8 +70,9 @@ public class NewMain extends Application
   private int totalGenerations;
   private int hillclimbChildren;
   private int crossoverChildren;
-  private int currentGenerationsPerSecond;
-  private int totalGenerationsPerSecond;
+  private double totalGenerationsPerSecond;
+  private double avgCurrentGenerationsPerSecond;
+  private double avgTotalGenerationsPerSecond;
   private double deltaFitnessPerSecond;
 
   private Renderer render;
@@ -259,8 +260,9 @@ public class NewMain extends Application
     totalGenerations = 0;
     hillclimbChildren = 0;
     crossoverChildren = 0;
-    currentGenerationsPerSecond = 0;
     totalGenerationsPerSecond = 0;
+    avgCurrentGenerationsPerSecond = 0;
+    avgTotalGenerationsPerSecond = 0;
     deltaFitnessPerSecond = 0;
     int genomeWithBestFit = 0;
     double bestFit = tribesGA.get(0).getFit();
@@ -290,7 +292,7 @@ public class NewMain extends Application
       // subtract 1st from 2nd
       // average these values from all tribes
 
-      currentGenerationsPerSecond += numGenerations - currentGenome.getPreviousNumGenerations();
+      avgCurrentGenerationsPerSecond += numGenerations - currentGenome.getPreviousNumGenerations();
       currentGenome.updatePreviousGeneration(numGenerations);
 
       // current generations per second averaged over all time since most recent
@@ -300,13 +302,15 @@ public class NewMain extends Application
       //
       // take the current number of total generations divided by time elapsed in
       // seconds. average these values from all tribes
-      if (mainController.getElapsedNanoTime() < (1 / 1E9))
+      if (mainController.getElapsedNanoTime() < (1 * 1E9))
       {
+        avgTotalGenerationsPerSecond = 0;
         totalGenerationsPerSecond = 0;
       }
       else
       {
-        totalGenerationsPerSecond += (numGenerations / (mainController.getElapsedNanoTime() / 1E9));
+        avgTotalGenerationsPerSecond += (numGenerations / (mainController.getElapsedNanoTime()
+            / 1E9));
       }
 
       // determine which GA has the highest current fitness, so we know which
@@ -324,9 +328,10 @@ public class NewMain extends Application
     // Since this method gets called every .5 seconds, we need to multiply
     // currentGenerationsPerSecond by 2 to get the proper value. Is actually
     // currentGenerationsPerHalfSecond until the multiplication by 2.
-    currentGenerationsPerSecond = (currentGenerationsPerSecond / tribesGA.size()) * 2;
+    avgCurrentGenerationsPerSecond = (avgCurrentGenerationsPerSecond / tribesGA.size()) * 2;
 
-    totalGenerationsPerSecond = totalGenerationsPerSecond / tribesGA.size();
+    totalGenerationsPerSecond = avgTotalGenerationsPerSecond;
+    avgTotalGenerationsPerSecond = avgTotalGenerationsPerSecond / tribesGA.size();
 
     // the change in fitness per second of the most fit genome in the
     // population.
@@ -343,7 +348,8 @@ public class NewMain extends Application
     tribesGA.get(genomeWithBestFit).updatePreviousFitness(bestFit);
 
     mainController.updateStatistics(totalGenerations, hillclimbChildren, crossoverChildren,
-        currentGenerationsPerSecond, totalGenerationsPerSecond, deltaFitnessPerSecond);
+        totalGenerationsPerSecond, avgCurrentGenerationsPerSecond, avgTotalGenerationsPerSecond,
+        deltaFitnessPerSecond);
   }
 
   /**
@@ -376,7 +382,6 @@ public class NewMain extends Application
 
   public void setGenomeDisplayed(int i)
   {
-    System.out.println(i);
     genomeDisplayed = i;
   }
 

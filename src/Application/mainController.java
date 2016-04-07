@@ -58,6 +58,9 @@ public class mainController
   private Text totalGenerations;
 
   @FXML
+  private Text totalGPS; // Generations Per Second
+
+  @FXML
   private Text hillclimbChildren;
 
   @FXML
@@ -371,14 +374,19 @@ public class mainController
   }
 
   public void updateStatistics(int totalGenerations, int hillclimbChildren, int crossoverChildren,
-      int currentGenerationsPerSecond, int totalGenerationsPerSecond, double deltaFitnessPerSecond)
+      double totalGPS, double avgCurrentGenerationsPerSecond, double avgTotalGenerationsPerSecond,
+      double deltaFitnessPerSecond)
   {
     this.totalGenerations.setText("Total Generations: " + totalGenerations);
     this.hillclimbChildren.setText("Total Hill-Climb Children: " + hillclimbChildren);
     this.crossoverChildren.setText("Total Cross-Over Children: " + crossoverChildren);
-    currentAvgGPS.setText("Current Average Generations per Second: " + currentGenerationsPerSecond);
-    totalAvgGPS.setText("Total Average Generations per Second: " + totalGenerationsPerSecond);
-    bestGenomesFitPerSec.setText("Most Fit Genome's change in fitness/second: "
+    
+    this.totalGPS.setText("Total Generations per Second:\n" + totalGPS);
+    
+    currentAvgGPS.setText("Current Average Generations per Second:\n"
+        + avgCurrentGenerationsPerSecond);
+    totalAvgGPS.setText("Total Average Generations per Second:\n" + avgTotalGenerationsPerSecond);
+    bestGenomesFitPerSec.setText("Most Fit Genome's change in fitness/second:\n"
         + deltaFitnessPerSecond);
   }
 

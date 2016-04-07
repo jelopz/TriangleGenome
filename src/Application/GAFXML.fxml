@@ -18,17 +18,18 @@
       <Text layoutX="528.0" layoutY="361.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Current Target" />
       <Text fx:id="elapsedTimeText" layoutX="296.0" layoutY="432.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Elapsed Time: N/A" wrappingWidth="164.55078125" />
       <Text fx:id="totalGenerations" layoutX="20.0" layoutY="414.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Generations: N/A" wrappingWidth="180.310546875" />
-      <Text fx:id="hillclimbChildren" layoutX="20.0" layoutY="454.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Hill-Climb Children: N/A" wrappingWidth="222.8671875" />
-      <Text fx:id="crossoverChildren" layoutX="20.0" layoutY="434.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Cross-Over Children: N/A" wrappingWidth="222.86718968302011" />
-      <Text fx:id="totalAvgGPS" layoutX="20.0" layoutY="494.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Average Generations per Second: N/A" wrappingWidth="250.40623486042023" />
+      <Text fx:id="hillclimbChildren" layoutX="20.0" layoutY="494.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Hill-Climb Children: N/A" wrappingWidth="222.8671875" />
+      <Text fx:id="crossoverChildren" layoutX="20.0" layoutY="474.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Cross-Over Children: N/A" wrappingWidth="222.86718968302011" />
+      <Text fx:id="totalAvgGPS" layoutX="20.0" layoutY="554.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Average Generations per Second: N/A" wrappingWidth="250.40623486042023" />
       <Text fx:id="totalPopulationText" layoutX="296.0" layoutY="454.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Population: N/A  " />
-      <Text fx:id="currentAvgGPS" layoutX="20.0" layoutY="474.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Current Average Generations per Second: N/A  " />
+      <Text fx:id="currentAvgGPS" layoutX="20.0" layoutY="514.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Current Average Generations per Second: N/A  " />
       <ComboBox fx:id="tribeBox" disable="true" layoutX="280.0" layoutY="469.0" onAction="#tribeBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="Display Options" />
-      <Button fx:id="printGenomes" disable="true" layoutX="72.0" layoutY="533.0" mnemonicParsing="false" onAction="#printButtonHandler" text="Print All Genome Fitness" />
+      <Button fx:id="printGenomes" disable="true" layoutX="509.0" layoutY="529.0" mnemonicParsing="false" onAction="#printButtonHandler" text="Print All Genome Fitness" />
       <ComboBox fx:id="genomeViewerBox" disable="true" layoutX="280.0" layoutY="506.0" onAction="#genomeViewerBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="0" />
-      <Text fx:id="bestGenomesFitPerSec" layoutX="20.0" layoutY="394.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Most Fit Genome's change in fitness/second: N/A                                     " />
+      <Text fx:id="bestGenomesFitPerSec" layoutX="20.0" layoutY="378.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Most Fit Genome's change in fitness/second: N/A" />
       <ComboBox fx:id="geneSelectorBox" disable="true" layoutX="280.0" layoutY="545.0" onAction="#geneSelectorBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="Show Complete Genome" />
-      <Button fx:id="resetButton" layoutX="549.0" layoutY="558.0" mnemonicParsing="false" onAction="#resetButtonHandler" text="reset" />
+      <Button fx:id="resetButton" layoutX="634.0" layoutY="389.0" mnemonicParsing="false" onAction="#resetButtonHandler" text="reset" />
       <ComboBox fx:id="threadSelectorBox" layoutX="499.0" layoutY="494.0" onAction="#threadSelectorBoxHandler" prefHeight="25.0" prefWidth="165.0" promptText="Number of Threads: 2" />
+      <Text fx:id="totalGPS" layoutX="20.0" layoutY="434.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Generations per Second: N/A                          " />
 	</children>
 </AnchorPane>
