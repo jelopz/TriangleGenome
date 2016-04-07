@@ -95,7 +95,6 @@ public class InitialPopulation extends Stage
   // Each tribe has the genetic algorithm operating soley for
   // itself so each one needs an object.
   private ArrayList<GA> tribesGA = new ArrayList<>();
-  private NewMain main;
 
   private int initBestFitTribe;
 
@@ -110,7 +109,6 @@ public class InitialPopulation extends Stage
   public InitialPopulation(Image image, NewMain main, int numThreads)
   {
     this.NUM_TRIBES = numThreads;
-    this.main = main;
     this.image = image;
     // The images should have the same height/width.
     this.IMAGE_HEIGHT = (int) image.getHeight();
@@ -222,16 +220,14 @@ public class InitialPopulation extends Stage
     for (int i = 0; i < NUM_TRIBES; i++)
     {
       Genome gen = tribes.get(i).getGenomesInTribe().get(0);
-      tribesGA.add(new GA(tribes.get(i), gen.getFitness(), image, IMAGE_WIDTH, IMAGE_HEIGHT, main, backGroundColor));
+      tribesGA.add(new GA(tribes.get(i), gen.getFitness(), image, IMAGE_WIDTH, IMAGE_HEIGHT, main,
+          backGroundColor));
     }
 
     // For now just use the first tribes GA.
-//    main.setGA(tribesGA.get(0), perspectiveImage.getImage(), initialFitness);
+    // main.setGA(tribesGA.get(0), perspectiveImage.getImage(), initialFitness);
   }
 
-  
-  
-  
   public ArrayList<Tribe> getTribes()
   {
     return tribes;

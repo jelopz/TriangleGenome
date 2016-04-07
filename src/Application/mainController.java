@@ -43,6 +43,9 @@ public class mainController
   private Button stopButton;
 
   @FXML
+  private Button resetButton;
+
+  @FXML
   private Text fitnessText;
 
   @FXML
@@ -70,9 +73,6 @@ public class mainController
   private Text bestGenomesFitPerSec;
 
   @FXML
-  private ComboBox<String> myCB;
-
-  @FXML
   private ComboBox<String> tribeBox;
 
   @FXML
@@ -80,6 +80,9 @@ public class mainController
 
   @FXML
   private ComboBox<String> geneSelectorBox;
+
+  @FXML
+  private ComboBox<String> threadSelectorBox;
 
   @FXML
   private Button printGenomes;
@@ -146,16 +149,15 @@ public class mainController
   @FXML
       void findInitialPopulation(ActionEvent event)
   {
-    InitialPopulation viewInitialPopulation = new InitialPopulation(main.originalImage, main,
-        main.NUM_OF_THREADS);
+    InitialPopulation initPop = new InitialPopulation(main.originalImage, main, main
+        .getNumThreads());
 
-    main.tribes = viewInitialPopulation.getTribes();
-    main.tribesGA = viewInitialPopulation.getTribesGAs();
+    main.tribes = initPop.getTribes();
+    main.tribesGA = initPop.getTribesGAs();
 
     System.out.println("SIZE: " + main.tribesGA.size());
-    myImageViewer.setImage(viewInitialPopulation.getInitImage());
-    fitnessText.setText("Current Best Fitness: " + String.valueOf(viewInitialPopulation
-        .getInitFitness()));
+    myImageViewer.setImage(initPop.getInitImage());
+    fitnessText.setText("Current Best Fitness: " + String.valueOf(initPop.getInitFitness()));
     main.setTotalPopulation();
     chooseFileButton.setDisable(true);
     initNewButton.setDisable(true);
@@ -163,6 +165,12 @@ public class mainController
     stopButton.setDisable(false);
     tribeBox.setDisable(false);
     printGenomes.setDisable(false);
+    threadSelectorBox.setDisable(true);
+
+    if (!main.startThreads)
+    {
+      main.updateThreads();
+    }
   }
 
   @FXML
@@ -171,26 +179,34 @@ public class mainController
     main.printAllGenomeFitness();
   }
 
-  /**
-   * First, stops the loop. Then, calls main to tell the GA what type of
-   * mutation to run
-   * 
-   * @param event
-   */
   @FXML
-      void comboBoxHandler(ActionEvent event)
+      void resetButtonHandler(ActionEvent event)
   {
-    main.stopLoop();
-    String selection = myCB.getValue();
+    stashedTime = 0;
 
-    if (selection == "Soft Mutate")
+    if (main.isRunning)
     {
-      main.setMutationType(false);
+      main.stopLoop();
     }
-    else if (selection == "Hard Mutate")
-    {
-      main.setMutationType(true);
-    }
+
+    fitnessText.setText("Current Best Fitness: N/A");
+    elapsedTimeText.setText("Elapsed Time: N/A");
+    totalPopulationText.setText("Total Population: N/A");
+    totalGenerations.setText("Total Generations: N/A");
+    hillclimbChildren.setText("Total Hill-Climb Children: N/A");
+    crossoverChildren.setText("Total Cross-Over Children: N/A");
+    currentAvgGPS.setText("Current Average Generations per Second: N/A");
+    totalAvgGPS.setText("Total Average Generations per Second: N/A");
+    bestGenomesFitPerSec.setText("Most Fit Genome's change in fitness/second: N/A");
+
+    chooseFileButton.setDisable(false);
+    initNewButton.setDisable(false);
+    startButton.setDisable(true);
+    stopButton.setDisable(true);
+    genomeViewerBox.setDisable(true);
+    printGenomes.setDisable(true);
+    geneSelectorBox.setDisable(true);
+    tribeBox.setDisable(true);
   }
 
   @FXML
@@ -212,8 +228,24 @@ public class mainController
       main.toggleShowWholeGenome(false);
       main.setGeneDisplayed(Integer.parseInt(geneSelectorBox.getValue()));
     }
-    
+
     main.updateDisplay();
+  }
+
+  @FXML
+      void threadSelectorBoxHandler(ActionEvent event)
+  {
+    int newNumThreads = Integer.parseInt(threadSelectorBox.getValue());
+    main.setNumThreads(newNumThreads);
+
+    tribeBox.getItems().setAll();
+
+    tribeBox.getItems().addAll("Best Fit From All Tribes");
+
+    for (int i = 0; i < newNumThreads; i++)
+    {
+      tribeBox.getItems().addAll(("Best Fit From Tribe " + i), ("Specific Genome From Tribe " + i));
+    }
   }
 
   @FXML
@@ -224,40 +256,37 @@ public class mainController
     if (selection == "Best Fit From All Tribes")
     {
       genomeViewerBox.setDisable(true);
+      geneSelectorBox.setDisable(true);
       main.toggleView(true);
       main.updateDisplay();
     }
     else
     {
       main.toggleView(false);
+      String s;
+      String z;
 
-      if (selection == "Best Fit From Tribe 0")
+      for (int i = 0; i < main.getNumThreads(); i++)
       {
-        genomeViewerBox.setDisable(true);
-        geneSelectorBox.setDisable(true);
-        main.setTribeDisplayed(0);
-        main.setGenomeViewer(false);
-      }
-      else if (selection == "Best Fit From Tribe 1")
-      {
-        genomeViewerBox.setDisable(true);
-        geneSelectorBox.setDisable(true);
-        main.setTribeDisplayed(1);
-        main.setGenomeViewer(false);
-      }
-      else if (selection == "Specific Genome From Tribe 0")
-      {
-        genomeViewerBox.setDisable(false);
-        geneSelectorBox.setDisable(false);
-        main.setTribeDisplayed(0);
-        main.setGenomeViewer(true);
-      }
-      else // specific genome from tribe 1
-      {
-        genomeViewerBox.setDisable(false);
-        geneSelectorBox.setDisable(false);
-        main.setTribeDisplayed(1);
-        main.setGenomeViewer(true);
+        s = ("Best Fit From Tribe " + i);
+        z = ("Specific Genome From Tribe " + i);
+
+        if (selection.equals(s))
+        {
+          System.out.println("1");
+          genomeViewerBox.setDisable(true);
+          geneSelectorBox.setDisable(true);
+          main.setTribeDisplayed(i);
+          main.setGenomeViewer(false);
+        }
+        else if (selection.equals(z))
+        {
+          System.out.println("2");
+          genomeViewerBox.setDisable(false);
+          geneSelectorBox.setDisable(false);
+          main.setTribeDisplayed(i);
+          main.setGenomeViewer(true);
+        }
       }
 
       main.updateDisplay();
@@ -289,9 +318,15 @@ public class mainController
     this.main = main;
 
     // Populates the combo box
-    myCB.getItems().addAll("Soft Mutate", "Hard Mutate");
-    tribeBox.getItems().addAll("Best Fit From All Tribes", "Best Fit From Tribe 0",
-        "Best Fit From Tribe 1", "Specific Genome From Tribe 0", "Specific Genome From Tribe 1");
+    tribeBox.getItems().addAll("Best Fit From All Tribes");// , "Best Fit From
+                                                           // Tribe 0",
+    // "Best Fit From Tribe 1", "Specific Genome From Tribe 0", "Specific Genome
+    // From Tribe 1");
+
+    for (int i = 0; i < main.getNumThreads(); i++)
+    {
+      tribeBox.getItems().addAll(("Best Fit From Tribe " + i), ("Specific Genome From Tribe " + i));
+    }
 
     stashedTime = 0;
 
@@ -301,6 +336,7 @@ public class mainController
 
     for (int i = 0; i < 100; i++)
     {
+      threadSelectorBox.getItems().add(String.valueOf(i + 1));
       genomeViewerBox.getItems().add(String.valueOf(i));
       geneSelectorBox.getItems().add(String.valueOf(i));
     }

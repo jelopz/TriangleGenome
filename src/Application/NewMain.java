@@ -38,12 +38,16 @@ public class NewMain extends Application
   // Filechooser
   FileChooser fileChooser;
   Image originalImage;
-  int NUM_OF_THREADS = 2;
+  // int NUM_OF_THREADS = 2;
+  private int numThreads;
   GA ga;
   ArrayList<Tribe> tribes;
   ArrayList<GA> tribesGA;
   ArrayList<Triangle> specificGene;
 
+  ArrayList<WorkerThread> threads;
+
+  boolean startThreads = true;
   boolean isRunning; // used to let the ApplicationLoop know when to run
   private mainController mainController;
   private Image displayedPop;
@@ -56,7 +60,7 @@ public class NewMain extends Application
 
   private int genomeDisplayed;
   private int geneDisplayed;
-  
+
   private boolean genomeViewer;
   private boolean showWholeGenome;
 
@@ -87,7 +91,7 @@ public class NewMain extends Application
     isRunning = false;
 
     specificGene = new ArrayList<>();
-    
+
     viewToggle = true;
     genomeViewer = false;
     showWholeGenome = true;
@@ -135,8 +139,11 @@ public class NewMain extends Application
     //
     // tribes = viewInitialPopulation.getTribes();
     // tribesGA = viewInitialPopulation.getTribesGAs();
+
     FXMLLoader loader = new FXMLLoader(getClass().getResource("GAFXML.fxml"));
     Parent root = loader.load();
+
+    numThreads = 2;
 
     mainController = loader.getController();
     mainController.initController(this);
@@ -146,6 +153,8 @@ public class NewMain extends Application
     primaryStage.setTitle("Genetic Algorithm");
     primaryStage.setScene(new Scene(root));
     primaryStage.show();
+
+    threads = new ArrayList<>();
 
     AnimationTimer loop = new ApplicationLoop();
     loop.start();
@@ -202,7 +211,7 @@ public class NewMain extends Application
     if (viewToggle) // selects best fit genome from all tribes
     {
       double f;
-      for (int i = 1; i < NUM_OF_THREADS; i++)
+      for (int i = 1; i < numThreads; i++)
       {
         f = tribesGA.get(i).getFit();
         if (f > bestFit)
@@ -234,7 +243,7 @@ public class NewMain extends Application
           updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), bestFit);
         }
         else // choose which gene/triangle to display
-        {                    
+        {
           specificGene.add(g.getDNA().get(geneDisplayed));
           render.render(specificGene);
           updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), bestFit);
@@ -370,7 +379,7 @@ public class NewMain extends Application
     System.out.println(i);
     genomeDisplayed = i;
   }
-  
+
   public void setGeneDisplayed(int i)
   {
     geneDisplayed = i;
@@ -409,7 +418,7 @@ public class NewMain extends Application
   public void updateTribesList(ArrayList<Triangle> DNA, double fit, Image img, GA g)
   {
     Genome gen = null;
-    for (int i = 0; i < NUM_OF_THREADS; i++)
+    for (int i = 0; i < numThreads; i++)
     {
       if (tribesGA.get(i).equals(g))
       {
@@ -428,7 +437,7 @@ public class NewMain extends Application
     Genome potential;
     double bestFit = bestGenome.getFitness();
     System.out.println("First genome fitness " + bestFit);
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < numThreads; i++)
     {
       bestGenome = tribes.get(i).getGenomesInTribe().get(0);
       bestFit = bestGenome.getFitness();
@@ -461,6 +470,24 @@ public class NewMain extends Application
     mainController.setTotalPopulation(pop);
   }
 
+  public void updateThreads()
+  {
+    for (int i = 0; i < numThreads; i++)
+    {
+      threads.get(i).setNewTribe(tribes.get(i), tribesGA.get(i));
+    }
+  }
+
+  public int getNumThreads()
+  {
+    return numThreads;
+  }
+
+  public void setNumThreads(int i)
+  {
+    numThreads = i;
+  }
+
   public static void main(String[] args)
   {
     launch();
@@ -471,7 +498,6 @@ public class NewMain extends Application
    * been over half a second, we draw the most fit image we have to screen and
    * update the value
    */
-  boolean startThreads = true;
 
   class ApplicationLoop extends AnimationTimer
   {
@@ -503,11 +529,12 @@ public class NewMain extends Application
         // only one thread).
         if (startThreads)
         {
-
           startThreads = false;
-          for (int i = 0; i < NUM_OF_THREADS; i++)
+
+          for (int i = 0; i < numThreads; i++)
           {
             WorkerThread thread = new WorkerThread(tribes.get(i), tribesGA.get(i), i);
+            threads.add(thread);
             thread.start();
           }
 
@@ -527,8 +554,8 @@ public class NewMain extends Application
   public class WorkerThread extends Thread
   {
 
-    Tribe tribe;
-    GA ga;
+    private Tribe tribe;
+    private GA ga;
     int tribeNum;
 
     WorkerThread(Tribe tribe, GA ga, int tribeNum)
@@ -536,6 +563,12 @@ public class NewMain extends Application
       this.tribe = tribe;
       this.ga = ga;
       this.tribeNum = tribeNum;
+    }
+
+    public void setNewTribe(Tribe t, GA g)
+    {
+      tribe = t;
+      ga = g;
     }
 
     public void run()
