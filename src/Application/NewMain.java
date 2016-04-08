@@ -91,6 +91,7 @@ public class NewMain extends Application
   private double deltaFitnessPerSecond;
   // ArrayList to hold the worker threads.
   private ArrayList<WorkerThread> listOfThreads = new ArrayList<>();
+  private double[] tribesDeltaT;
   private Renderer render;
 
   /**
@@ -175,7 +176,7 @@ public class NewMain extends Application
     primaryStage.show();
 
     threads = new ArrayList<>();
-
+    tribesDeltaT = new double[numThreads]; 
     AnimationTimer loop = new ApplicationLoop();
     loop.start();
   }
@@ -557,6 +558,7 @@ public class NewMain extends Application
 
   public void setNumThreads(int i)
   {
+	tribesDeltaT = new double[i];
     numThreads = i;
   }
 
@@ -791,6 +793,7 @@ public class NewMain extends Application
           bestFit = currentGenome.getFit();
         }
       }
+      tribesDeltaT[i] = ((currentGenome.getFit() - tribesGA.get(i).getPreviousBestFit())*2);
     }
 
     // Since this method gets called every .5 seconds, we need to multiply
@@ -813,32 +816,39 @@ public class NewMain extends Application
     // two for change in fitness per second.
 
     deltaFitnessPerSecond = (bestFit - tribesGA.get(genomeWithBestFit).getPreviousBestFit()) * 2;
-    tribesGA.get(genomeWithBestFit).updatePreviousFitness(bestFit);
+    
+    for(int i = 0; i < numThreads; i++)
+    {
+    	tribesGA.get(i).updatePreviousFitness(tribesGA.get(i).getFit());
+    }
+    
+   // tribesGA.get(genomeWithBestFit).updatePreviousFitness(bestFit);
 
-    // We only increment the stuck count during hill climbing as we shouldnt
-    // really expect the fitness to increase during cross over.
-    if (deltaFitnessPerSecond == 0 && !tribesGA.get(genomeWithBestFit).isCrossOverMode)
+    System.out.println("One: " + tribesDeltaT[genomeWithBestFit] + " two: " + deltaFitnessPerSecond);
+    for(int i = 0; i < numThreads; i++)
     {
-      ++stuckCount;
+    	System.out.println("Thread: " + i + " " + tribesDeltaT[i]);
+    	if(tribesDeltaT[i]==0.0&&!tribesGA.get(i).isCrossOverMode)
+    	{
+    		tribesGA.get(i).stuckCount++;
+    		System.out.println("Thread: " + i + " stuckcount: " + tribesGA.get(i).stuckCount);
+    	}
+    	else
+    	{
+    		if(!tribesGA.get(i).isCrossOverMode)
+        	{
+        	tribesGA.get(i).stuckCount = 0;
+        	}
+    	}
+    	System.out.println("Thread: " + i + " stuckcount: " + tribesGA.get(i).stuckCount);
+    	if(tribesGA.get(i).stuckCount >200)
+    	{
+    		isRunning = false;
+    		getUnStuck(i);
+    		tribesGA.get(i).stuckCount = 0;
+    		isRunning = true;
+    	}
     }
-    else
-    {
-      if (!tribesGA.get(genomeWithBestFit).isCrossOverMode)
-      {
-        stuckCount = 0;
-      }
-    }
-    // After 200 times in a row of being stuck, the genome being hill
-    // climbed on changes. Also I made this 200 because sometimes the
-    // hill climbing gets its self unstuck after like 50-100 times.
-    if (stuckCount > 200)
-    {
-      isRunning = false;
-      getUnStuck(genomeWithBestFit);
-      isRunning = true;
-      stuckCount = 0;
-    }
-
     mainController.updateStatistics(totalGenerations, hillclimbChildren, crossoverChildren,
         totalGenerationsPerSecond, avgCurrentGenerationsPerSecond, avgTotalGenerationsPerSecond,
         deltaFitnessPerSecond);

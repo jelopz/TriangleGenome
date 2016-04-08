@@ -46,6 +46,7 @@ import javafx.scene.text.Text;
  */
 public class GA extends Stage
 {
+  public int stuckCount;
   public boolean isCrossOverMode;
   public boolean finishedCrossOver;
   double parentFitness;
@@ -114,6 +115,7 @@ public class GA extends Stage
     this.isCrossOverMode = false;
     this.adaptiveMutation = new TriangleMutation(IMAGE_WIDTH, IMAGE_HEIGHT);
     this.childFitness = 0;
+    this.stuckCount = 0;
     // The fittest member in the tribe should be at the front of the arrayList.
     updateBestDNA();
     imageRenderer.render(DNA);
