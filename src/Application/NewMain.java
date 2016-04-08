@@ -704,7 +704,7 @@ public class NewMain extends Application
 
   private String statisticsToString(String elapsedTime)
   {
-    return (elapsedTime + " " + totalGenerations + " " + hillclimbChildren + " " + crossoverChildren
+    return (elapsedTime + " " + displayedFitness + " " + totalGenerations + " " + hillclimbChildren + " " + crossoverChildren
         + " " + totalGenerationsPerSecond + " " + avgCurrentGenerationsPerSecond + " "
         + avgTotalGenerationsPerSecond + " " + deltaFitnessPerSecond);
   }
