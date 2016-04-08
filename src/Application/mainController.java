@@ -46,6 +46,15 @@ public class mainController
   private Button resetButton;
 
   @FXML
+  private Button saveGenomeButton;
+
+  @FXML
+  private Button uploadButton;
+
+  @FXML
+  private Button saveStatsButton;
+
+  @FXML
   private Text fitnessText;
 
   @FXML
@@ -93,6 +102,7 @@ public class mainController
   private NewMain main;
   private long startTime;
   private long lastTime;
+  private long lastSaveTime;
   private long stashedTime; // Time from the last time we started then stopped
                             // the GA. Without this the timer would restart to
                             // 00:00:00 everytime the GA is stopped then
@@ -101,6 +111,7 @@ public class mainController
   private int totalPopulation;
 
   private long elapsedNanoTime;
+  private String elapsedFormattedTime;
 
   @FXML
       void startButtonHandler(ActionEvent event)
@@ -110,6 +121,9 @@ public class mainController
       main.startLoop();
       startTime = System.nanoTime();
       lastTime = startTime;
+      lastSaveTime = startTime;
+      saveStatsButton.setDisable(true);
+      saveGenomeButton.setDisable(true);
     }
   }
 
@@ -120,6 +134,8 @@ public class mainController
     {
       stashedTime += System.nanoTime() - startTime;
       main.stopLoop();
+      saveStatsButton.setDisable(false);
+      saveGenomeButton.setDisable(false);
     }
   }
 
@@ -169,6 +185,7 @@ public class mainController
     tribeBox.setDisable(false);
     printGenomes.setDisable(false);
     threadSelectorBox.setDisable(true);
+    saveGenomeButton.setDisable(false);
 
     if (!main.startThreads)
     {
@@ -180,6 +197,18 @@ public class mainController
       void printButtonHandler(ActionEvent event)
   {
     main.printAllGenomeFitness();
+  }
+
+  @FXML
+      void saveGenomeButtonHandler(ActionEvent event)
+  {
+    main.saveCurrentGenomeDisplayed();
+  }
+
+  @FXML
+      void uploadButtonHandler(ActionEvent event)
+  {
+
   }
 
   @FXML
@@ -202,6 +231,7 @@ public class mainController
     totalAvgGPS.setText("Total Average Generations per Second: N/A");
     bestGenomesFitPerSec.setText("Most Fit Genome's change in fitness/second: N/A");
 
+    saveStatsButton.setDisable(true);
     chooseFileButton.setDisable(false);
     initNewButton.setDisable(false);
     startButton.setDisable(true);
@@ -210,6 +240,7 @@ public class mainController
     printGenomes.setDisable(true);
     geneSelectorBox.setDisable(true);
     tribeBox.setDisable(true);
+    saveGenomeButton.setDisable(true);
   }
 
   @FXML
@@ -296,17 +327,30 @@ public class mainController
     }
   }
 
+  @FXML
+      void saveStatsButtonHandler()
+  {
+    main.saveStatistics();
+  }
+
   public void setElapsedTime(long thisTime)
   {
     long t = thisTime - lastTime;
+    long l = thisTime - lastSaveTime;
     if (t / 1E9 >= 1) // if it's been a second and it's time to update timer
     {
       elapsedNanoTime = thisTime - startTime + stashedTime;
-      String s = String.format("%02d:%02d:%02d", TimeUnit.NANOSECONDS.toHours(elapsedNanoTime),
-          TimeUnit.NANOSECONDS.toMinutes(elapsedNanoTime) % TimeUnit.HOURS.toMinutes(1),
-          TimeUnit.NANOSECONDS.toSeconds(elapsedNanoTime) % TimeUnit.MINUTES.toSeconds(1));
-      elapsedTimeText.setText("Elapsed Time: " + s);
+      elapsedFormattedTime = String.format("%02d:%02d:%02d", TimeUnit.NANOSECONDS.toHours(
+          elapsedNanoTime), TimeUnit.NANOSECONDS.toMinutes(elapsedNanoTime) % TimeUnit.HOURS
+              .toMinutes(1), TimeUnit.NANOSECONDS.toSeconds(elapsedNanoTime) % TimeUnit.MINUTES
+                  .toSeconds(1));
+      elapsedTimeText.setText("Elapsed Time: " + elapsedFormattedTime);
       lastTime = thisTime;
+    }
+    if (l / 1E9 >= 5)
+    {
+      main.updateStatSaver(elapsedFormattedTime);
+      lastSaveTime = thisTime;
     }
   }
 
@@ -380,9 +424,9 @@ public class mainController
     this.totalGenerations.setText("Total Generations: " + totalGenerations);
     this.hillclimbChildren.setText("Total Hill-Climb Children: " + hillclimbChildren);
     this.crossoverChildren.setText("Total Cross-Over Children: " + crossoverChildren);
-    
+
     this.totalGPS.setText("Total Generations per Second:\n" + totalGPS);
-    
+
     currentAvgGPS.setText("Current Average Generations per Second:\n"
         + avgCurrentGenerationsPerSecond);
     totalAvgGPS.setText("Total Average Generations per Second:\n" + avgTotalGenerationsPerSecond);

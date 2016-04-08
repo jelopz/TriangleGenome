@@ -172,4 +172,15 @@ public class Triangle
 	//Update the color and the vertices of the triangle. 
     color = new Color(red, green, blue, alpha);
   }
+  
+  /**
+   * Used when saving a genome to a file.
+   * 
+   * @return the 10 variables separated by spaces in a String.
+   */
+  public String valuesToString()
+  {
+    return (p1x + " " + p1y + " " + p2x + " " + p2y + " " + p3x + " " + p3y + " " + red + " "
+        + green + " " + blue + " " + alpha);
+  }
 }

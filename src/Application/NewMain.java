@@ -2,7 +2,10 @@ package Application;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -49,9 +52,9 @@ public class NewMain extends Application
   ArrayList<Triangle> specificGene;
   private Random random = new Random();
   ArrayList<WorkerThread> threads;
-  //Each thread will have a global pool where some number of genomes
-  //from the other tribes will be collected after some number of iterations
-  //and then sent over to that threads GA so it can perform cross over. 
+  // Each thread will have a global pool where some number of genomes
+  // from the other tribes will be collected after some number of iterations
+  // and then sent over to that threads GA so it can perform cross over.
   private ArrayList<ArrayList<Genome>> globalPools = new ArrayList<>();
   boolean startThreads = true;
   boolean crossOverMode = false;
@@ -59,7 +62,7 @@ public class NewMain extends Application
   boolean isRunning; // used to let the ApplicationLoop know when to run
   private mainController mainController;
   private Image displayedPop;
-  private int countTillCrossOver; 
+  private int countTillCrossOver;
   private double displayedFitness;
   private boolean viewToggle; // Show the best fit genome or the user selected
                               // one? true = best fit, false = user selection
@@ -76,6 +79,8 @@ public class NewMain extends Application
   private GA currentGenome;
   private int numGenerations;
 
+  private ArrayList<String> statSaver;
+
   private int totalGenerations;
   private int hillclimbChildren;
   private int crossoverChildren;
@@ -84,7 +89,7 @@ public class NewMain extends Application
   private double avgCurrentGenerationsPerSecond;
   private double avgTotalGenerationsPerSecond;
   private double deltaFitnessPerSecond;
-  //ArrayList to hold the worker threads. 
+  // ArrayList to hold the worker threads.
   private ArrayList<WorkerThread> listOfThreads = new ArrayList<>();
   private Renderer render;
 
@@ -104,6 +109,8 @@ public class NewMain extends Application
     stuckCount = 0;
     countTillCrossOver = 0;
     specificGene = new ArrayList<>();
+
+    statSaver = new ArrayList<>();
 
     viewToggle = true;
     genomeViewer = false;
@@ -195,6 +202,68 @@ public class NewMain extends Application
   // displayedFitness = imgFitness;
   // }
 
+  public void updateStatSaver(String elapsedTime)
+  {
+    statSaver.add(statisticsToString(elapsedTime));
+  }
+
+  public void saveStatistics()
+  {
+    try
+    {
+      FileOutputStream outputStream = new FileOutputStream(System.currentTimeMillis()
+          + "Stats.txt");
+      OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, "UTF-16");
+      BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+
+      bufferedWriter.write(statSaver.get(0));
+      for (int i = 1; i < statSaver.size(); i++)
+      {
+        bufferedWriter.newLine();
+        bufferedWriter.write(statSaver.get(i));
+      }
+
+      bufferedWriter.close();
+    }
+    catch (IOException e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+  public void saveCurrentGenomeDisplayed()
+  {
+    int bestTribe = 0;
+    double bestFit = tribesGA.get(0).getFit();
+    if (viewToggle)
+    {
+      // best fit genome from all tribes
+      double f;
+      for (int i = 1; i < numThreads; i++) // find best fit genome
+      {
+        f = tribesGA.get(i).getFit();
+        if (f > bestFit) // if better than current best
+        {
+          bestTribe = i;
+        }
+      }
+      tribes.get(bestTribe).getGenomesInTribe().get(0).saveGenome();
+    }
+    else
+    {
+      if (!genomeViewer) // saves most fit from user selected tribe
+      {
+        tribes.get(tribeDisplayed).getGenomesInTribe().get(0).saveGenome();
+      }
+      else // saves the user selected genome from the user selected tribe
+      {
+        Genome g = tribes.get(tribeDisplayed).getGenomesInTribe().get(genomeDisplayed);
+        g.saveGenome();
+      }
+    }
+  }
+
   /**
    * Called by the GA when an improved fitness is found.
    * 
@@ -267,229 +336,89 @@ public class NewMain extends Application
     mainController.updateDisplay(displayedPop, displayedFitness);
   }
 
-  private void updateStatistics()
-  {
-    totalGenerations = 0;
-    hillclimbChildren = 0;
-    crossoverChildren = 0;
-    totalGenerationsPerSecond = 0;
-    avgCurrentGenerationsPerSecond = 0;
-    avgTotalGenerationsPerSecond = 0;
-    deltaFitnessPerSecond = 0;
-    int genomeWithBestFit = 0;
-    double bestFit = tribesGA.get(0).getFit();
-
-    for (int i = 0; i < tribesGA.size(); i++)
-    {
-      currentGenome = tribesGA.get(i);
-      numGenerations = currentGenome.getNumGenerations();
-
-      // The total numbers of generations calculated by all the tribes
-      // get generations value from each GA
-      // send this value to mainController
-      totalGenerations += numGenerations;
-
-      // the total hill climb children
-      hillclimbChildren += currentGenome.getNumHillclimb();
-
-      // the total cross over children
-      crossoverChildren += currentGenome.getNumCrossover();
-
-      // current generations per second averaged over the past second
-      //
-      // my interpretation: the difference between total generations from the
-      // previous second to the current second
-      //
-      // take last second's generation count and this second's generation count
-      // subtract 1st from 2nd
-      // average these values from all tribes
-
-      avgCurrentGenerationsPerSecond += numGenerations - currentGenome.getPreviousNumGenerations();
-      currentGenome.updatePreviousGeneration(numGenerations);
-
-      // current generations per second averaged over all time since most recent
-      // pop init
-      //
-      // my interpretation: the total generations per second
-      //
-      // take the current number of total generations divided by time elapsed in
-      // seconds. average these values from all tribes
-      if (mainController.getElapsedNanoTime() < (1 * 1E9))
-      {
-        avgTotalGenerationsPerSecond = 0;
-        totalGenerationsPerSecond = 0;
-      }
-      else
-      {
-        avgTotalGenerationsPerSecond += (numGenerations / (mainController.getElapsedNanoTime()
-            / 1E9));
-      }
-
-      // determine which GA has the highest current fitness, so we know which
-      // delta Fitness/sec to display
-      if (i > 0)
-      {
-        if (bestFit < currentGenome.getFit())
-        {
-          genomeWithBestFit = i;
-          bestFit = currentGenome.getFit();
-        }
-      }
-    }
-
-    // Since this method gets called every .5 seconds, we need to multiply
-    // currentGenerationsPerSecond by 2 to get the proper value. Is actually
-    // currentGenerationsPerHalfSecond until the multiplication by 2.
-    avgCurrentGenerationsPerSecond = (avgCurrentGenerationsPerSecond / tribesGA.size()) * 2;
-
-    totalGenerationsPerSecond = avgTotalGenerationsPerSecond;
-    avgTotalGenerationsPerSecond = avgTotalGenerationsPerSecond / tribesGA.size();
-
-    // the change in fitness per second of the most fit genome in the
-    // population.
-    //
-    // my interpretation: the difference between the bestFitness right now and
-    // that same GA's bestFitness from a second ago
-    //
-    // take the current best fitness and subtract it from the previous best
-    // fitness. since this method is called every half a second this initially
-    // gives us the change in fitness per half second, thus we multiply it by
-    // two for change in fitness per second.
-
-    deltaFitnessPerSecond = (bestFit - tribesGA.get(genomeWithBestFit).getPreviousBestFit()) * 2;
-    tribesGA.get(genomeWithBestFit).updatePreviousFitness(bestFit);
-
-    //We only increment the stuck count during hill climbing as we shouldnt
-    //really expect the fitness to increase during cross over. 
-    if(deltaFitnessPerSecond==0&&!tribesGA.get(genomeWithBestFit).isCrossOverMode)
-    {
-  	  ++stuckCount;
-    }
-    else
-    {
-    	if(!tribesGA.get(genomeWithBestFit).isCrossOverMode)
-    	{
-    	stuckCount = 0;
-    	}
-    }
-    //After 200 times in a row of being stuck, the genome being hill
-    //climbed on changes. Also I made this 200 because sometimes the
-    //hill climbing gets its self unstuck after like 50-100 times. 
-    if(stuckCount >200)
-    {
-    	isRunning=false;
-    	getUnStuck(genomeWithBestFit);
-    	isRunning=true;
-  	  stuckCount = 0;
-    }
-    
-    
-    mainController.updateStatistics(totalGenerations, hillclimbChildren, crossoverChildren,
-        totalGenerationsPerSecond, avgCurrentGenerationsPerSecond, avgTotalGenerationsPerSecond,
-        deltaFitnessPerSecond);
-  }
   /**
-   * This is a method to get the algorithm unstuck. First the best genome
-   * from the tribe is gotten to store temporarly and then it is deleted
-   * out of the tribe. Next there is a random injection to alter the
-   * genes of it, and then it is re-inserted into the tribe (this forces
-   * the best genome to be pushed back in the list since its fitness goes
-   * down. Then the next best fit genome in the tribe (which should be
-   * very similar from cross over goes into the best genomes place and 
-   * we start hill climbing on it, and ideally this will break us out
-   * of the hill we were stuck on. 
+   * This is a method to get the algorithm unstuck. First the best genome from
+   * the tribe is gotten to store temporarly and then it is deleted out of the
+   * tribe. Next there is a random injection to alter the genes of it, and then
+   * it is re-inserted into the tribe (this forces the best genome to be pushed
+   * back in the list since its fitness goes down. Then the next best fit genome
+   * in the tribe (which should be very similar from cross over goes into the
+   * best genomes place and we start hill climbing on it, and ideally this will
+   * break us out of the hill we were stuck on.
+   * 
    * @param index
    */
   public void getUnStuck(int index)
   {
-	  System.out.println("\n GET UNSTUCK @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-	  ArrayList<Triangle> temp =  tribes.get(index).getGenomesInTribe().get(0).getDNA();
-	  tribes.get(index).getGenomesInTribe().remove(0);
-	  int IMAGE_HEIGHT = tribesGA.get(index).getImgHeight();
-	  int IMAGE_WIDTH = tribesGA.get(index).getImgWidth();
-	  for(int i = 0; i < 100; i++)
-	  {
-		   int rand1 = random.nextInt(200);
-			int rand2 = random.nextInt(10);
-			
-			Triangle triangle = temp.get(rand1);
-			switch (rand2)
-			{
-			 case 1:
-			        triangle.setAlpha(random.nextInt(255));
-			        break;
-			      case 2:
+    System.out.println("\n GET UNSTUCK @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+    ArrayList<Triangle> temp = tribes.get(index).getGenomesInTribe().get(0).getDNA();
+    tribes.get(index).getGenomesInTribe().remove(0);
+    int IMAGE_HEIGHT = tribesGA.get(index).getImgHeight();
+    int IMAGE_WIDTH = tribesGA.get(index).getImgWidth();
+    for (int i = 0; i < 100; i++)
+    {
+      int rand1 = random.nextInt(200);
+      int rand2 = random.nextInt(10);
 
-			        triangle.setRed(random.nextInt(255));
-			        break;
-			      case 3:
+      Triangle triangle = temp.get(rand1);
+      switch (rand2)
+      {
+        case 1:
+          triangle.setAlpha(random.nextInt(255));
+          break;
+        case 2:
 
-			        triangle.setGreen(random.nextInt(255));
-			        break;
-			      case 4:
+          triangle.setRed(random.nextInt(255));
+          break;
+        case 3:
 
-			        triangle.setBlue(random.nextInt(255));
-			        break;
-			      case 5:
+          triangle.setGreen(random.nextInt(255));
+          break;
+        case 4:
 
-			        triangle.setP1x(random.nextInt(IMAGE_WIDTH));
-			        break;
-			      case 6:
-		
-			        triangle.setP1y(random.nextInt(IMAGE_HEIGHT));
-			        break;
-			      case 7:
+          triangle.setBlue(random.nextInt(255));
+          break;
+        case 5:
 
-			        triangle.setP2x(random.nextInt(IMAGE_WIDTH));
-			        break;
-			      case 8:
+          triangle.setP1x(random.nextInt(IMAGE_WIDTH));
+          break;
+        case 6:
 
-			        triangle.setP2y(random.nextInt(IMAGE_HEIGHT));
-			        break;
-			      case 9:
+          triangle.setP1y(random.nextInt(IMAGE_HEIGHT));
+          break;
+        case 7:
 
-			        triangle.setP3x(random.nextInt(IMAGE_WIDTH));
-			        break;
-			      case 10:
+          triangle.setP2x(random.nextInt(IMAGE_WIDTH));
+          break;
+        case 8:
 
-			        triangle.setP3y(random.nextInt(IMAGE_HEIGHT));
-			        break;
-			      default:
-			        break; // Should never reach here.
-			    }
-			  triangle.updateTriangle();
-	  }
+          triangle.setP2y(random.nextInt(IMAGE_HEIGHT));
+          break;
+        case 9:
 
-	  FitnessFunction checkFit = tribesGA.get(index).getFitObj();
-	  render.render(temp);
-	  checkFit.calculateFitness(render.getBuff());
-	  Genome afterInjection = new Genome(temp);
-	  afterInjection.setFitness(checkFit.getFitness());
-	  System.out.println("new fitness: " + checkFit.getFitness());
-	  insertSorted(afterInjection, tribes.get(index).getGenomesInTribe());	
-	  tribesGA.get(index).updateBestDNA();
-	  tribesGA.get(index).updateBestGenome();
+          triangle.setP3x(random.nextInt(IMAGE_WIDTH));
+          break;
+        case 10:
+
+          triangle.setP3y(random.nextInt(IMAGE_HEIGHT));
+          break;
+        default:
+          break; // Should never reach here.
+      }
+      triangle.updateTriangle();
+    }
+
+    FitnessFunction checkFit = tribesGA.get(index).getFitObj();
+    render.render(temp);
+    checkFit.calculateFitness(render.getBuff());
+    Genome afterInjection = new Genome(temp);
+    afterInjection.setFitness(checkFit.getFitness());
+    System.out.println("new fitness: " + checkFit.getFitness());
+    insertSorted(afterInjection, tribes.get(index).getGenomesInTribe());
+    tribesGA.get(index).updateBestDNA();
+    tribesGA.get(index).updateBestGenome();
   }
 
-  private void insertSorted(Genome genome, ArrayList<Genome> genomes)
-  {
-	  System.out.println("here2: " + genomes.size());
-	  for(int i = 0; i < genomes.size(); i++)
-	  {
-		  if(genomes.get(i).getFitness() > genome.getFitness())continue;
-		  
-		  genomes.add(i,genome);
-		  System.out.println("index: " + i);
-		  return;
-	  }
-	  
-	  //Append to very end of list;	  
-	  genomes.add(genome);
-	  
-	
-	  
-  }
-  
   /**
    * Called by mainController when the start button is pressed. This starts the
    * execution of the algorithm if it's not already currently running
@@ -666,30 +595,30 @@ public class NewMain extends Application
           updateDisplay();
           updateStatistics();
         }
-        //This is what triggers the cross over mode, its after 1500 loops
-        //in the first threads run method, we only need to keep count in the
-        //first thread, this will make sure regardless of the number of 
-        //threads the cross over is triggered at the same time.
-        //Again for testing you can alter the number its triggered at
-        //We could very possibly make the number larger. 
-        if(countTillCrossOver>1500)
+        // This is what triggers the cross over mode, its after 1500 loops
+        // in the first threads run method, we only need to keep count in the
+        // first thread, this will make sure regardless of the number of
+        // threads the cross over is triggered at the same time.
+        // Again for testing you can alter the number its triggered at
+        // We could very possibly make the number larger.
+        if (countTillCrossOver > 1500)
         {
-    
-        	System.out.println("Trigger crossover mode");
-        	crossOverMode = true;
+
+          System.out.println("Trigger crossover mode");
+          crossOverMode = true;
         }
-        
-        if(crossOverMode)
+
+        if (crossOverMode)
         {
-        	//pause threads; 
-        	System.out.println(crossOverModeStarted);
-        	if(!crossOverModeStarted)
-        	{
-        	isRunning = false; //Pause threads. 
-        	crossOverMode(); //Create global pools for cross tribal cross over. 
-        	countTillCrossOver = 0;
-        	isRunning = true;
-        	}
+          // pause threads;
+          System.out.println(crossOverModeStarted);
+          if (!crossOverModeStarted)
+          {
+            isRunning = false; // Pause threads.
+            crossOverMode(); // Create global pools for cross tribal cross over.
+            countTillCrossOver = 0;
+            isRunning = true;
+          }
 
         }
         mainController.setElapsedTime(thisTime);
@@ -705,9 +634,9 @@ public class NewMain extends Application
             threads.add(thread);
             thread.start();
             listOfThreads.add(thread);
-            globalPools.add(new ArrayList<>());//Each thread will have a pool
-            //of genomes which come from all the other tribes, this will be
-            //updated prior to cross over each time. 
+            globalPools.add(new ArrayList<>());// Each thread will have a pool
+            // of genomes which come from all the other tribes, this will be
+            // updated prior to cross over each time.
           }
 
         }
@@ -715,64 +644,206 @@ public class NewMain extends Application
     }
   }
 
-  
-  
   /**
-   * For cross tribal cross over after triggering the cross over mode
-   * a global pool of genoems gathered from every tribe is made for
-   * each thread and then it is sent to the GA to perform cross over
-   * with.
+   * For cross tribal cross over after triggering the cross over mode a global
+   * pool of genoems gathered from every tribe is made for each thread and then
+   * it is sent to the GA to perform cross over with.
    */
   private void crossOverMode()
   {
-	  crossOverMode = false;
+    crossOverMode = false;
 
-	  	//To increase the probability of the tribes best genomes
-	  //being crossed over in the GA put more instances in the pool.
-	  //(This is a number which can be changed also for testing) 
-		  for(int i = 0; i < globalPools.size(); i++)
-		  {
-			  for(int j = 0; j < numThreads; j++)
-			  {
-				  for(int k = 0; k < 5; k++)
-				  { 
-					  if(j!=i) //Don't copy own best genome into pool..
-					  {
-					    globalPools.get(i).add(tribes.get(j).getGenomesInTribe().get(0));
-					  }
-				  
-				  }
-			  }
-		  }
-	  
-	  
-	  //Pick a random tribes genome and continually fill the global pools
-		  //(This number can also be changed for testing)
-	  for(int i = 0; i < 100; i++)
-	  {
-		  for(ArrayList<Genome> globalPool: globalPools)
-		  {
-			  Tribe randTribe = tribes.get(random.nextInt(numThreads));
-			  globalPool.add(randTribe.getGenomesInTribe().get(randTribe.getGenomesInTribe().size()-1));
-		  }
-	  }
-	  //Set the global pools in each of the threads GA's, and turn on their
-	  //cross over modes. 
-	  for(int i = 0; i < numThreads;i++)
-	  {
-		  tribesGA.get(i).setGlobalPool(globalPools.get(i));
-		  tribesGA.get(i).isCrossOverMode = true;	  
-	  }
-	  
-	  //Reset the pools. 
-	  for(int i = 0; i < numThreads;i++)
-	  {
-		  globalPools.set(i, new ArrayList<>());
-	  }
-	  crossOverModeStarted = false;
-	  
+    // To increase the probability of the tribes best genomes
+    // being crossed over in the GA put more instances in the pool.
+    // (This is a number which can be changed also for testing)
+    for (int i = 0; i < globalPools.size(); i++)
+    {
+      for (int j = 0; j < numThreads; j++)
+      {
+        for (int k = 0; k < 5; k++)
+        {
+          if (j != i) // Don't copy own best genome into pool..
+          {
+            globalPools.get(i).add(tribes.get(j).getGenomesInTribe().get(0));
+          }
+
+        }
+      }
+    }
+
+    // Pick a random tribes genome and continually fill the global pools
+    // (This number can also be changed for testing)
+    for (int i = 0; i < 100; i++)
+    {
+      for (ArrayList<Genome> globalPool : globalPools)
+      {
+        Tribe randTribe = tribes.get(random.nextInt(numThreads));
+        globalPool.add(randTribe.getGenomesInTribe().get(randTribe.getGenomesInTribe().size() - 1));
+      }
+    }
+    // Set the global pools in each of the threads GA's, and turn on their
+    // cross over modes.
+    for (int i = 0; i < numThreads; i++)
+    {
+      tribesGA.get(i).setGlobalPool(globalPools.get(i));
+      tribesGA.get(i).isCrossOverMode = true;
+    }
+
+    // Reset the pools.
+    for (int i = 0; i < numThreads; i++)
+    {
+      globalPools.set(i, new ArrayList<>());
+    }
+    crossOverModeStarted = false;
+
   }
-  
+
+  private String statisticsToString(String elapsedTime)
+  {
+    return (elapsedTime + " " + totalGenerations + " " + hillclimbChildren + " " + crossoverChildren
+        + " " + totalGenerationsPerSecond + " " + avgCurrentGenerationsPerSecond + " "
+        + avgTotalGenerationsPerSecond + " " + deltaFitnessPerSecond);
+  }
+
+  private void insertSorted(Genome genome, ArrayList<Genome> genomes)
+  {
+    System.out.println("here2: " + genomes.size());
+    for (int i = 0; i < genomes.size(); i++)
+    {
+      if (genomes.get(i).getFitness() > genome.getFitness())
+        continue;
+
+      genomes.add(i, genome);
+      System.out.println("index: " + i);
+      return;
+    }
+
+    // Append to very end of list;
+    genomes.add(genome);
+
+  }
+
+  private void updateStatistics()
+  {
+    totalGenerations = 0;
+    hillclimbChildren = 0;
+    crossoverChildren = 0;
+    totalGenerationsPerSecond = 0;
+    avgCurrentGenerationsPerSecond = 0;
+    avgTotalGenerationsPerSecond = 0;
+    deltaFitnessPerSecond = 0;
+    int genomeWithBestFit = 0;
+    double bestFit = tribesGA.get(0).getFit();
+
+    for (int i = 0; i < tribesGA.size(); i++)
+    {
+      currentGenome = tribesGA.get(i);
+      numGenerations = currentGenome.getNumGenerations();
+
+      // The total numbers of generations calculated by all the tribes
+      // get generations value from each GA
+      // send this value to mainController
+      totalGenerations += numGenerations;
+
+      // the total hill climb children
+      hillclimbChildren += currentGenome.getNumHillclimb();
+
+      // the total cross over children
+      crossoverChildren += currentGenome.getNumCrossover();
+
+      // current generations per second averaged over the past second
+      //
+      // my interpretation: the difference between total generations from the
+      // previous second to the current second
+      //
+      // take last second's generation count and this second's generation count
+      // subtract 1st from 2nd
+      // average these values from all tribes
+
+      avgCurrentGenerationsPerSecond += numGenerations - currentGenome.getPreviousNumGenerations();
+      currentGenome.updatePreviousGeneration(numGenerations);
+
+      // current generations per second averaged over all time since most recent
+      // pop init
+      //
+      // my interpretation: the total generations per second
+      //
+      // take the current number of total generations divided by time elapsed in
+      // seconds. average these values from all tribes
+      if (mainController.getElapsedNanoTime() < (1 * 1E9))
+      {
+        avgTotalGenerationsPerSecond = 0;
+        totalGenerationsPerSecond = 0;
+      }
+      else
+      {
+        avgTotalGenerationsPerSecond += (numGenerations / (mainController.getElapsedNanoTime()
+            / 1E9));
+      }
+
+      // determine which GA has the highest current fitness, so we know which
+      // delta Fitness/sec to display
+      if (i > 0)
+      {
+        if (bestFit < currentGenome.getFit())
+        {
+          genomeWithBestFit = i;
+          bestFit = currentGenome.getFit();
+        }
+      }
+    }
+
+    // Since this method gets called every .5 seconds, we need to multiply
+    // currentGenerationsPerSecond by 2 to get the proper value. Is actually
+    // currentGenerationsPerHalfSecond until the multiplication by 2.
+    avgCurrentGenerationsPerSecond = (avgCurrentGenerationsPerSecond / tribesGA.size()) * 2;
+
+    totalGenerationsPerSecond = avgTotalGenerationsPerSecond;
+    avgTotalGenerationsPerSecond = avgTotalGenerationsPerSecond / tribesGA.size();
+
+    // the change in fitness per second of the most fit genome in the
+    // population.
+    //
+    // my interpretation: the difference between the bestFitness right now and
+    // that same GA's bestFitness from a second ago
+    //
+    // take the current best fitness and subtract it from the previous best
+    // fitness. since this method is called every half a second this initially
+    // gives us the change in fitness per half second, thus we multiply it by
+    // two for change in fitness per second.
+
+    deltaFitnessPerSecond = (bestFit - tribesGA.get(genomeWithBestFit).getPreviousBestFit()) * 2;
+    tribesGA.get(genomeWithBestFit).updatePreviousFitness(bestFit);
+
+    // We only increment the stuck count during hill climbing as we shouldnt
+    // really expect the fitness to increase during cross over.
+    if (deltaFitnessPerSecond == 0 && !tribesGA.get(genomeWithBestFit).isCrossOverMode)
+    {
+      ++stuckCount;
+    }
+    else
+    {
+      if (!tribesGA.get(genomeWithBestFit).isCrossOverMode)
+      {
+        stuckCount = 0;
+      }
+    }
+    // After 200 times in a row of being stuck, the genome being hill
+    // climbed on changes. Also I made this 200 because sometimes the
+    // hill climbing gets its self unstuck after like 50-100 times.
+    if (stuckCount > 200)
+    {
+      isRunning = false;
+      getUnStuck(genomeWithBestFit);
+      isRunning = true;
+      stuckCount = 0;
+    }
+
+    mainController.updateStatistics(totalGenerations, hillclimbChildren, crossoverChildren,
+        totalGenerationsPerSecond, avgCurrentGenerationsPerSecond, avgTotalGenerationsPerSecond,
+        deltaFitnessPerSecond);
+  }
+
   /**
    * 
    * Each worker thread handles a single tribe. Currently there is only one
@@ -807,9 +878,9 @@ public class NewMain extends Application
       {
         if (isRunning)
         {
-          if(tribeNum==0) //Only increment in first thread. 
+          if (tribeNum == 0) // Only increment in first thread.
           {
-         	++countTillCrossOver;
+            ++countTillCrossOver;
           }
           ga.Mutate();
         }

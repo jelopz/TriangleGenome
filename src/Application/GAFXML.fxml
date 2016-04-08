@@ -28,8 +28,11 @@
       <ComboBox fx:id="genomeViewerBox" disable="true" layoutX="280.0" layoutY="506.0" onAction="#genomeViewerBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="0" />
       <Text fx:id="bestGenomesFitPerSec" layoutX="20.0" layoutY="378.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Most Fit Genome's change in fitness/second: N/A" />
       <ComboBox fx:id="geneSelectorBox" disable="true" layoutX="280.0" layoutY="545.0" onAction="#geneSelectorBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="Show Complete Genome" />
-      <Button fx:id="resetButton" layoutX="634.0" layoutY="389.0" mnemonicParsing="false" onAction="#resetButtonHandler" text="reset" />
+      <Button fx:id="resetButton" layoutX="634.0" layoutY="389.0" mnemonicParsing="false" onAction="#resetButtonHandler" text="Reset" />
       <ComboBox fx:id="threadSelectorBox" layoutX="499.0" layoutY="494.0" onAction="#threadSelectorBoxHandler" prefHeight="25.0" prefWidth="165.0" promptText="Number of Threads: 2" />
       <Text fx:id="totalGPS" layoutX="20.0" layoutY="434.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Generations per Second: N/A                          " />
+      <Button fx:id="saveGenomeButton" disable="true" layoutX="598.0" layoutY="570.0" mnemonicParsing="false" onAction="#saveGenomeButtonHandler" text="Save Current Genome" />
+      <Button fx:id="uploadButton" disable="true" layoutX="476.0" layoutY="570.0" mnemonicParsing="false" onAction="#uploadButtonHandler" text="Upload Genome" />
+      <Button fx:id="saveStatsButton" disable="true" layoutX="650.0" layoutY="422.0" mnemonicParsing="false" onAction="#saveStatsButtonHandler" text="Save Stats" />
 	</children>
 </AnchorPane>
