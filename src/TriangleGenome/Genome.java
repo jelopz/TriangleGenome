@@ -21,7 +21,7 @@ public class Genome {
 	private double fitness;
 	private ImageView img;
 	
-	Genome(ArrayList<Triangle> DNA)
+	public Genome(ArrayList<Triangle> DNA)
 	{
 		this.DNA = DNA;
 	}

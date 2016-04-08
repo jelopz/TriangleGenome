@@ -46,6 +46,8 @@ import javafx.scene.text.Text;
  */
 public class GA extends Stage
 {
+  public boolean isCrossOverMode;
+  public boolean finishedCrossOver;
   double parentFitness;
   double childFitness;
   private int prevValue;
@@ -81,6 +83,8 @@ public class GA extends Stage
   private int improvements = 0;
   private int hillclimbChildren = 0;
   private int crossoverChildren = 0;
+  
+  private ArrayList<Genome> globalPool;
 
   // the previousIt values are used when comparing the change in generations or
   // fitness from the last iteration. These values are used approximately every
@@ -105,26 +109,36 @@ public class GA extends Stage
     this.parentFitness = initialFitness;
     this.wasImprovement = false; // We want to start with a random gene
                                  // mutation.
-    
-    
+    this.globalPool = new ArrayList<>();
+    this.finishedCrossOver = false;
+    this.isCrossOverMode = false;
     this.adaptiveMutation = new TriangleMutation(IMAGE_WIDTH, IMAGE_HEIGHT);
     this.childFitness = 0;
     // The fittest member in the tribe should be at the front of the arrayList.
-    this.DNA = tribe.getGenomesInTribe().get(0).getDNA();
+    updateBestDNA();
     imageRenderer.render(DNA);
     bestGenome = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
     this.crossOverMutation = new CrossOverMutation(checkFitness, imageRenderer, IMAGE_WIDTH,
         IMAGE_HEIGHT);
     main = m;
-    
     main.initRenderer(IMAGE_WIDTH, IMAGE_HEIGHT, backGroundColor);
   }
-//
-//  public Renderer getRenderer()
-//  {
-//    return imageRenderer;
-//  }
-//  
+
+  public CrossOverMutation getCrossOverMutationObject()
+  {
+	  return crossOverMutation;
+  }
+
+  
+  public void updateBestDNA()
+  {
+	  DNA = tribe.getGenomesInTribe().get(0).getDNA();
+  }
+  
+  public void setGlobalPool(ArrayList<Genome> globalPool)
+  {
+	  this.globalPool = globalPool;
+  }
   
   /**
    * Used to toggle the mutation type from the GUI
@@ -142,12 +156,13 @@ public class GA extends Stage
    */
   public void Mutate()
   {
-    if (HILL_CLIMBING_WITHOUT_CROSSOVER)
+    if (!isCrossOverMode)
     {
       // Perform random mutation.
       randomMutate();
       ++generations;
       ++hillclimbChildren;
+      System.out.println(generations);
       // System.out.println(generations);
       // Undo mutation if unsuccessful.
       if (!checkIfRandomMutationWasImprovement())
@@ -163,8 +178,63 @@ public class GA extends Stage
         adaptivelyClimbHill();
       }
     }
+    else
+    {
+    	//This for loop represents the cross tribal cross over.
+    	int size = tribe.getGenomesInTribe().size();
+    	for(int i = 0; i < globalPool.size(); i++)
+    	{
+    		crossOverMutation.invokeCrossOverMutation(tribe, globalPool.get(i),
+    				tribe.getGenomesInTribe().get(random.nextInt(size-1)), true);
+    		updateBestDNA();
+    		updateDisplay();
+    		main.updateTribesList(DNA, parentFitness, bestGenome, this);
+    		++crossoverChildren;
+    	}
+    	//This loop represents the innertribal cross over, change the bounds
+    	//if you want to test more or less intertribal cross over or change
+    	//the selection for testing (size/2) would limit selection to only
+    	//the top half most fit genomes in the tribes. 
+    	for(int i = 0; i < 100; i++)
+    	{
+    		crossOverMutation.invokeCrossOverMutation(tribe, tribe.getGenomesInTribe().get(random.nextInt((size-1))),
+    				tribe.getGenomesInTribe().get(random.nextInt(size)), true);
+    		updateDisplay();
+    		updateBestDNA();
+    		main.updateTribesList(DNA, parentFitness, bestGenome, this);
+    		++crossoverChildren;
+    	}
+    	finishedCrossOver = true;
+    	isCrossOverMode = false;
+    }   	
+    DNA = tribe.getGenomesInTribe().get(0).getDNA();
   }
 
+  
+  
+  public FitnessFunction getFitObj()
+  {
+	  return checkFitness;
+  }
+  
+  /**
+   * Update the display during cross over for small chance that
+   * there is a new best genome.
+   * TODO This is innefficent as it is, since it is called during
+   * each cross over, maybe create a flag for if the cross over
+   * results in a new best fit genome and then call this method. 
+   */
+  private void updateDisplay()
+  {
+	  imageRenderer.render(tribe.getGenomesInTribe().get(0).getDNA());
+	  bestGenome = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
+	  parentFitness = tribe.getGenomesInTribe().get(0).getFitness();
+	  
+	  main.updateTribesList(DNA, parentFitness, bestGenome, this);
+	  
+  }
+  
+  
   private void adaptivelyClimbHill()
   {
     // First find direction of hill climb.
@@ -294,6 +364,7 @@ public class GA extends Stage
     while (continueClimb)
     {
       ++generations;
+      System.out.println(generations);
       ++hillclimbChildren;
       if (takeStep(stepSize)) // Resulted in improvement
       {
@@ -413,6 +484,16 @@ public class GA extends Stage
     }
   }
 
+  public int getImgHeight()
+  {
+	  return this.IMAGE_HEIGHT;
+  }
+  
+  public int getImgWidth()
+  {
+	  return this.IMAGE_WIDTH;
+  }
+  
   /**
    * Undo last adaptive hill climbing step.
    * 
@@ -592,6 +673,14 @@ public class GA extends Stage
 
   }
 
+  public void updateBestGenome()
+  {
+	  imageRenderer.render(DNA);
+	  bestGenome = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
+	  parentFitness = tribe.getGenomesInTribe().get(0).getFitness();
+  }
+  
+  
   /**
    * @return the value of the current mutations fitness.
    */
