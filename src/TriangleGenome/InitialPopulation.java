@@ -64,6 +64,7 @@ public class InitialPopulation extends Stage
   private Renderer imageRenderer;
   private Random random = new Random();
   private double initialFitness;
+  private UtilityClass util;
   private Color backGroundColor;
   FitnessFunction startFitness;
   int IMAGE_WIDTH;
@@ -80,6 +81,7 @@ public class InitialPopulation extends Stage
   private int[] greens;
   private int[] blues;
   
+  private boolean completedBackGroundTest;
   
   // The tribes population can range form 2000 to 10000, we will have to test
   // to see what the best initial population would be.
@@ -122,8 +124,8 @@ public class InitialPopulation extends Stage
     this.reds = new int[200];
     this.blues = new int[200];
     this.greens = new int[200];
-    
- 
+    this.completedBackGroundTest = false;
+    this.util = new UtilityClass();
     // The images should have the same height/width.
     this.IMAGE_HEIGHT = (int) image.getHeight();
     this.IMAGE_WIDTH = (int) image.getWidth();
@@ -177,58 +179,9 @@ public class InitialPopulation extends Stage
       }
     }
 
-    imageRenderer.setBackGroundColor(Color.BLACK);
+    initialFitness = bestFit;
     imageRenderer.render(bestGenome.getDNA());
-    BufferedImage blackTest = imageRenderer.getBuff();
-    startFitness.calculateFitness(blackTest);
-    double blackFit = startFitness.getFitness();
-    imageRenderer.setBackGroundColor(Color.WHITE);
-    imageRenderer.render(bestGenome.getDNA());
-    BufferedImage whiteTest = imageRenderer.getBuff();
-    startFitness.calculateFitness(whiteTest);
-    double whiteFit = startFitness.getFitness();
-
-    if (blackFit > whiteFit)
-    {
-      System.out.println("Best Color is Black.");
-      backGroundColor = Color.BLACK;
-      initialFitness = blackFit;
-      perspectiveImage.setImage(SwingFXUtils.toFXImage(blackTest, null));
-    }
-    else
-    {
-      // this means we have to recalculate all the fitness values since the
-      // white background is better and the previous fitness values were
-      // determined with a black background. We then set the perspectiveImage
-      // and the initial fitness with the appropriate objects.
-
-      System.out.println("Best Color is White.");
-      backGroundColor = Color.WHITE;
-
-      updateGenomeBackgrounds();
-      imageRenderer.setBackGroundColor(backGroundColor);
-      bestGenome = tribes.get(0).getGenomesInTribe().get(0);
-      initBestFitTribe = 0;
-      bestFit = bestGenome.getFitness();
-      for (int i = 1; i < NUM_TRIBES; i++)
-      {
-        if (tribes.get(i).getGenomesInTribe().get(0).getFitness() > bestFit)
-        {
-          bestGenome = tribes.get(i).getGenomesInTribe().get(0);
-          bestFit = bestGenome.getFitness();
-          initBestFitTribe = i;
-        }
-      }
-      
-
-      
-      imageRenderer.render(bestGenome.getDNA());
-      whiteTest = imageRenderer.getBuff();
-      startFitness.calculateFitness(whiteTest);
-      initialFitness = startFitness.getFitness();
-      perspectiveImage.setImage(SwingFXUtils.toFXImage(whiteTest, null));
-
-    }
+    perspectiveImage.setImage(SwingFXUtils.toFXImage(imageRenderer.getBuff(), null));
     
     
    
@@ -244,6 +197,42 @@ public class InitialPopulation extends Stage
     // For now just use the first tribes GA.
 //    main.setGA(tribesGA.get(0), perspectiveImage.getImage(), initialFitness);
   }
+  
+  /**
+   * Now to figure out what background color to use this method is
+   * called once upon the creation of the very first genome and with
+   * the first genome the background color is decided. 
+   * @param DNA
+   */
+  private void backGroundColorTest(ArrayList<Triangle>DNA)
+  {
+	   imageRenderer.setBackGroundColor(Color.BLACK);
+	    imageRenderer.render(DNA);
+	    BufferedImage blackTest = imageRenderer.getBuff();
+	    startFitness.calculateFitness(blackTest);
+	    double blackFit = startFitness.getFitness();
+	    imageRenderer.setBackGroundColor(Color.WHITE);
+	    imageRenderer.render(DNA);
+	    BufferedImage whiteTest = imageRenderer.getBuff();
+	    startFitness.calculateFitness(whiteTest);
+	    double whiteFit = startFitness.getFitness();
+
+	    if (blackFit > whiteFit)
+	    {
+	      System.out.println("Best Color is Black.");
+	      backGroundColor = Color.BLACK;
+	      imageRenderer.setBackGroundColor(backGroundColor);
+	    }
+	    else
+	    {
+	      System.out.println("Best Color is White.");
+	      backGroundColor = Color.WHITE;
+	      imageRenderer.setBackGroundColor(backGroundColor);
+	    }
+  }
+  
+  
+  
   /**
    * Grab colors from triangular bounding boxes to be used to color
    * sample part of the initial populaiton. 
@@ -380,7 +369,7 @@ public class InitialPopulation extends Stage
       // Insert the genome into the tribe sorted so that the genomes
       // in the tribe go from the most fit to the least fit as the
       // index increases.
-      insertSorted(genome, genomes);
+      util.insertSorted(genome, genomes);
 
     }
 
@@ -395,43 +384,27 @@ public class InitialPopulation extends Stage
    * drastically. The genomes will not always retain the correct order when
    * changing a background from black to white
    */
-  private void updateGenomeBackgrounds()
-  {
-    for (int i = 0; i < NUM_TRIBES; i++)
-    {
-      ArrayList<Genome> newGenomes = new ArrayList<>();
-      Genome genome;
-      for (int j = 0; j < tribes.get(i).getTribePopulation(); j++)
-      {
-        genome = tribes.get(i).getGenomesInTribe().get(j);
-        imageRenderer.setBackGroundColor(Color.WHITE);
-        imageRenderer.render(genome.getDNA());
-        startFitness.calculateFitness(imageRenderer.getBuff());
-        genome.setFitness(startFitness.getFitness());
-        genome.setFitness(startFitness.getFitness());
-
-        insertSorted(genome, newGenomes);
-      }
-
-      tribes.get(i).updateGenome(newGenomes);
-    }
-  }
-
-  private void insertSorted(Genome genome, ArrayList<Genome> genomes)
-  {
-    for (int i = 0; i < genomes.size(); i++)
-    {
-      if (genomes.get(i).getFitness() > genome.getFitness())
-        continue;
-
-      genomes.add(i, genome);
-      return;
-    }
-
-    // Append to very end of list;
-    genomes.add(genome);
-
-  }
+//  private void updateGenomeBackgrounds()
+//  {
+//    for (int i = 0; i < NUM_TRIBES; i++)
+//    {
+//      ArrayList<Genome> newGenomes = new ArrayList<>();
+//      Genome genome;
+//      for (int j = 0; j < tribes.get(i).getTribePopulation(); j++)
+//      {
+//        genome = tribes.get(i).getGenomesInTribe().get(j);
+//        imageRenderer.setBackGroundColor(Color.WHITE);
+//        imageRenderer.render(genome.getDNA());
+//        startFitness.calculateFitness(imageRenderer.getBuff());
+//        genome.setFitness(startFitness.getFitness());
+//        genome.setFitness(startFitness.getFitness());
+//
+//        util.insertSorted(genome, newGenomes);
+//      }
+//
+//      tribes.get(i).updateGenome(newGenomes);
+//    }
+//  }
 
   private Genome createGenome()
   {
@@ -499,6 +472,12 @@ public class InitialPopulation extends Stage
 
     }
 
+    if(!completedBackGroundTest)
+    {
+    	backGroundColorTest(DNA);
+    	completedBackGroundTest = true;
+    }
+    
     return new Genome(DNA);
   }
 

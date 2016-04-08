@@ -17,6 +17,7 @@ import TriangleGenome.InitialPopulation;
 import TriangleGenome.Renderer;
 import TriangleGenome.Triangle;
 import TriangleGenome.Tribe;
+import TriangleGenome.UtilityClass;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
@@ -61,6 +62,7 @@ public class NewMain extends Application
   boolean crossOverModeStarted = false;
   boolean isRunning; // used to let the ApplicationLoop know when to run
   private mainController mainController;
+  private UtilityClass util;
   private Image displayedPop;
   private int countTillCrossOver;
   private double displayedFitness;
@@ -110,7 +112,7 @@ public class NewMain extends Application
     stuckCount = 0;
     countTillCrossOver = 0;
     specificGene = new ArrayList<>();
-
+    util = new UtilityClass();
     statSaver = new ArrayList<>();
 
     viewToggle = true;
@@ -415,7 +417,7 @@ public class NewMain extends Application
     Genome afterInjection = new Genome(temp);
     afterInjection.setFitness(checkFit.getFitness());
     System.out.println("new fitness: " + checkFit.getFitness());
-    insertSorted(afterInjection, tribes.get(index).getGenomesInTribe());
+    util.insertSorted(afterInjection, tribes.get(index).getGenomesInTribe());
     tribesGA.get(index).updateBestDNA();
     tribesGA.get(index).updateBestGenome();
   }
@@ -707,23 +709,6 @@ public class NewMain extends Application
         + avgTotalGenerationsPerSecond + " " + deltaFitnessPerSecond);
   }
 
-  private void insertSorted(Genome genome, ArrayList<Genome> genomes)
-  {
-    System.out.println("here2: " + genomes.size());
-    for (int i = 0; i < genomes.size(); i++)
-    {
-      if (genomes.get(i).getFitness() > genome.getFitness())
-        continue;
-
-      genomes.add(i, genome);
-      System.out.println("index: " + i);
-      return;
-    }
-
-    // Append to very end of list;
-    genomes.add(genome);
-
-  }
 
   private void updateStatistics()
   {

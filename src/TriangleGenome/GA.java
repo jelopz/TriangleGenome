@@ -201,8 +201,11 @@ public class GA extends Stage
         				tribe.getGenomesInTribe().get(random.nextInt(size-1)), false);
     		}
     		updateBestDNA();
+    		if(crossOverMutation.getLastChildFitness()>parentFitness)
+    		{ 	
     		updateDisplay();
     		main.updateTribesList(DNA, parentFitness, bestGenome, this);
+    		}
     		++crossoverChildren;
     	}
     	//This loop represents the innertribal cross over, change the bounds
@@ -222,9 +225,12 @@ public class GA extends Stage
         		crossOverMutation.invokeCrossOverMutation(tribe, tribe.getGenomesInTribe().get(random.nextInt((size-1))),
         				tribe.getGenomesInTribe().get(random.nextInt(size)), false);
     		}
-    		updateDisplay();
     		updateBestDNA();
+    		if(crossOverMutation.getLastChildFitness()>parentFitness)
+    		{ 	
+    		updateDisplay();
     		main.updateTribesList(DNA, parentFitness, bestGenome, this);
+    		}
     		++crossoverChildren;
     	}
     	finishedCrossOver = true;

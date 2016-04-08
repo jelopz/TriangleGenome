@@ -34,8 +34,10 @@ public class CrossOverMutation {
 	private int hammingDistance;
 	private FitnessFunction fitnessTest;
 	private Renderer imageRenderer;
+	private UtilityClass util;
 	private int IMAGE_WIDTH;
 	private int IMAGE_HEIGHT;
+	private double lastChildsFit;
 	private boolean CLONE_PREVENTION = false;
 	
 	
@@ -45,6 +47,7 @@ public class CrossOverMutation {
 		this.imageRenderer = imageRenderer;
 		this.IMAGE_WIDTH = IMAGE_WIDTH;
 		this.IMAGE_HEIGHT = IMAGE_HEIGHT;
+		this.util = new UtilityClass();	
 	}
 	
 	
@@ -280,9 +283,26 @@ public class CrossOverMutation {
 			childsDNA.add(childTriangle);
 		}	
 		Genome childGenome = new Genome(childsDNA);
-		int rand1 = random.nextInt(200);
-		int rand2 = random.nextInt(10);
-		
+		for(int i = 0; i< 5; i++)
+		{
+			int rand1 = random.nextInt(200);
+			int rand2 = random.nextInt(10)+1;
+			geneMutation(rand1,rand2,childGenome);
+		}
+		imageRenderer.render(childGenome.getDNA());
+		//Check new fitness.		
+
+		fitnessTest.calculateFitness(imageRenderer.getBuff());
+		lastChildsFit = fitnessTest.getFitness();
+		System.out.println("childs fit: " + fitnessTest.getFitness());
+		childGenome.setFitness(fitnessTest.getFitness());	
+		util.insertSorted(childGenome, tribe.getGenomesInTribe());
+		deleteWeakest();
+
+	}
+	
+	private void geneMutation(int rand1, int rand2, Genome childGenome)
+	{
 		Triangle triangle = childGenome.getDNA().get(rand1);
 		switch (rand2)
 		{
@@ -329,237 +349,15 @@ public class CrossOverMutation {
 		        break; // Should never reach here.
 		    }
 		  triangle.updateTriangle();
-		int rand3 = random.nextInt(200);
-		int rand4 = random.nextInt(10);
-		
-		Triangle triangle2 = childGenome.getDNA().get(rand3);
-		switch (rand4)
-		{
-		 case 1:
-		        triangle2.setAlpha(random.nextInt(255));
-		        break;
-		      case 2:
+	}
 
-		        triangle2.setRed(random.nextInt(255));
-		        break;
-		      case 3:
 
-		        triangle2.setGreen(random.nextInt(255));
-		        break;
-		      case 4:
-
-		        triangle2.setBlue(random.nextInt(255));
-		        break;
-		      case 5:
-
-		        triangle2.setP1x(random.nextInt(IMAGE_WIDTH));
-		        break;
-		      case 6:
-	
-		        triangle2.setP1y(random.nextInt(IMAGE_HEIGHT));
-		        break;
-		      case 7:
-
-		        triangle2.setP2x(random.nextInt(IMAGE_WIDTH));
-		        break;
-		      case 8:
-
-		        triangle2.setP2y(random.nextInt(IMAGE_HEIGHT));
-		        break;
-		      case 9:
-
-		        triangle2.setP3x(random.nextInt(IMAGE_WIDTH));
-		        break;
-		      case 10:
-
-		        triangle2.setP3y(random.nextInt(IMAGE_HEIGHT));
-		        break;
-		      default:
-		        break; // Should never reach here.
-		    }
-		  triangle2.updateTriangle();
-		int rand5 = random.nextInt(200);
-		int rand6 = random.nextInt(10);
-		
-		Triangle triangle3 = childGenome.getDNA().get(rand5);
-		switch (rand6)
-		{
-		 case 1:
-		        triangle3.setAlpha(random.nextInt(255));
-		        break;
-		      case 2:
-
-		        triangle3.setRed(random.nextInt(255));
-		        break;
-		      case 3:
-
-		        triangle3.setGreen(random.nextInt(255));
-		        break;
-		      case 4:
-
-		        triangle3.setBlue(random.nextInt(255));
-		        break;
-		      case 5:
-
-		        triangle3.setP1x(random.nextInt(IMAGE_WIDTH));
-		        break;
-		      case 6:
-	
-		        triangle3.setP1y(random.nextInt(IMAGE_HEIGHT));
-		        break;
-		      case 7:
-
-		        triangle3.setP2x(random.nextInt(IMAGE_WIDTH));
-		        break;
-		      case 8:
-
-		        triangle3.setP2y(random.nextInt(IMAGE_HEIGHT));
-		        break;
-		      case 9:
-
-		        triangle3.setP3x(random.nextInt(IMAGE_WIDTH));
-		        break;
-		      case 10:
-
-		        triangle3.setP3y(random.nextInt(IMAGE_HEIGHT));
-		        break;
-		      default:
-		        break; // Should never reach here.
-		    }
-		  triangle3.updateTriangle();
-		int rand7 = random.nextInt(200);
-		int rand8 = random.nextInt(10);
-		
-		Triangle triangle4 = childGenome.getDNA().get(rand7);
-		switch (rand8)
-		{
-		 case 1:
-		        triangle4.setAlpha(random.nextInt(255));
-		        break;
-		      case 2:
-
-		        triangle4.setRed(random.nextInt(255));
-		        break;
-		      case 3:
-
-		        triangle4.setGreen(random.nextInt(255));
-		        break;
-		      case 4:
-
-		        triangle4.setBlue(random.nextInt(255));
-		        break;
-		      case 5:
-
-		        triangle4.setP1x(random.nextInt(IMAGE_WIDTH));
-		        break;
-		      case 6:
-	
-		        triangle4.setP1y(random.nextInt(IMAGE_HEIGHT));
-		        break;
-		      case 7:
-
-		        triangle4.setP2x(random.nextInt(IMAGE_WIDTH));
-		        break;
-		      case 8:
-
-		        triangle4.setP2y(random.nextInt(IMAGE_HEIGHT));
-		        break;
-		      case 9:
-
-		        triangle4.setP3x(random.nextInt(IMAGE_WIDTH));
-		        break;
-		      case 10:
-
-		        triangle4.setP3y(random.nextInt(IMAGE_HEIGHT));
-		        break;
-		      default:
-		        break; // Should never reach here.
-		    }
-		  triangle4.updateTriangle();
-		int rand9 = random.nextInt(200);
-		int rand10 = random.nextInt(10);
-		
-		Triangle triangle5 = childGenome.getDNA().get(rand9);
-		switch (rand10)
-		{
-		 case 1:
-		        triangle5.setAlpha(random.nextInt(255));
-		        break;
-		      case 2:
-
-		        triangle5.setRed(random.nextInt(255));
-		        break;
-		      case 3:
-
-		        triangle5.setGreen(random.nextInt(255));
-		        break;
-		      case 4:
-
-		        triangle5.setBlue(random.nextInt(255));
-		        break;
-		      case 5:
-
-		        triangle5.setP1x(random.nextInt(IMAGE_WIDTH));
-		        break;
-		      case 6:
-	
-		        triangle5.setP1y(random.nextInt(IMAGE_HEIGHT));
-		        break;
-		      case 7:
-
-		        triangle5.setP2x(random.nextInt(IMAGE_WIDTH));
-		        break;
-		      case 8:
-
-		        triangle5.setP2y(random.nextInt(IMAGE_HEIGHT));
-		        break;
-		      case 9:
-
-		        triangle5.setP3x(random.nextInt(IMAGE_WIDTH));
-		        break;
-		      case 10:
-
-		        triangle5.setP3y(random.nextInt(IMAGE_HEIGHT));
-		        break;
-		      default:
-		        break; // Should never reach here.
-		    }
-		    // Update the triangle following the mutation.
-		    triangle5.updateTriangle();
-		imageRenderer.render(childGenome.getDNA());
-		//Check new fitness.		
-
-		fitnessTest.calculateFitness(imageRenderer.getBuff());
-		System.out.println("childs fit: " + fitnessTest.getFitness());
-		childGenome.setFitness(fitnessTest.getFitness());	
-		insertSorted(childGenome, tribe.getGenomesInTribe());
-		deleteWeakest();
-
+	public double getLastChildFitness()
+	{
+		return lastChildsFit;
 	}
 	
-	  /**
-	   * Insert the child genome into the tribe in a sorted manor. 
-	   * @param genome
-	   * @param genomes
-	   */
-	  private void insertSorted(Genome genome, ArrayList<Genome> genomes)
-	  {
-		  System.out.println("here2: " + genomes.size());
-		  for(int i = 0; i < genomes.size(); i++)
-		  {
-			  if(genomes.get(i).getFitness() > genome.getFitness())continue;
-			  
-			  genomes.add(i,genome);
-			  System.out.println("index: " + i);
-			  return;
-		  }
-		  
-		  //Append to very end of list;	  
-		  genomes.add(genome);
-		  
-		
-		  
-	  }
+	
 	  //random currently
 	  private void deleteWeakest()
 	  {
