@@ -199,14 +199,8 @@ public class CrossOverMutation {
 	{
 		int x = 1 + random.nextInt(hammingDistance-1);
 		int y = 1 + random.nextInt(hammingDistance-1);
-		//Supposedly the only constraint for a  double point cross over is
-		//x has to be less than y but I we might want to check on having a 
-		//min splice range to prevent small splice cross overs but joel
-		//does not mention it in his slides. (In this case a small splice
-		//would of say 10 would lead a childs genes being 1990 of their mother
-		//and 10 of their father, but again I am not sure if that is a negative
-		//thing.)  
-		if(x>y)
+
+		while(x>y)
 		{
 			 x = 1 + random.nextInt(hammingDistance-1);
 			 y = 1 + random.nextInt(hammingDistance-1);

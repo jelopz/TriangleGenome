@@ -183,11 +183,23 @@ public class GA extends Stage
     else
     {
     	//This for loop represents the cross tribal cross over.
+    	int singleOrDouble;//Currently there is a 50% chance of either occuring
+    	//again we can try altering the probability to see which one is better.
+    	//Thus far I am not sure which one is better I have to run longer
+    	//tests
     	int size = tribe.getGenomesInTribe().size();
     	for(int i = 0; i < globalPool.size(); i++)
     	{
-    		crossOverMutation.invokeCrossOverMutation(tribe, globalPool.get(i),
-    				tribe.getGenomesInTribe().get(random.nextInt(size-1)), true);
+    		singleOrDouble = random.nextInt(2);
+    		if(singleOrDouble==0){ //Single point. 
+        		crossOverMutation.invokeCrossOverMutation(tribe, globalPool.get(i),
+        				tribe.getGenomesInTribe().get(random.nextInt(size-1)), true);
+    		}
+    		else //Double point.
+    		{
+        		crossOverMutation.invokeCrossOverMutation(tribe, globalPool.get(i),
+        				tribe.getGenomesInTribe().get(random.nextInt(size-1)), false);
+    		}
     		updateBestDNA();
     		updateDisplay();
     		main.updateTribesList(DNA, parentFitness, bestGenome, this);
@@ -199,8 +211,17 @@ public class GA extends Stage
     	//the top half most fit genomes in the tribes. 
     	for(int i = 0; i < 100; i++)
     	{
+    		singleOrDouble = random.nextInt(2);
+    		if(singleOrDouble==0) //Single point
+    		{
     		crossOverMutation.invokeCrossOverMutation(tribe, tribe.getGenomesInTribe().get(random.nextInt((size-1))),
     				tribe.getGenomesInTribe().get(random.nextInt(size)), true);
+    		}
+    		else //Double point
+    		{
+        		crossOverMutation.invokeCrossOverMutation(tribe, tribe.getGenomesInTribe().get(random.nextInt((size-1))),
+        				tribe.getGenomesInTribe().get(random.nextInt(size)), false);
+    		}
     		updateDisplay();
     		updateBestDNA();
     		main.updateTribesList(DNA, parentFitness, bestGenome, this);
