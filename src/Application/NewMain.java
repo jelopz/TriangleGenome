@@ -5,7 +5,9 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -41,6 +43,7 @@ import javafx.stage.Stage;
  */
 public class NewMain extends Application
 {
+  boolean HEADLESS = false;
 
   // Filechooser
   FileChooser fileChooser;
@@ -175,7 +178,20 @@ public class NewMain extends Application
     Stage primaryStage = new Stage();
     primaryStage.setTitle("Genetic Algorithm");
     primaryStage.setScene(new Scene(root));
-    primaryStage.show();
+    
+    if(!HEADLESS)
+    {
+      primaryStage.show();
+    }
+    else
+    {
+    	String path = "mona-lisa-cropted-512x413.png";
+        originalImage = new Image(path, 500, 500, true, true);
+        System.out.println("Loaded Image: " + path);
+        mainController.setTargetImage(originalImage);
+        mainController.findInitialPopulation(null);
+        mainController.startButtonHandler(null);
+    }
 
     threads = new ArrayList<>();
     tribesDeltaT = new double[numThreads]; 
@@ -233,6 +249,8 @@ public class NewMain extends Application
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+    
+    System.exit(0);
   }
 
   public void saveCurrentGenomeDisplayed()

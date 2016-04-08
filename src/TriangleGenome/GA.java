@@ -206,6 +206,7 @@ public class GA extends Stage
     		updateDisplay();
     		main.updateTribesList(DNA, parentFitness, bestGenome, this);
     		}
+    		++generations;
     		++crossoverChildren;
     	}
     	//This loop represents the innertribal cross over, change the bounds
@@ -231,6 +232,7 @@ public class GA extends Stage
     		updateDisplay();
     		main.updateTribesList(DNA, parentFitness, bestGenome, this);
     		}
+    		++generations;
     		++crossoverChildren;
     	}
     	finishedCrossOver = true;

@@ -103,6 +103,7 @@ public class mainController
   private long startTime;
   private long lastTime;
   private long lastSaveTime;
+  private long lastGenomeSaveTime;
   private long stashedTime; // Time from the last time we started then stopped
                             // the GA. Without this the timer would restart to
                             // 00:00:00 everytime the GA is stopped then
@@ -122,6 +123,7 @@ public class mainController
       startTime = System.nanoTime();
       lastTime = startTime;
       lastSaveTime = startTime;
+      lastGenomeSaveTime = startTime;
       saveStatsButton.setDisable(true);
       saveGenomeButton.setDisable(true);
     }
@@ -337,6 +339,8 @@ public class mainController
   {
     long t = thisTime - lastTime;
     long l = thisTime - lastSaveTime;
+    long g = thisTime - lastGenomeSaveTime;
+    
     if (t / 1E9 >= 1) // if it's been a second and it's time to update timer
     {
       elapsedNanoTime = thisTime - startTime + stashedTime;
@@ -347,10 +351,22 @@ public class mainController
       elapsedTimeText.setText("Elapsed Time: " + elapsedFormattedTime);
       lastTime = thisTime;
     }
-    if (l / 1E9 >= 5)
+    if (l / 1E9 >= 600)
     {
       main.updateStatSaver(elapsedFormattedTime);
       lastSaveTime = thisTime;
+    }
+    if(g / 1E9 >= 600)
+    {
+      lastGenomeSaveTime = thisTime;
+      saveGenomeButtonHandler(null);
+    }
+    if(main.HEADLESS)
+    {
+    	if(elapsedNanoTime / 1E9 > 3600)
+    {
+      main.saveStatistics();
+    }
     }
   }
 
@@ -396,6 +412,7 @@ public class mainController
     // hillclimbChildren = 0;
     // crossoverChildren = 0;
     elapsedNanoTime = 0;
+    initNewButton.setDisable(false); //headless
   }
 
   /**
@@ -409,6 +426,11 @@ public class mainController
   {
     myImageViewer.setImage(img);
     fitnessText.setText("Current Best Fitness: " + fitness);
+  }
+  
+  public void setTargetImage(Image img)
+  {
+    targetImage.setImage(img);
   }
 
   public void setTotalPopulation(int i)
