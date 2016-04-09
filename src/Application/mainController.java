@@ -340,7 +340,7 @@ public class mainController
     long t = thisTime - lastTime;
     long l = thisTime - lastSaveTime;
     long g = thisTime - lastGenomeSaveTime;
-    
+
     if (t / 1E9 >= 1) // if it's been a second and it's time to update timer
     {
       elapsedNanoTime = thisTime - startTime + stashedTime;
@@ -356,17 +356,17 @@ public class mainController
       main.updateStatSaver(elapsedFormattedTime);
       lastSaveTime = thisTime;
     }
-    if(g / 1E9 >= 600)
+    if (g / 1E9 >= 600)
     {
       lastGenomeSaveTime = thisTime;
       saveGenomeButtonHandler(null);
     }
-    if(main.HEADLESS)
+    if (main.HEADLESS)
     {
-    	if(elapsedNanoTime / 1E9 > 3600)
-    {
-      main.saveStatistics();
-    }
+      if (elapsedNanoTime / 1E9 > 3600)
+      {
+        main.saveStatistics();
+      }
     }
   }
 
@@ -400,7 +400,6 @@ public class mainController
     for (int i = 0; i < 100; i++)
     {
       threadSelectorBox.getItems().add(String.valueOf(i + 1));
-      genomeViewerBox.getItems().add(String.valueOf(i));
       geneSelectorBox.getItems().add(String.valueOf(i));
     }
     for (int i = 100; i < 200; i++)
@@ -412,7 +411,7 @@ public class mainController
     // hillclimbChildren = 0;
     // crossoverChildren = 0;
     elapsedNanoTime = 0;
-    initNewButton.setDisable(false); //headless
+    initNewButton.setDisable(false); // headless
   }
 
   /**
@@ -427,16 +426,22 @@ public class mainController
     myImageViewer.setImage(img);
     fitnessText.setText("Current Best Fitness: " + fitness);
   }
-  
+
   public void setTargetImage(Image img)
   {
     targetImage.setImage(img);
   }
 
-  public void setTotalPopulation(int i)
+  public void setTotalPopulation(int i, int numTribes)
   {
     totalPopulation = i;
     totalPopulationText.setText("Total Population: " + String.valueOf(totalPopulation));
+    
+    //i/numTribes = population per tribe
+    for(int j = 0; j < (i/numTribes); j++)
+    {
+      genomeViewerBox.getItems().add(String.valueOf(j));
+    }
   }
 
   public void updateStatistics(int totalGenerations, int hillclimbChildren, int crossoverChildren,
