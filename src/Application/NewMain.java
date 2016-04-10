@@ -94,8 +94,6 @@ public class NewMain extends Application
   private double avgCurrentGenerationsPerSecond;
   private double avgTotalGenerationsPerSecond;
   private double deltaFitnessPerSecond;
-  // ArrayList to hold the worker threads.
-  private ArrayList<WorkerThread> listOfThreads = new ArrayList<>();
   private double[] tribesDeltaT;
   private Renderer render;
 
@@ -169,7 +167,7 @@ public class NewMain extends Application
     FXMLLoader loader = new FXMLLoader(getClass().getResource("GAFXML.fxml"));
     Parent root = loader.load();
 
-    numThreads = 2;
+    numThreads = 1;
 
     mainController = loader.getController();
     mainController.initController(this);
@@ -178,23 +176,24 @@ public class NewMain extends Application
     Stage primaryStage = new Stage();
     primaryStage.setTitle("Genetic Algorithm");
     primaryStage.setScene(new Scene(root));
-    
-    if(!HEADLESS)
+
+    String path = "mona-lisa-cropted-512x413.png";
+    originalImage = new Image(path, 500, 500, true, true);
+    System.out.println("Loaded Image: " + path);
+    mainController.setTargetImage(originalImage);
+    mainController.findInitialPopulation(null);
+
+    if (!HEADLESS)
     {
       primaryStage.show();
     }
     else
     {
-    	String path = "mona-lisa-cropted-512x413.png";
-        originalImage = new Image(path, 500, 500, true, true);
-        System.out.println("Loaded Image: " + path);
-        mainController.setTargetImage(originalImage);
-        mainController.findInitialPopulation(null);
-        mainController.startButtonHandler(null);
+      mainController.startButtonHandler(null);
     }
 
     threads = new ArrayList<>();
-    tribesDeltaT = new double[numThreads]; 
+    tribesDeltaT = new double[numThreads];
     AnimationTimer loop = new ApplicationLoop();
     loop.start();
   }
@@ -249,8 +248,11 @@ public class NewMain extends Application
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    
-    System.exit(0);
+
+    if (HEADLESS)
+    {
+      System.exit(0);
+    }
   }
 
   public void saveCurrentGenomeDisplayed()
@@ -560,7 +562,7 @@ public class NewMain extends Application
     {
       pop += tribes.get(0).getTribePopulation();
     }
-    mainController.setTotalPopulation(pop);
+    mainController.setTotalPopulation(pop, tribes.size());
   }
 
   public void updateThreads()
@@ -578,7 +580,20 @@ public class NewMain extends Application
 
   public void setNumThreads(int i)
   {
-	tribesDeltaT = new double[i];
+    isRunning = false;
+
+    tribesDeltaT = new double[i];
+
+    if (!threads.isEmpty())
+    {
+      for (int j = 0; j < numThreads; j++)
+      {
+        threads.get(0).terminateThread();
+      }
+      threads.clear();
+    }
+
+    startThreads = true;
     numThreads = i;
   }
 
@@ -655,7 +670,6 @@ public class NewMain extends Application
             WorkerThread thread = new WorkerThread(tribes.get(i), tribesGA.get(i), i);
             threads.add(thread);
             thread.start();
-            listOfThreads.add(thread);
             globalPools.add(new ArrayList<>());// Each thread will have a pool
             // of genomes which come from all the other tribes, this will be
             // updated prior to cross over each time.
@@ -722,11 +736,11 @@ public class NewMain extends Application
 
   private String statisticsToString(String elapsedTime)
   {
-    return (elapsedTime + " " + displayedFitness + " " + totalGenerations + " " + hillclimbChildren + " " + crossoverChildren
-        + " " + totalGenerationsPerSecond + " " + avgCurrentGenerationsPerSecond + " "
-        + avgTotalGenerationsPerSecond + " " + deltaFitnessPerSecond);
+    return (elapsedTime + " " + displayedFitness + " " + totalGenerations + " " + hillclimbChildren
+        + " " + crossoverChildren + " " + totalGenerationsPerSecond + " "
+        + avgCurrentGenerationsPerSecond + " " + avgTotalGenerationsPerSecond + " "
+        + deltaFitnessPerSecond);
   }
-
 
   private void updateStatistics()
   {
@@ -796,7 +810,7 @@ public class NewMain extends Application
           bestFit = currentGenome.getFit();
         }
       }
-      tribesDeltaT[i] = ((currentGenome.getFit() - tribesGA.get(i).getPreviousBestFit())*2);
+      tribesDeltaT[i] = ((currentGenome.getFit() - tribesGA.get(i).getPreviousBestFit()) * 2);
     }
 
     // Since this method gets called every .5 seconds, we need to multiply
@@ -819,38 +833,39 @@ public class NewMain extends Application
     // two for change in fitness per second.
 
     deltaFitnessPerSecond = (bestFit - tribesGA.get(genomeWithBestFit).getPreviousBestFit()) * 2;
-    
-    for(int i = 0; i < numThreads; i++)
-    {
-    	tribesGA.get(i).updatePreviousFitness(tribesGA.get(i).getFit());
-    }
-    
-   // tribesGA.get(genomeWithBestFit).updatePreviousFitness(bestFit);
 
-    System.out.println("One: " + tribesDeltaT[genomeWithBestFit] + " two: " + deltaFitnessPerSecond);
-    for(int i = 0; i < numThreads; i++)
+    for (int i = 0; i < numThreads; i++)
     {
-    	System.out.println("Thread: " + i + " " + tribesDeltaT[i]);
-    	if(tribesDeltaT[i]==0.0&&!tribesGA.get(i).isCrossOverMode)
-    	{
-    		tribesGA.get(i).stuckCount++;
-    		System.out.println("Thread: " + i + " stuckcount: " + tribesGA.get(i).stuckCount);
-    	}
-    	else
-    	{
-    		if(!tribesGA.get(i).isCrossOverMode)
-        	{
-        	tribesGA.get(i).stuckCount = 0;
-        	}
-    	}
-    	System.out.println("Thread: " + i + " stuckcount: " + tribesGA.get(i).stuckCount);
-    	if(tribesGA.get(i).stuckCount >200)
-    	{
-    		isRunning = false;
-    		getUnStuck(i);
-    		tribesGA.get(i).stuckCount = 0;
-    		isRunning = true;
-    	}
+      tribesGA.get(i).updatePreviousFitness(tribesGA.get(i).getFit());
+    }
+
+    // tribesGA.get(genomeWithBestFit).updatePreviousFitness(bestFit);
+
+    System.out.println("One: " + tribesDeltaT[genomeWithBestFit] + " two: "
+        + deltaFitnessPerSecond);
+    for (int i = 0; i < numThreads; i++)
+    {
+      System.out.println("Thread: " + i + " " + tribesDeltaT[i]);
+      if (tribesDeltaT[i] == 0.0 && !tribesGA.get(i).isCrossOverMode)
+      {
+        tribesGA.get(i).stuckCount++;
+        System.out.println("Thread: " + i + " stuckcount: " + tribesGA.get(i).stuckCount);
+      }
+      else
+      {
+        if (!tribesGA.get(i).isCrossOverMode)
+        {
+          tribesGA.get(i).stuckCount = 0;
+        }
+      }
+      System.out.println("Thread: " + i + " stuckcount: " + tribesGA.get(i).stuckCount);
+      if (tribesGA.get(i).stuckCount > 200)
+      {
+        isRunning = false;
+        getUnStuck(i);
+        tribesGA.get(i).stuckCount = 0;
+        isRunning = true;
+      }
     }
     mainController.updateStatistics(totalGenerations, hillclimbChildren, crossoverChildren,
         totalGenerationsPerSecond, avgCurrentGenerationsPerSecond, avgTotalGenerationsPerSecond,
@@ -871,12 +886,19 @@ public class NewMain extends Application
     private Tribe tribe;
     private GA ga;
     int tribeNum;
+    private volatile boolean isAlive;
 
     WorkerThread(Tribe tribe, GA ga, int tribeNum)
     {
       this.tribe = tribe;
       this.ga = ga;
       this.tribeNum = tribeNum;
+      isAlive = true;
+    }
+
+    public void terminateThread()
+    {
+      isAlive = false;
     }
 
     public void setNewTribe(Tribe t, GA g)
@@ -887,7 +909,7 @@ public class NewMain extends Application
 
     public void run()
     {
-      while (true)
+      while (isAlive)
       {
         if (isRunning)
         {
