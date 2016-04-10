@@ -94,8 +94,6 @@ public class NewMain extends Application
   private double avgCurrentGenerationsPerSecond;
   private double avgTotalGenerationsPerSecond;
   private double deltaFitnessPerSecond;
-  // ArrayList to hold the worker threads.
-  private ArrayList<WorkerThread> listOfThreads = new ArrayList<>();
   private double[] tribesDeltaT;
   private Renderer render;
 
@@ -169,7 +167,7 @@ public class NewMain extends Application
     FXMLLoader loader = new FXMLLoader(getClass().getResource("GAFXML.fxml"));
     Parent root = loader.load();
 
-    numThreads = 2;
+    numThreads = 3;
 
     mainController = loader.getController();
     mainController.initController(this);
@@ -564,7 +562,7 @@ public class NewMain extends Application
     {
       pop += tribes.get(0).getTribePopulation();
     }
-    mainController.setTotalPopulation(pop,tribes.size());
+    mainController.setTotalPopulation(pop, tribes.size());
   }
 
   public void updateThreads()
@@ -582,7 +580,20 @@ public class NewMain extends Application
 
   public void setNumThreads(int i)
   {
+    isRunning = false;
+
     tribesDeltaT = new double[i];
+
+    if (!threads.isEmpty())
+    {
+      for (int j = 0; j < numThreads; j++)
+      {
+        threads.get(0).terminateThread();
+      }
+      threads.clear();
+    }
+
+    startThreads = true;
     numThreads = i;
   }
 
@@ -659,7 +670,6 @@ public class NewMain extends Application
             WorkerThread thread = new WorkerThread(tribes.get(i), tribesGA.get(i), i);
             threads.add(thread);
             thread.start();
-            listOfThreads.add(thread);
             globalPools.add(new ArrayList<>());// Each thread will have a pool
             // of genomes which come from all the other tribes, this will be
             // updated prior to cross over each time.
@@ -876,12 +886,19 @@ public class NewMain extends Application
     private Tribe tribe;
     private GA ga;
     int tribeNum;
+    private volatile boolean isAlive;
 
     WorkerThread(Tribe tribe, GA ga, int tribeNum)
     {
       this.tribe = tribe;
       this.ga = ga;
       this.tribeNum = tribeNum;
+      isAlive = true;
+    }
+
+    public void terminateThread()
+    {
+      isAlive = false;
     }
 
     public void setNewTribe(Tribe t, GA g)
@@ -892,7 +909,7 @@ public class NewMain extends Application
 
     public void run()
     {
-      while (true)
+      while (isAlive)
       {
         if (isRunning)
         {

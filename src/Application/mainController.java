@@ -1,8 +1,12 @@
 package Application;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 import TriangleGenome.InitialPopulation;
+import TriangleGenome.Triangle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -10,6 +14,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
+
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -210,6 +216,36 @@ public class mainController
   @FXML
       void uploadButtonHandler(ActionEvent event)
   {
+//    ArrayList<String> l = new ArrayList<>();
+//    try
+//    {
+//
+//      FileReader reader = new FileReader("MyFile2.txt");
+//      BufferedReader bufferedReader = new BufferedReader(reader);
+//
+//      String line;
+//
+//      while ((line = bufferedReader.readLine()) != null)
+//      {
+//        l.add(line);
+//      }
+//      reader.close();
+//
+//      for (int i = 0; i < l.size(); i++)
+//      {
+//        String[] tokens = l.get(i).split(" ");
+//        // l.add(new new Triangle((Integer.parseInt(tokens[0])),
+//        // (Integer.parseInt(tokens[1])), (Integer
+//        // .parseInt(tokens[2])), (Integer.parseInt(tokens[3])),
+//        // (Integer.parseInt(tokens[4])), (Integer.parseInt(tokens[5])),
+//        // (Integer.parseInt(tokens[6])), (Integer.parseInt(tokens[7])),
+//        // (Integer.parseInt(tokens[8])), (Integer.parseInt(tokens[9]))));
+//      }
+//    }
+//    catch (IOException e)
+//    {
+//      e.printStackTrace();
+//    }
 
   }
 
@@ -217,6 +253,7 @@ public class mainController
       void resetButtonHandler(ActionEvent event)
   {
     stashedTime = 0;
+    elapsedNanoTime = 0;
 
     if (main.isRunning)
     {
@@ -239,6 +276,7 @@ public class mainController
     startButton.setDisable(true);
     stopButton.setDisable(true);
     genomeViewerBox.setDisable(true);
+    threadSelectorBox.setDisable(false);
     printGenomes.setDisable(true);
     geneSelectorBox.setDisable(true);
     tribeBox.setDisable(true);
@@ -293,6 +331,7 @@ public class mainController
     {
       genomeViewerBox.setDisable(true);
       geneSelectorBox.setDisable(true);
+      uploadButton.setDisable(true);
       main.toggleView(true);
       main.updateDisplay();
     }
@@ -312,6 +351,7 @@ public class mainController
           System.out.println("1");
           genomeViewerBox.setDisable(true);
           geneSelectorBox.setDisable(true);
+          uploadButton.setDisable(true);
           main.setTribeDisplayed(i);
           main.setGenomeViewer(false);
         }
@@ -320,6 +360,7 @@ public class mainController
           System.out.println("2");
           genomeViewerBox.setDisable(false);
           geneSelectorBox.setDisable(false);
+          uploadButton.setDisable(false);
           main.setTribeDisplayed(i);
           main.setGenomeViewer(true);
         }
@@ -363,7 +404,7 @@ public class mainController
     }
     if (main.HEADLESS)
     {
-      if (elapsedNanoTime / 1E9 > 3600)
+      if (elapsedNanoTime / 1E9 > 5400) // run for 1.5 hours
       {
         main.saveStatistics();
       }
@@ -436,9 +477,9 @@ public class mainController
   {
     totalPopulation = i;
     totalPopulationText.setText("Total Population: " + String.valueOf(totalPopulation));
-    
-    //i/numTribes = population per tribe
-    for(int j = 0; j < (i/numTribes); j++)
+
+    // i/numTribes = population per tribe
+    for (int j = 0; j < (i / numTribes); j++)
     {
       genomeViewerBox.getItems().add(String.valueOf(j));
     }
