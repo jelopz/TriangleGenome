@@ -166,14 +166,14 @@ public class InitialPopulation extends Stage
     // Now that we have the fittest overall genome we need to see if we
     // want to use white or black as a background. Also with the new
     // renderer we have to pass the background color to it.
-    int g = 0;
-    Genome bestGenome = tribes.get(g).getGenomesInTribe().get(0);
+    initBestFitTribe = 0;
+    Genome bestGenome = tribes.get(initBestFitTribe).getGenomesInTribe().get(0);
     double bestFit = bestGenome.getFitness();
     for (int i = 1; i < NUM_TRIBES; i++)
     {
       if (tribes.get(i).getGenomesInTribe().get(0).getFitness() > bestFit)
       {
-        g = i;
+        initBestFitTribe = i;
         bestFit = tribes.get(i).getGenomesInTribe().get(0).getFitness();
         bestGenome = tribes.get(i).getGenomesInTribe().get(0);
       }

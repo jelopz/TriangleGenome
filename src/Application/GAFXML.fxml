@@ -2,37 +2,59 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import Application.NumberTextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="600.0" prefWidth="740.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Application.mainController">
+<AnchorPane minHeight="600.0" minWidth="1200.0" prefHeight="600.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Application.mainController">
 	<children>
-		<Button fx:id="startButton" disable="true" layoutX="527.0" layoutY="389.0" mnemonicParsing="false" onAction="#startButtonHandler" text="Start" />
-		<Button fx:id="stopButton" disable="true" layoutX="582.0" layoutY="389.0" mnemonicParsing="false" onAction="#stopButtonHandler" text="Stop" />
-      <Button fx:id="chooseFileButton" layoutX="516.0" layoutY="422.0" mnemonicParsing="false" onAction="#fileButtonHandler" text="Upload New Image" />
+		<Button fx:id="startButton" disable="true" layoutX="507.0" layoutY="389.0" mnemonicParsing="false" onAction="#startButtonHandler" text="Start" />
+		<Button fx:id="stopButton" disable="true" layoutX="557.0" layoutY="389.0" mnemonicParsing="false" onAction="#stopButtonHandler" text="Stop" />
+      <Button fx:id="chooseFileButton" layoutX="519.0" layoutY="426.0" mnemonicParsing="false" onAction="#fileButtonHandler" text="Upload New Image" />
       <Button fx:id="initNewButton" disable="true" layoutX="516.0" layoutY="453.0" mnemonicParsing="false" onAction="#findInitialPopulation" text="Initialize New Image" />
       <ImageView fx:id="targetImage" fitHeight="334.0" fitWidth="347.0" layoutX="378.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="myImageViewer" fitHeight="334.0" fitWidth="347.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true" />
       <Text fx:id="fitnessText" layoutX="73.0" layoutY="360.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Current Best Fitness: " wrappingWidth="339.7294921875" />
       <Text layoutX="528.0" layoutY="361.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Current Target" />
-      <Text fx:id="elapsedTimeText" layoutX="296.0" layoutY="432.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Elapsed Time: N/A" wrappingWidth="164.55078125" />
+      <Text fx:id="elapsedTimeText" layoutX="758.0" layoutY="446.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Elapsed Time: N/A" wrappingWidth="164.55078125" />
       <Text fx:id="totalGenerations" layoutX="20.0" layoutY="414.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Generations: N/A" wrappingWidth="180.310546875" />
       <Text fx:id="hillclimbChildren" layoutX="20.0" layoutY="494.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Hill-Climb Children: N/A" wrappingWidth="222.8671875" />
       <Text fx:id="crossoverChildren" layoutX="20.0" layoutY="474.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Cross-Over Children: N/A" wrappingWidth="222.86718968302011" />
       <Text fx:id="totalAvgGPS" layoutX="20.0" layoutY="554.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Average Generations per Second: N/A" wrappingWidth="250.40623486042023" />
-      <Text fx:id="totalPopulationText" layoutX="296.0" layoutY="454.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Population: N/A  " />
+      <Text fx:id="totalPopulationText" layoutX="758.0" layoutY="465.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Population: N/A  " />
       <Text fx:id="currentAvgGPS" layoutX="20.0" layoutY="514.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Current Average Generations per Second: N/A  " />
-      <ComboBox fx:id="tribeBox" disable="true" layoutX="280.0" layoutY="469.0" onAction="#tribeBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="Display Options" />
+      <ComboBox fx:id="tribeBox" disable="true" layoutX="758.0" layoutY="480.0" onAction="#tribeBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="Display Options" />
       <Button fx:id="printGenomes" disable="true" layoutX="509.0" layoutY="529.0" mnemonicParsing="false" onAction="#printButtonHandler" text="Print All Genome Fitness" />
-      <ComboBox fx:id="genomeViewerBox" disable="true" layoutX="280.0" layoutY="506.0" onAction="#genomeViewerBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="0" />
+      <ComboBox fx:id="genomeViewerBox" disable="true" layoutX="758.0" layoutY="517.0" onAction="#genomeViewerBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="0" />
       <Text fx:id="bestGenomesFitPerSec" layoutX="20.0" layoutY="378.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Most Fit Genome's change in fitness/second: N/A" />
-      <ComboBox fx:id="geneSelectorBox" disable="true" layoutX="280.0" layoutY="545.0" onAction="#geneSelectorBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="Show Complete Genome" />
-      <Button fx:id="resetButton" layoutX="634.0" layoutY="389.0" mnemonicParsing="false" onAction="#resetButtonHandler" text="Reset" />
+      <ComboBox fx:id="geneSelectorBox" disable="true" layoutX="758.0" layoutY="556.0" onAction="#geneSelectorBoxHandler" prefHeight="25.0" prefWidth="180.0" promptText="Show Complete Genome" />
+      <Button fx:id="resetButton" layoutX="612.0" layoutY="389.0" mnemonicParsing="false" onAction="#resetButtonHandler" text="Reset" />
       <ComboBox fx:id="threadSelectorBox" layoutX="499.0" layoutY="494.0" onAction="#threadSelectorBoxHandler" prefHeight="25.0" prefWidth="165.0" promptText="Number of Threads: 2" />
       <Text fx:id="totalGPS" layoutX="20.0" layoutY="434.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total Generations per Second: N/A                          " />
-      <Button fx:id="saveGenomeButton" disable="true" layoutX="598.0" layoutY="570.0" mnemonicParsing="false" onAction="#saveGenomeButtonHandler" text="Save Current Genome" />
-      <Button fx:id="uploadButton" disable="true" layoutX="476.0" layoutY="570.0" mnemonicParsing="false" onAction="#uploadButtonHandler" text="Upload Genome" />
-      <Button fx:id="saveStatsButton" disable="true" layoutX="650.0" layoutY="422.0" mnemonicParsing="false" onAction="#saveStatsButtonHandler" text="Save Stats" />
+      <Button fx:id="saveGenomeButton" disable="true" layoutX="589.0" layoutY="558.0" mnemonicParsing="false" onAction="#saveGenomeButtonHandler" text="Save Current Genome" />
+      <Button fx:id="uploadButton" disable="true" layoutX="456.0" layoutY="558.0" mnemonicParsing="false" onAction="#uploadButtonHandler" text="Upload Genome" />
+      <Button fx:id="saveStatsButton" disable="true" layoutX="664.0" layoutY="389.0" mnemonicParsing="false" onAction="#saveStatsButtonHandler" text="Save Stats" />
+      <TableView fx:id="tableID" editable="true" layoutX="758.0" layoutY="10.0" prefHeight="400.0" prefWidth="407.0">
+         <columns>
+            <TableColumn fx:id="triIDCol" maxWidth="37.0" minWidth="37.0" prefWidth="37.0" resizable="false" sortable="false" text="tri" />
+            <TableColumn fx:id="p1xCol" maxWidth="37.0" minWidth="37.0" prefWidth="37.0" resizable="false" sortable="false" text="p1x" />
+            <TableColumn fx:id="p1yCol" maxWidth="37.0" minWidth="37.0" prefWidth="37.0" resizable="false" sortable="false" text="p1y" />
+            <TableColumn fx:id="p2xCol" maxWidth="37.0" minWidth="37.0" prefWidth="37.0" resizable="false" sortable="false" text="p2x" />
+            <TableColumn fx:id="p2yCol" maxWidth="37.0" minWidth="37.0" prefWidth="37.0" resizable="false" sortable="false" text="p2y" />
+            <TableColumn fx:id="p3xCol" prefWidth="37.0" resizable="false" sortable="false" text="p3x" />
+            <TableColumn fx:id="p3yCol" prefWidth="37.0" resizable="false" sortable="false" text="p3y" />
+            <TableColumn fx:id="rCol" prefWidth="37.0" resizable="false" sortable="false" text="r" />
+            <TableColumn fx:id="gCol" prefWidth="37.0" resizable="false" sortable="false" text="g" />
+            <TableColumn fx:id="bCol" prefWidth="37.0" resizable="false" sortable="false" text="b" />
+            <TableColumn fx:id="aCol" prefWidth="37.0" resizable="false" text="a" />
+         </columns>
+      </TableView>
+      <NumberTextField fx:id="editTextField" layoutX="1056.0" layoutY="516.0" prefHeight="25.0" prefWidth="63.0" />
+      <ComboBox fx:id="editGeneSelectorBox" layoutX="1049.0" layoutY="479.0" prefHeight="25.0" prefWidth="77.0" />
+      <Button fx:id="editButton" layoutX="1069.0" layoutY="556.0" mnemonicParsing="false" onAction="#editButtonHandler" text="Edit" />
+      <ComboBox fx:id="editTriangleSelectorBox" layoutX="1013.0" layoutY="448.0" prefWidth="150.0" />
 	</children>
 </AnchorPane>

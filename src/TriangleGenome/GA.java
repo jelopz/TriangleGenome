@@ -84,21 +84,22 @@ public class GA extends Stage
   private int improvements = 0;
   private int hillclimbChildren = 0;
   private int crossoverChildren = 0;
-  
+
   private ArrayList<Genome> globalPool;
 
   // the previousIt values are used when comparing the change in generations or
   // fitness from the last iteration. These values are used approximately every
   // half a second, so the value (generations-previousItGenerations) gives you
   // the number of generations processed over the last half second.
-  // (parentFitness - previousItFitness) gives you the change in fitness per half
-  // second.  Multiply these values by 2 to get the change per second.
+  // (parentFitness - previousItFitness) gives you the change in fitness per
+  // half
+  // second. Multiply these values by 2 to get the change per second.
   private int previousItGenerations = 0;
   private double previousItFitness = 0;
   private Image bestGenome;
 
-  public GA(Tribe tribe, double initialFitness, Image originalImage,
-      int IMAGE_WIDTH, int IMAGE_HEIGHT, NewMain m, Color backGroundColor)
+  public GA(Tribe tribe, double initialFitness, Image originalImage, int IMAGE_WIDTH,
+      int IMAGE_HEIGHT, NewMain m, Color backGroundColor)
   {
     this.tribe = tribe;
     this.IMAGE_WIDTH = IMAGE_WIDTH;
@@ -128,20 +129,19 @@ public class GA extends Stage
 
   public CrossOverMutation getCrossOverMutationObject()
   {
-	  return crossOverMutation;
+    return crossOverMutation;
   }
 
-  
   public void updateBestDNA()
   {
-	  DNA = tribe.getGenomesInTribe().get(0).getDNA();
+    DNA = tribe.getGenomesInTribe().get(0).getDNA();
   }
-  
+
   public void setGlobalPool(ArrayList<Genome> globalPool)
   {
-	  this.globalPool = globalPool;
+    this.globalPool = globalPool;
   }
-  
+
   /**
    * Used to toggle the mutation type from the GUI
    * 
@@ -182,90 +182,92 @@ public class GA extends Stage
     }
     else
     {
-    	//This for loop represents the cross tribal cross over.
-    	int singleOrDouble;//Currently there is a 50% chance of either occuring
-    	//again we can try altering the probability to see which one is better.
-    	//Thus far I am not sure which one is better I have to run longer
-    	//tests
-    	int size = tribe.getGenomesInTribe().size();
-    	for(int i = 0; i < globalPool.size(); i++)
-    	{
-    		singleOrDouble = random.nextInt(2);
-    		if(singleOrDouble==0){ //Single point. 
-        		crossOverMutation.invokeCrossOverMutation(tribe, globalPool.get(i),
-        				tribe.getGenomesInTribe().get(random.nextInt(size-1)), true);
-    		}
-    		else //Double point.
-    		{
-        		crossOverMutation.invokeCrossOverMutation(tribe, globalPool.get(i),
-        				tribe.getGenomesInTribe().get(random.nextInt(size-1)), false);
-    		}
-    		updateBestDNA();
-    		if(crossOverMutation.getLastChildFitness()>parentFitness)
-    		{ 	
-    		updateDisplay();
-    		main.updateTribesList(DNA, parentFitness, bestGenome, this);
-    		}
-    		++generations;
-    		++crossoverChildren;
-    	}
-    	//This loop represents the innertribal cross over, change the bounds
-    	//if you want to test more or less intertribal cross over or change
-    	//the selection for testing (size/2) would limit selection to only
-    	//the top half most fit genomes in the tribes. 
-    	for(int i = 0; i < 100; i++)
-    	{
-    		singleOrDouble = random.nextInt(2);
-    		if(singleOrDouble==0) //Single point
-    		{
-    		crossOverMutation.invokeCrossOverMutation(tribe, tribe.getGenomesInTribe().get(random.nextInt((size-1))),
-    				tribe.getGenomesInTribe().get(random.nextInt(size)), true);
-    		}
-    		else //Double point
-    		{
-        		crossOverMutation.invokeCrossOverMutation(tribe, tribe.getGenomesInTribe().get(random.nextInt((size-1))),
-        				tribe.getGenomesInTribe().get(random.nextInt(size)), false);
-    		}
-    		updateBestDNA();
-    		if(crossOverMutation.getLastChildFitness()>parentFitness)
-    		{ 	
-    		updateDisplay();
-    		main.updateTribesList(DNA, parentFitness, bestGenome, this);
-    		}
-    		++generations;
-    		++crossoverChildren;
-    	}
-    	finishedCrossOver = true;
-    	isCrossOverMode = false;
-    }   	
+      // This for loop represents the cross tribal cross over.
+      int singleOrDouble;// Currently there is a 50% chance of either occuring
+      // again we can try altering the probability to see which one is better.
+      // Thus far I am not sure which one is better I have to run longer
+      // tests
+      int size = tribe.getGenomesInTribe().size();
+      for (int i = 0; i < globalPool.size(); i++)
+      {
+        singleOrDouble = random.nextInt(2);
+        if (singleOrDouble == 0)
+        { // Single point.
+          crossOverMutation.invokeCrossOverMutation(tribe, globalPool.get(i), tribe
+              .getGenomesInTribe().get(random.nextInt(size - 1)), true);
+        }
+        else // Double point.
+        {
+          crossOverMutation.invokeCrossOverMutation(tribe, globalPool.get(i), tribe
+              .getGenomesInTribe().get(random.nextInt(size - 1)), false);
+        }
+        updateBestDNA();
+        if (crossOverMutation.getLastChildFitness() > parentFitness)
+        {
+          updateDisplay();
+          main.updateTribesList(DNA, parentFitness, bestGenome, this);
+        }
+        ++generations;
+        ++crossoverChildren;
+      }
+      // This loop represents the innertribal cross over, change the bounds
+      // if you want to test more or less intertribal cross over or change
+      // the selection for testing (size/2) would limit selection to only
+      // the top half most fit genomes in the tribes.
+      for (int i = 0; i < 100; i++)
+      {
+        singleOrDouble = random.nextInt(2);
+        if (singleOrDouble == 0) // Single point
+        {
+          crossOverMutation.invokeCrossOverMutation(tribe, tribe.getGenomesInTribe().get(random
+              .nextInt((size - 1))), tribe.getGenomesInTribe().get(random.nextInt(size)), true);
+        }
+        else // Double point
+        {
+          crossOverMutation.invokeCrossOverMutation(tribe, tribe.getGenomesInTribe().get(random
+              .nextInt((size - 1))), tribe.getGenomesInTribe().get(random.nextInt(size)), false);
+        }
+        updateBestDNA();
+        if (crossOverMutation.getLastChildFitness() > parentFitness)
+        {
+          updateDisplay();
+          main.updateTribesList(DNA, parentFitness, bestGenome, this);
+        }
+        ++generations;
+        ++crossoverChildren;
+      }
+      finishedCrossOver = true;
+      isCrossOverMode = false;
+    }
     DNA = tribe.getGenomesInTribe().get(0).getDNA();
   }
 
-  
-  
   public FitnessFunction getFitObj()
   {
-	  return checkFitness;
+    return checkFitness;
   }
-  
+
+  public ArrayList<Triangle> getDNA()
+  {
+    return DNA;
+  }
+
   /**
-   * Update the display during cross over for small chance that
-   * there is a new best genome.
-   * TODO This is innefficent as it is, since it is called during
-   * each cross over, maybe create a flag for if the cross over
-   * results in a new best fit genome and then call this method. 
+   * Update the display during cross over for small chance that there is a new
+   * best genome. TODO This is innefficent as it is, since it is called during
+   * each cross over, maybe create a flag for if the cross over results in a new
+   * best fit genome and then call this method.
    */
   private void updateDisplay()
   {
-	  imageRenderer.render(tribe.getGenomesInTribe().get(0).getDNA());
-	  bestGenome = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
-	  parentFitness = tribe.getGenomesInTribe().get(0).getFitness();
-	  
-	  main.updateTribesList(DNA, parentFitness, bestGenome, this);
-	  
+    imageRenderer.render(tribe.getGenomesInTribe().get(0).getDNA());
+    bestGenome = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
+    parentFitness = tribe.getGenomesInTribe().get(0).getFitness();
+
+    main.updateTribesList(DNA, parentFitness, bestGenome, this);
+
   }
-  
-  
+
   private void adaptivelyClimbHill()
   {
     // First find direction of hill climb.
@@ -517,14 +519,14 @@ public class GA extends Stage
 
   public int getImgHeight()
   {
-	  return this.IMAGE_HEIGHT;
+    return this.IMAGE_HEIGHT;
   }
-  
+
   public int getImgWidth()
   {
-	  return this.IMAGE_WIDTH;
+    return this.IMAGE_WIDTH;
   }
-  
+
   /**
    * Undo last adaptive hill climbing step.
    * 
@@ -706,12 +708,11 @@ public class GA extends Stage
 
   public void updateBestGenome()
   {
-	  imageRenderer.render(DNA);
-	  bestGenome = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
-	  parentFitness = tribe.getGenomesInTribe().get(0).getFitness();
+    imageRenderer.render(DNA);
+    bestGenome = SwingFXUtils.toFXImage(imageRenderer.getBuff(), null);
+    parentFitness = tribe.getGenomesInTribe().get(0).getFitness();
   }
-  
-  
+
   /**
    * @return the value of the current mutations fitness.
    */
@@ -779,12 +780,12 @@ public class GA extends Stage
   {
     previousItGenerations = numGenerations;
   }
-  
+
   public double getPreviousBestFit()
   {
     return previousItFitness;
   }
-  
+
   public void updatePreviousFitness(double fit)
   {
     previousItFitness = fit;

@@ -51,7 +51,7 @@ public class NewMain extends Application
   // Filechooser
   FileChooser fileChooser;
   FileChooser genomeChooser;
-  
+
   Image originalImage;
   // int NUM_OF_THREADS = 2;
   private int numThreads;
@@ -72,6 +72,8 @@ public class NewMain extends Application
   private mainController mainController;
   private UtilityClass util;
   private Image displayedPop;
+  private ArrayList<Triangle> displayedDNA;
+
   private int countTillCrossOver;
   private double displayedFitness;
   private boolean viewToggle; // Show the best fit genome or the user selected
@@ -113,11 +115,11 @@ public class NewMain extends Application
         new String[]
     { ".png", ".bmp", ".jpg", ".gif" }));
     fileChooser.setTitle("Image Selector");
-    
+
     genomeChooser = new FileChooser();
-    genomeChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Genome Files", new String(".txt")));
+    genomeChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Genome Files",
+        new String(".txt")));
     genomeChooser.setTitle("Genome Selector");
-    
 
     isRunning = false;
     stuckCount = 0;
@@ -125,6 +127,7 @@ public class NewMain extends Application
     specificGene = new ArrayList<>();
     util = new UtilityClass();
     statSaver = new ArrayList<>();
+    displayedDNA = new ArrayList<>();
 
     viewToggle = true;
     genomeViewer = false;
@@ -148,76 +151,135 @@ public class NewMain extends Application
   {
     render = new Renderer(w, h, c);
   }
-  
-  	/**
-	 * Given the genome txt file, reads the data and creates the genome
-	 * accordingly
-	 * 
-	 * This is called when a genome is uploaded to the application. The user can
-	 * only press the upload button whenever the user is looking at a specific
-	 * genome from a specific tribe and the application is paused.
-	 * 
-	 * The genome that is uploaded will replace the least fit genome from the
-	 * tribe that the user has already selected
-	 * 
-	 * @param f
-	 *            the genome .txt file uploaded by the user
-	 */
+
+  /**
+   * Given the genome txt file, reads the data and creates the genome
+   * accordingly
+   * 
+   * This is called when a genome is uploaded to the application. The user can
+   * only press the upload button whenever the user is looking at a specific
+   * genome from a specific tribe and the application is paused.
+   * 
+   * The genome that is uploaded will replace the least fit genome from the
+   * tribe that the user has already selected
+   * 
+   * @param f
+   *          the genome .txt file uploaded by the user
+   */
   public void makeNewGenome(File f)
   {
-	ArrayList<Triangle> newDNA = new ArrayList<>();
-	
-	try{
-		FileReader reader = new FileReader(f);
-		BufferedReader bufferedReader = new BufferedReader(reader);
-		Triangle t;
-		
-		String line;
-		String[] s;
-		int[] dnaValues = new int[10];
-		
-		while((line = bufferedReader.readLine()) != null)
-		{
-			s = line.split(" ");
-			for (int i = 0; i < 10; i++)
-			{
-				dnaValues[i] = Integer.parseInt(s[i]);
-			}
-	    	t = new Triangle();
-	    	t.setP1x(dnaValues[0]);
-	    	t.setP1y(dnaValues[1]);
-	    	t.setP2x(dnaValues[2]);
-	    	t.setP2y(dnaValues[3]);
-	    	t.setP3x(dnaValues[4]);
-	    	t.setP3y(dnaValues[5]);
-	    	t.setRed(dnaValues[6]);
-	    	t.setGreen(dnaValues[7]);
-	    	t.setBlue(dnaValues[8]);
-	    	t.setAlpha(dnaValues[9]);
-	    	t.updateTriangle();
-	    	newDNA.add(t);
-		}
-		
-		reader.close();
-	}
-	catch (IOException e)
-	{
-	  e.printStackTrace();
-	}
-	
-	Genome g = new Genome(newDNA);
-	render.render(g.getDNA());
-	FitnessFunction ff = tribesGA.get(tribeDisplayed).getFitObj();
-	ff.calculateFitness(render.getBuff());
-	g.setFitness(ff.getFitness());
-	
-	System.out.println(tribes.get(tribeDisplayed).getTribePopulation());
-	tribes.get(tribeDisplayed).removeLeastFit();
-	util.insertSorted(g, tribes.get(tribeDisplayed).getGenomesInTribe());
-	System.out.println(tribes.get(tribeDisplayed).getTribePopulation());
-	
-    updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), ff.getFitness());
-    mainController.updateDisplay(displayedPop, displayedFitness);
+    ArrayList<Triangle> newDNA = new ArrayList<>();
+
+    try
+    {
+      FileReader reader = new FileReader(f);
+      BufferedReader bufferedReader = new BufferedReader(reader);
+      Triangle t;
+
+      String line;
+      String[] s;
+      int[] dnaValues = new int[10];
+
+      while ((line = bufferedReader.readLine()) != null)
+      {
+        s = line.split(" ");
+        for (int i = 0; i < 10; i++)
+        {
+          dnaValues[i] = Integer.parseInt(s[i]);
+        }
+        t = new Triangle();
+        t.setP1x(dnaValues[0]);
+        t.setP1y(dnaValues[1]);
+        t.setP2x(dnaValues[2]);
+        t.setP2y(dnaValues[3]);
+        t.setP3x(dnaValues[4]);
+        t.setP3y(dnaValues[5]);
+        t.setRed(dnaValues[6]);
+        t.setGreen(dnaValues[7]);
+        t.setBlue(dnaValues[8]);
+        t.setAlpha(dnaValues[9]);
+        t.updateTriangle();
+        newDNA.add(t);
+      }
+
+      reader.close();
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace();
+    }
+
+    Genome g = new Genome(newDNA);
+    render.render(g.getDNA());
+    System.out.println(tribeDisplayed);
+    FitnessFunction ff = tribesGA.get(tribeDisplayed).getFitObj();
+    ff.calculateFitness(render.getBuff());
+    g.setFitness(ff.getFitness());
+
+    System.out.println(tribes.get(tribeDisplayed).getTribePopulation());
+    tribes.get(tribeDisplayed).removeLeastFit();
+    util.insertSorted(g, tribes.get(tribeDisplayed).getGenomesInTribe());
+    System.out.println(tribes.get(tribeDisplayed).getTribePopulation());
+
+    updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), ff.getFitness(), g.getDNA());
+    mainController.updateDisplay(displayedPop, displayedFitness, displayedDNA);
+  }
+  
+  public void editGenome(int triangle, String gene, int value)
+  {
+    Genome g = tribes.get(tribeDisplayed).getGenomesInTribe().get(genomeDisplayed);
+    tribes.get(tribeDisplayed).getGenomesInTribe().remove(genomeDisplayed);
+    if(gene.equals("p1x"))
+    {
+      g.getDNA().get(triangle).setP1x(value);
+    }
+    else if(gene.equals("p1y"))
+    {
+      g.getDNA().get(triangle).setP1y(value);
+    }
+    else if(gene.equals("p2x"))
+    {
+      g.getDNA().get(triangle).setP2x(value);
+    }
+    else if(gene.equals("p2y"))
+    {
+      g.getDNA().get(triangle).setP2y(value);
+    }
+    else if(gene.equals("p3x"))
+    {
+      g.getDNA().get(triangle).setP3x(value);
+    }
+    else if(gene.equals("p3y"))
+    {
+      g.getDNA().get(triangle).setP3y(value);
+    }
+    else if(gene.equals("r"))
+    {
+      g.getDNA().get(triangle).setRed(value);
+    }
+    else if(gene.equals("g"))
+    {
+      g.getDNA().get(triangle).setGreen(value);
+    }
+    else if(gene.equals("b"))
+    {
+      g.getDNA().get(triangle).setBlue(value);
+    }
+    else if(gene.equals("a"))
+    {
+      g.getDNA().get(triangle).setAlpha(value);
+    }
+    
+    render.render(g.getDNA());
+    
+    FitnessFunction ff = tribesGA.get(tribeDisplayed).getFitObj();
+    ff.calculateFitness(render.getBuff());
+    g.setFitness(ff.getFitness());
+    
+    util.insertSorted(g, tribes.get(tribeDisplayed).getGenomesInTribe());
+
+    updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), ff.getFitness(), g.getDNA());
+    mainController.updateDisplay(displayedPop, displayedFitness, displayedDNA);
   }
 
   /**
@@ -252,11 +314,12 @@ public class NewMain extends Application
 
     mainController = loader.getController();
     mainController.initController(this);
-    mainController.updateDisplay(displayedPop, displayedFitness);
+    // mainController.updateDisplay(displayedPop, displayedFitness);
 
     Stage primaryStage = new Stage();
     primaryStage.setTitle("Genetic Algorithm");
     primaryStage.setScene(new Scene(root));
+    primaryStage.setResizable(false);
 
     String path = "mona-lisa-cropted-512x413.png";
     originalImage = new Image(path, 500, 500, true, true);
@@ -373,11 +436,13 @@ public class NewMain extends Application
    * 
    * @param img
    * @param d
+   * @param arrayList
    */
-  public void updateInfo(Image img, double d)
+  public void updateInfo(Image img, double d, ArrayList<Triangle> dna)
   {
     displayedPop = img;
     displayedFitness = d;
+    displayedDNA = dna;
   }
 
   /**
@@ -409,14 +474,15 @@ public class NewMain extends Application
 
       System.out.println("Tribe with fitest member, tribe: " + bestTribe);
       System.out.println(bestFit);
-      updateInfo(tribesGA.get(bestTribe).getGenome(), bestFit);
+      updateInfo(tribesGA.get(bestTribe).getGenome(), bestFit, tribesGA.get(bestTribe).getDNA());
     }
     else
     {
       if (!genomeViewer) // selects the best fit genome from user selected tribe
       {
         bestFit = tribesGA.get(tribeDisplayed).getFit();
-        updateInfo(tribesGA.get(tribeDisplayed).getGenome(), bestFit);
+        updateInfo(tribesGA.get(tribeDisplayed).getGenome(), bestFit, tribesGA.get(tribeDisplayed).getDNA());
+
       }
       else // selects the user selected genome from the user selected tribe
       {
@@ -426,18 +492,18 @@ public class NewMain extends Application
         {
           // Get one of the GA's render object (doesn't matter which one)
           render.render(g.getDNA());
-          updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), bestFit);
+          updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), bestFit, g.getDNA());
         }
         else // choose which gene/triangle to display
         {
           specificGene.add(g.getDNA().get(geneDisplayed));
           render.render(specificGene);
-          updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), bestFit);
+          updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), bestFit, g.getDNA());
         }
       }
     }
 
-    mainController.updateDisplay(displayedPop, displayedFitness);
+    mainController.updateDisplay(displayedPop, displayedFitness, displayedDNA);
   }
 
   /**
@@ -594,13 +660,16 @@ public class NewMain extends Application
   public void updateTribesList(ArrayList<Triangle> DNA, double fit, Image img, GA g)
   {
     Genome gen = null;
-    for (int i = 0; i < numThreads; i++)
+    if (isRunning)
     {
-      if (tribesGA.get(i).equals(g))
+      for (int i = 0; i < numThreads; i++)
       {
-        gen = tribes.get(i).getGenomesInTribe().get(0);
-        gen.setDNA(DNA);
-        gen.setFitness(fit);
+        if (tribesGA.get(i).equals(g))
+        {
+          gen = tribes.get(i).getGenomesInTribe().get(0);
+          gen.setDNA(DNA);
+          gen.setFitness(fit);
+        }
       }
     }
   }

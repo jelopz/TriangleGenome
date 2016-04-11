@@ -7,10 +7,16 @@ import java.io.IOException;
 
 import TriangleGenome.InitialPopulation;
 import TriangleGenome.Triangle;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
@@ -37,6 +43,9 @@ public class mainController
   private ImageView targetImage;
 
   @FXML
+  private TextField editTextField;
+
+  @FXML
   private Button chooseFileButton;
 
   @FXML
@@ -59,6 +68,9 @@ public class mainController
 
   @FXML
   private Button saveStatsButton;
+
+  @FXML
+  private Button editButton;
 
   @FXML
   private Text fitnessText;
@@ -103,7 +115,49 @@ public class mainController
   private ComboBox<String> threadSelectorBox;
 
   @FXML
+  private ComboBox<String> editGeneSelectorBox;
+
+  @FXML
+  private ComboBox<String> editTriangleSelectorBox;
+
+  @FXML
   private Button printGenomes;
+
+  @FXML
+  private TableView<Triangle> tableID;
+
+  @FXML
+  private TableColumn<Triangle, Integer> triIDCol;
+
+  @FXML
+  private TableColumn<Triangle, Integer> p1xCol;
+
+  @FXML
+  private TableColumn<Triangle, Integer> p1yCol;
+
+  @FXML
+  private TableColumn<Triangle, Integer> p2xCol;
+
+  @FXML
+  private TableColumn<Triangle, Integer> p2yCol;
+
+  @FXML
+  private TableColumn<Triangle, Integer> p3xCol;
+
+  @FXML
+  private TableColumn<Triangle, Integer> p3yCol;
+
+  @FXML
+  private TableColumn<Triangle, Integer> rCol;
+
+  @FXML
+  private TableColumn<Triangle, Integer> gCol;
+
+  @FXML
+  private TableColumn<Triangle, Integer> bCol;
+
+  @FXML
+  private TableColumn<Triangle, Integer> aCol;
 
   private NewMain main;
   private long startTime;
@@ -120,6 +174,10 @@ public class mainController
   private long elapsedNanoTime;
   private String elapsedFormattedTime;
 
+  private ObservableList tableList;
+
+  private String geneEditorSelection;
+
   @FXML
       void startButtonHandler(ActionEvent event)
   {
@@ -132,6 +190,11 @@ public class mainController
       lastGenomeSaveTime = startTime;
       saveStatsButton.setDisable(true);
       saveGenomeButton.setDisable(true);
+      editGeneSelectorBox.setDisable(true);
+      editTextField.setDisable(true);
+      editButton.setDisable(true);
+      uploadButton.setDisable(true);
+      editTriangleSelectorBox.setDisable(true);
     }
   }
 
@@ -194,11 +257,39 @@ public class mainController
     printGenomes.setDisable(false);
     threadSelectorBox.setDisable(true);
     saveGenomeButton.setDisable(false);
+    editGeneSelectorBox.setDisable(true);
+    editTextField.setDisable(true);
+    editButton.setDisable(true);
+    editTriangleSelectorBox.setDisable(true);
+
+    int bestFitTribe = initPop.getBestFitTribe();
+
+    p1xCol.setCellValueFactory(new PropertyValueFactory<Triangle, Integer>("p1x"));
+    p1yCol.setCellValueFactory(new PropertyValueFactory<Triangle, Integer>("p1y"));
+    p2xCol.setCellValueFactory(new PropertyValueFactory<Triangle, Integer>("p2x"));
+    p2yCol.setCellValueFactory(new PropertyValueFactory<Triangle, Integer>("p2y"));
+    p3xCol.setCellValueFactory(new PropertyValueFactory<Triangle, Integer>("p3x"));
+    p3yCol.setCellValueFactory(new PropertyValueFactory<Triangle, Integer>("p3y"));
+    rCol.setCellValueFactory(new PropertyValueFactory<Triangle, Integer>("red"));
+    gCol.setCellValueFactory(new PropertyValueFactory<Triangle, Integer>("green"));
+    bCol.setCellValueFactory(new PropertyValueFactory<Triangle, Integer>("blue"));
+    aCol.setCellValueFactory(new PropertyValueFactory<Triangle, Integer>("alpha"));
+
+    tableList = FXCollections.observableArrayList(initPop.getTribes().get(bestFitTribe)
+        .getGenomesInTribe().get(0).getDNA());
+
+    tableID.setItems(tableList);
 
     if (!main.startThreads)
     {
       main.updateThreads();
     }
+  }
+
+  private void updateTable(ArrayList<Triangle> dna)
+  {
+    tableList.removeAll(tableList);
+    tableList.addAll(FXCollections.observableArrayList(dna));
   }
 
   @FXML
@@ -216,14 +307,14 @@ public class mainController
   @FXML
       void uploadButtonHandler(ActionEvent event)
   {
-	  File file = main.genomeChooser.showOpenDialog(null);
-	  
-	    if (file != null)
-	    {
-	      String path = file.toURI().toString();
-	      System.out.println("Loaded Genome: " + path);
-	      main.makeNewGenome(file);
-	    }
+    File file = main.genomeChooser.showOpenDialog(null);
+
+    if (file != null)
+    {
+      String path = file.toURI().toString();
+      System.out.println("Loaded Genome: " + path);
+      main.makeNewGenome(file);
+    }
   }
 
   @FXML
@@ -258,6 +349,10 @@ public class mainController
     geneSelectorBox.setDisable(true);
     tribeBox.setDisable(true);
     saveGenomeButton.setDisable(true);
+    editGeneSelectorBox.setDisable(true);
+    editTextField.setDisable(true);
+    editButton.setDisable(true);
+    editTriangleSelectorBox.setDisable(true);
   }
 
   @FXML
@@ -300,6 +395,19 @@ public class mainController
   }
 
   @FXML
+      void editButtonHandler(ActionEvent event)
+  {
+    int tri = Integer.parseInt(editTriangleSelectorBox.getValue());
+    int value = Integer.parseInt(editTextField.getText());
+    if (value >= 0 && value <= 255)
+    {
+      System.out.println((tri + 1) + " " + editGeneSelectorBox.getValue() + " " + (value + 1));
+
+      main.editGenome(tri, editGeneSelectorBox.getValue(), value);
+    }
+  }
+
+  @FXML
       void tribeBoxHandler(ActionEvent event)
   {
     String selection = tribeBox.getValue();
@@ -309,6 +417,10 @@ public class mainController
       genomeViewerBox.setDisable(true);
       geneSelectorBox.setDisable(true);
       uploadButton.setDisable(true);
+      editGeneSelectorBox.setDisable(true);
+      editTextField.setDisable(true);
+      editButton.setDisable(true);
+      editTriangleSelectorBox.setDisable(true);
       main.toggleView(true);
       main.updateDisplay();
     }
@@ -328,7 +440,11 @@ public class mainController
           System.out.println("1");
           genomeViewerBox.setDisable(true);
           geneSelectorBox.setDisable(true);
+          editGeneSelectorBox.setDisable(true);
+          editTextField.setDisable(true);
+          editButton.setDisable(true);
           uploadButton.setDisable(true);
+          editTriangleSelectorBox.setDisable(true);
           main.setTribeDisplayed(i);
           main.setGenomeViewer(false);
         }
@@ -338,6 +454,10 @@ public class mainController
           genomeViewerBox.setDisable(false);
           geneSelectorBox.setDisable(false);
           uploadButton.setDisable(false);
+          editGeneSelectorBox.setDisable(false);
+          editTextField.setDisable(false);
+          editButton.setDisable(false);
+          editTriangleSelectorBox.setDisable(false);
           main.setTribeDisplayed(i);
           main.setGenomeViewer(true);
         }
@@ -421,11 +541,19 @@ public class mainController
     {
       threadSelectorBox.getItems().add(String.valueOf(i + 1));
       geneSelectorBox.getItems().add(String.valueOf(i));
+      editTriangleSelectorBox.getItems().add(String.valueOf(i));
     }
     for (int i = 100; i < 200; i++)
     {
       geneSelectorBox.getItems().add(String.valueOf(i));
+      editTriangleSelectorBox.getItems().add(String.valueOf(i));
     }
+
+    editGeneSelectorBox.getItems().addAll("p1x", "p1y", "p2x", "p2y", "p3x", "p3y", "r", "g", "b",
+        "a");
+
+    editTriangleSelectorBox.setValue("0");
+    editGeneSelectorBox.setValue("p1x");
 
     // totalGenerations = 0;
     // hillclimbChildren = 0;
@@ -441,10 +569,11 @@ public class mainController
    * @param img
    * @param fitness
    */
-  public void updateDisplay(Image img, double fitness)
+  public void updateDisplay(Image img, double fitness, ArrayList<Triangle> dna)
   {
     myImageViewer.setImage(img);
     fitnessText.setText("Current Best Fitness: " + fitness);
+    updateTable(dna);
   }
 
   public void setTargetImage(Image img)
