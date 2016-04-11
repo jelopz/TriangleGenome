@@ -76,7 +76,7 @@ public class Triangle
   }
   public void setP3x(int p3x)
   {
-	  this.p1x = p1x;
+	  this.p3x = p3x;
   }
   public void setP3y(int p3y)
   {
