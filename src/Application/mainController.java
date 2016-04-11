@@ -45,8 +45,8 @@ public class mainController
   @FXML
   private TextField editTextField;
 
-  @FXML
-  private Button chooseFileButton;
+  // @FXML
+  // private Button chooseFileButton;
 
   @FXML
   private Button startButton;
@@ -101,6 +101,9 @@ public class mainController
 
   @FXML
   private Text bestGenomesFitPerSec;
+
+  @FXML
+  private ComboBox<String> defaultImageSelectorBox;
 
   @FXML
   private ComboBox<String> tribeBox;
@@ -210,25 +213,25 @@ public class mainController
     }
   }
 
-  /**
-   * Uses the file chooser found in the main class to load a valid image.
-   * 
-   * @param event
-   */
-  @FXML
-      void fileButtonHandler(ActionEvent event)
-  {
-    File file = main.fileChooser.showOpenDialog(null);
-    if (file != null)
-    {
-      String path = file.toURI().toString();
-      main.originalImage = new Image(path, 500, 500, true, true);
-      System.out.println("Loaded Image: " + path);
-      initNewButton.setDisable(false);
-    }
-
-    targetImage.setImage(main.originalImage);
-  }
+  // /**
+  // * Uses the file chooser found in the main class to load a valid image.
+  // *
+  // * @param event
+  // */
+  // @FXML
+  // void fileButtonHandler(ActionEvent event)
+  // {
+  // File file = main.fileChooser.showOpenDialog(null);
+  // if (file != null)
+  // {
+  // String path = file.toURI().toString();
+  // main.originalImage = new Image(path, 500, 500, true, true);
+  // System.out.println("Loaded Image: " + path);
+  // initNewButton.setDisable(false);
+  // }
+  //
+  // targetImage.setImage(main.originalImage);
+  // }
 
   /**
    * After uploading a valid image file, pressing this button finds the initial
@@ -249,7 +252,7 @@ public class mainController
     myImageViewer.setImage(initPop.getInitImage());
     fitnessText.setText("Current Best Fitness: " + String.valueOf(initPop.getInitFitness()));
     main.setTotalPopulation();
-    chooseFileButton.setDisable(true);
+    defaultImageSelectorBox.setDisable(true);
     initNewButton.setDisable(true);
     startButton.setDisable(false);
     stopButton.setDisable(false);
@@ -299,6 +302,48 @@ public class mainController
   }
 
   @FXML
+      void defaultImageBoxHandler(ActionEvent event)
+  {
+    String s = defaultImageSelectorBox.getValue();
+    if (s == "Upload..")
+    {
+      File file = main.fileChooser.showOpenDialog(null);
+      if (file != null)
+      {
+        String path = file.toURI().toString();
+        main.originalImage = new Image(path, 500, 500, true, true);
+        System.out.println("Loaded Image: " + path);
+      }
+
+      targetImage.setImage(main.originalImage);
+    }
+    else if (s == "Mona Lisa")
+    {
+      String path = "mona-lisa-cropted-512x413.png";
+      main.originalImage = new Image(path, 500, 500, true, true);
+      targetImage.setImage(main.originalImage);
+    }
+    else if (s == "Poppyfield")
+    {
+      String path = "poppyfields-512x384.png";
+      main.originalImage = new Image(path, 500, 500, true, true);
+      targetImage.setImage(main.originalImage);
+    }
+    else if (s == "Great Wave")
+    {
+      String path = "the_great_wave_off_kanagawa-512x352.png";
+      main.originalImage = new Image(path, 500, 500, true, true);
+      targetImage.setImage(main.originalImage);
+    }
+    else if (s == "Baby")
+    {
+      String path = "baby.png";
+      main.originalImage = new Image(path, 500, 500, true, true);
+      targetImage.setImage(main.originalImage);
+    }
+  }
+
+  @FXML
       void saveGenomeButtonHandler(ActionEvent event)
   {
     main.saveCurrentGenomeDisplayed();
@@ -339,7 +384,7 @@ public class mainController
     bestGenomesFitPerSec.setText("Most Fit Genome's change in fitness/second: N/A");
 
     saveStatsButton.setDisable(true);
-    chooseFileButton.setDisable(false);
+    defaultImageSelectorBox.setDisable(false);
     initNewButton.setDisable(false);
     startButton.setDisable(true);
     stopButton.setDisable(true);
@@ -399,11 +444,18 @@ public class mainController
   {
     int tri = Integer.parseInt(editTriangleSelectorBox.getValue());
     int value = Integer.parseInt(editTextField.getText());
-    if (value >= 0 && value <= 255)
+    String s = editGeneSelectorBox.getValue();
+    if ((s == "r") || (s == "g") || (s == "b") || (s == "a"))
     {
-      System.out.println((tri + 1) + " " + editGeneSelectorBox.getValue() + " " + (value + 1));
-
-      main.editGenome(tri, editGeneSelectorBox.getValue(), value);
+      if (value >= 0 && value <= 255)
+      {
+        System.out.println((tri + 1) + " " + s + " " + (value + 1));
+        main.editGenome(tri, s, value);
+      }
+    }
+    else
+    {
+      main.editGenome(tri, s, value);
     }
   }
 
@@ -560,6 +612,9 @@ public class mainController
     // crossoverChildren = 0;
     elapsedNanoTime = 0;
     initNewButton.setDisable(false); // headless
+
+    defaultImageSelectorBox.getItems().addAll("Mona Lisa", "Poppyfield", "Great Wave", "Baby",
+        "Upload..");
   }
 
   /**

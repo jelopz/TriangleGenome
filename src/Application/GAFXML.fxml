@@ -13,7 +13,6 @@
 	<children>
 		<Button fx:id="startButton" disable="true" layoutX="507.0" layoutY="389.0" mnemonicParsing="false" onAction="#startButtonHandler" text="Start" />
 		<Button fx:id="stopButton" disable="true" layoutX="557.0" layoutY="389.0" mnemonicParsing="false" onAction="#stopButtonHandler" text="Stop" />
-      <Button fx:id="chooseFileButton" layoutX="519.0" layoutY="426.0" mnemonicParsing="false" onAction="#fileButtonHandler" text="Upload New Image" />
       <Button fx:id="initNewButton" disable="true" layoutX="516.0" layoutY="453.0" mnemonicParsing="false" onAction="#findInitialPopulation" text="Initialize New Image" />
       <ImageView fx:id="targetImage" fitHeight="334.0" fitWidth="347.0" layoutX="378.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="myImageViewer" fitHeight="334.0" fitWidth="347.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true" />
@@ -56,5 +55,6 @@
       <ComboBox fx:id="editGeneSelectorBox" layoutX="1049.0" layoutY="479.0" prefHeight="25.0" prefWidth="77.0" />
       <Button fx:id="editButton" layoutX="1069.0" layoutY="556.0" mnemonicParsing="false" onAction="#editButtonHandler" text="Edit" />
       <ComboBox fx:id="editTriangleSelectorBox" layoutX="1013.0" layoutY="448.0" prefWidth="150.0" />
+      <ComboBox fx:id="defaultImageSelectorBox" layoutX="507.0" layoutY="426.0" onAction="#defaultImageBoxHandler" prefWidth="150.0" promptText="Mona Lisa" />
 	</children>
 </AnchorPane>
