@@ -216,37 +216,14 @@ public class mainController
   @FXML
       void uploadButtonHandler(ActionEvent event)
   {
-//    ArrayList<String> l = new ArrayList<>();
-//    try
-//    {
-//
-//      FileReader reader = new FileReader("MyFile2.txt");
-//      BufferedReader bufferedReader = new BufferedReader(reader);
-//
-//      String line;
-//
-//      while ((line = bufferedReader.readLine()) != null)
-//      {
-//        l.add(line);
-//      }
-//      reader.close();
-//
-//      for (int i = 0; i < l.size(); i++)
-//      {
-//        String[] tokens = l.get(i).split(" ");
-//        // l.add(new new Triangle((Integer.parseInt(tokens[0])),
-//        // (Integer.parseInt(tokens[1])), (Integer
-//        // .parseInt(tokens[2])), (Integer.parseInt(tokens[3])),
-//        // (Integer.parseInt(tokens[4])), (Integer.parseInt(tokens[5])),
-//        // (Integer.parseInt(tokens[6])), (Integer.parseInt(tokens[7])),
-//        // (Integer.parseInt(tokens[8])), (Integer.parseInt(tokens[9]))));
-//      }
-//    }
-//    catch (IOException e)
-//    {
-//      e.printStackTrace();
-//    }
-
+	  File file = main.genomeChooser.showOpenDialog(null);
+	  
+	    if (file != null)
+	    {
+	      String path = file.toURI().toString();
+	      System.out.println("Loaded Genome: " + path);
+	      main.makeNewGenome(file);
+	    }
   }
 
   @FXML

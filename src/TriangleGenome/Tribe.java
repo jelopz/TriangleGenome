@@ -39,4 +39,9 @@ public class Tribe
   {
     genomes = g;
   }
+
+  public void removeLeastFit()
+  {
+    genomes.remove(genomes.size()-1);
+  }
 }

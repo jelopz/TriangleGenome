@@ -2,8 +2,11 @@ package Application;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -47,6 +50,8 @@ public class NewMain extends Application
 
   // Filechooser
   FileChooser fileChooser;
+  FileChooser genomeChooser;
+  
   Image originalImage;
   // int NUM_OF_THREADS = 2;
   private int numThreads;
@@ -108,6 +113,11 @@ public class NewMain extends Application
         new String[]
     { ".png", ".bmp", ".jpg", ".gif" }));
     fileChooser.setTitle("Image Selector");
+    
+    genomeChooser = new FileChooser();
+    genomeChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Genome Files", new String(".txt")));
+    genomeChooser.setTitle("Genome Selector");
+    
 
     isRunning = false;
     stuckCount = 0;
@@ -138,6 +148,77 @@ public class NewMain extends Application
   {
     render = new Renderer(w, h, c);
   }
+  
+  	/**
+	 * Given the genome txt file, reads the data and creates the genome
+	 * accordingly
+	 * 
+	 * This is called when a genome is uploaded to the application. The user can
+	 * only press the upload button whenever the user is looking at a specific
+	 * genome from a specific tribe and the application is paused.
+	 * 
+	 * The genome that is uploaded will replace the least fit genome from the
+	 * tribe that the user has already selected
+	 * 
+	 * @param f
+	 *            the genome .txt file uploaded by the user
+	 */
+  public void makeNewGenome(File f)
+  {
+	ArrayList<Triangle> newDNA = new ArrayList<>();
+	
+	try{
+		FileReader reader = new FileReader(f);
+		BufferedReader bufferedReader = new BufferedReader(reader);
+		Triangle t;
+		
+		String line;
+		String[] s;
+		int[] dnaValues = new int[10];
+		
+		while((line = bufferedReader.readLine()) != null)
+		{
+			s = line.split(" ");
+			for (int i = 0; i < 10; i++)
+			{
+				dnaValues[i] = Integer.parseInt(s[i]);
+			}
+	    	t = new Triangle();
+	    	t.setP1x(dnaValues[0]);
+	    	t.setP1y(dnaValues[1]);
+	    	t.setP2x(dnaValues[2]);
+	    	t.setP2y(dnaValues[3]);
+	    	t.setP3x(dnaValues[4]);
+	    	t.setP3y(dnaValues[5]);
+	    	t.setRed(dnaValues[6]);
+	    	t.setGreen(dnaValues[7]);
+	    	t.setBlue(dnaValues[8]);
+	    	t.setAlpha(dnaValues[9]);
+	    	t.updateTriangle();
+	    	newDNA.add(t);
+		}
+		
+		reader.close();
+	}
+	catch (IOException e)
+	{
+	  e.printStackTrace();
+	}
+	
+	Genome g = new Genome(newDNA);
+	render.render(g.getDNA());
+	FitnessFunction ff = tribesGA.get(tribeDisplayed).getFitObj();
+	ff.calculateFitness(render.getBuff());
+	g.setFitness(ff.getFitness());
+	
+	System.out.println(tribes.get(tribeDisplayed).getTribePopulation());
+	tribes.get(tribeDisplayed).removeLeastFit();
+	util.insertSorted(g, tribes.get(tribeDisplayed).getGenomesInTribe());
+	System.out.println(tribes.get(tribeDisplayed).getTribePopulation());
+	
+    updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), ff.getFitness());
+    mainController.updateDisplay(displayedPop, displayedFitness);
+  }
 
   /**
    * First creates the initialPopulation, which then proceeds to initialize the
@@ -167,7 +248,7 @@ public class NewMain extends Application
     FXMLLoader loader = new FXMLLoader(getClass().getResource("GAFXML.fxml"));
     Parent root = loader.load();
 
-    numThreads = 1;
+    numThreads = 2;
 
     mainController = loader.getController();
     mainController.initController(this);
