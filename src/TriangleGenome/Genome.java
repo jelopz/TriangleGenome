@@ -2,6 +2,7 @@ package TriangleGenome;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -55,10 +56,8 @@ public class Genome {
   {
     try
     {
-      FileOutputStream outputStream = new FileOutputStream(System.currentTimeMillis()
-          + "Genome.txt");
-      OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, "UTF-16");
-      BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+      FileWriter writer = new FileWriter(System.currentTimeMillis() + "Genome.txt");
+      BufferedWriter bufferedWriter = new BufferedWriter(writer);
 
       bufferedWriter.write(DNA.get(0).valuesToString());
       for (int i = 1; i < DNA.size(); i++)
