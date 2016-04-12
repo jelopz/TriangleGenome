@@ -1,24 +1,20 @@
 package TriangleGenome;
 
 import java.awt.Color;
-import java.awt.Point;
-import java.awt.Polygon;
 
 /**
- * 
- * Class to represent a triangle each consisting of 10 genes
- * all 200 triangles together make up the DNA or genome for a total
- * of 2000 genes per genome. The 10 genes of each triangle are
- * the Red value, Blue value, Green Value, Alpha (transparency) and 
- * three vertices (each consisting of a x/y value meaning 6 total
- * genes for the three verticies).
+ * @author Christian Seely
+ * @author Jesus Lopez
+ * This class represents a triangle each consisting of 10 genes.
+ * All 200 triangles together make up the DNA or genome for a total of
+ * 2000 genes per genome. The 10 genes of each triangle are the
+ * Red, Green, Blue and Alpah value, and the three verticies 
+ * (each consisting of a x/y value meaning six totla genes for the
+ * three verticies). 
  *
  */
 public class Triangle
 {
-  private Point p1;
-  private Point p2;
-  private Point p3;
   private int p1x;
   private int p1y;
   private int p2x;
@@ -31,53 +27,99 @@ public class Triangle
   private int blue;
   private int alpha; //Transparency value
   private Color color;
-  private Polygon triangle; //For ease of display each triangle is 
-  //represented as a Polygon. 
-
+  
+  /**
+   * 
+   * @return Vertex One X value. 
+   */
   public int getP1x()
   {
 	  return p1x;
   }
+  /**
+   * 
+   * @return Vertex One Y value. 
+   */
   public int getP1y()
   {
 	  return p1y;
   }
+  /**
+   * 
+   * @return Vertex Two X value. 
+   */
   public int getP2x()
   {
 	  return p2x;
   }
+  /**
+   * 
+   * @return Vertex Two Y value. 
+   */
   public int getP2y()
   {
 	  return p2y;
   }
+  /**
+   * 
+   * @return Vertex Three X value.
+   */
   public int getP3x()
   {
 	  return p3x;
   }
+  /**
+   * 
+   * @return Vertex Three Y value. 
+   */
   public int getP3y()
   {
 	  return p3y;
   }
+  /**
+   * 
+   * @param Set Vertex One X value. 
+   */
   public void setP1x(int p1x)
   {
 	  this.p1x = p1x;
   }
+  /**
+   * 
+   * @param Set Vertex One Y value. 
+   */
   public void setP1y(int p1y)
   {
 	  this.p1y = p1y;
   }
+  /**
+   * 
+   * @param Set Vertex Two X value. 
+   */
   public void setP2x(int p2x)
   {
 	  this.p2x = p2x;
   }
+  /**
+   * 
+   * @param Set Vertex Two Y value. 
+   */
   public void setP2y(int p2y)
   {
 	  this.p2y = p2y;
   }
+  /**
+   * 
+   * @param Set Vertex Three X value. 
+   */
   public void setP3x(int p3x)
   {
 	  this.p3x = p3x;
   }
+  /**
+   * 
+   * @param Set Vertex Three Y value. 
+   */
   public void setP3y(int p3y)
   {
 	  this.p3y = p3y;
@@ -134,7 +176,8 @@ public class Triangle
 
   /**
    * Gets the alpha (transparency) component of the triangles 
-   * such that a value of 0 is completely transparent and a value of 255 is opaque
+   * such that a value of 0 is completely transparent and a 
+   * value of 255 is opaque
    * 
    * @return The alpha value.
    */
@@ -150,8 +193,9 @@ public class Triangle
 	  return color;
   }
   /**
-   * sets the alpha (transparency) component of this triangles color space
-   * such that a value of 0 is completely transparent and a value of 255 is opaque.
+   * Sets the alpha (transparency) component of this triangles color space
+   * such that a value of 0 is completely transparent and a value
+   * of 255 is opaque.
    * 
    * @param alpha - The new alpha value of the triangle.
    */
@@ -159,15 +203,10 @@ public class Triangle
   {
     this.alpha = alpha;
   }
-
   /**
-   * @return Java.awt polygon representation of the triangle.
+   * Update the color object for the triangle following 
+   * changes of the color values. 
    */
-  public Polygon getTriangle()
-  {
-    return triangle;
-  }
-  
   public void updateTriangle(){	 
 	//Update the color and the vertices of the triangle. 
     color = new Color(red, green, blue, alpha);
