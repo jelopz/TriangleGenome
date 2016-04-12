@@ -235,15 +235,12 @@ public class NewMain extends Application
 
     Genome g = new Genome(newDNA);
     render.render(g.getDNA());
-    System.out.println(tribeDisplayed);
     FitnessFunction ff = tribesGA.get(tribeDisplayed).getFitObj();
     ff.calculateFitness(render.getBuff());
     g.setFitness(ff.getFitness());
 
-    System.out.println(tribes.get(tribeDisplayed).getTribePopulation());
     tribes.get(tribeDisplayed).removeLeastFit();
     util.insertSorted(g, tribes.get(tribeDisplayed).getGenomesInTribe());
-    System.out.println(tribes.get(tribeDisplayed).getTribePopulation());
 
     updateInfo(SwingFXUtils.toFXImage(render.getBuff(), null), ff.getFitness(), g.getDNA());
     mainController.updateDisplay(displayedPop, displayedFitness, displayedDNA);
@@ -501,9 +498,6 @@ public class NewMain extends Application
           bestFit = f;
         }
       }
-
-      System.out.println("Tribe with fitest member, tribe: " + bestTribe);
-      System.out.println(bestFit);
       updateInfo(tribesGA.get(bestTribe).getGenome(), bestFit, tribesGA.get(bestTribe).getDNA());
     }
     else
@@ -554,7 +548,6 @@ public class NewMain extends Application
    */
   public void getUnStuck(int index)
   {
-    System.out.println("\n GET UNSTUCK @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
     ArrayList<Triangle> temp = tribes.get(index).getGenomesInTribe().get(0).getDNA();
     tribes.get(index).getGenomesInTribe().remove(0);
     int IMAGE_HEIGHT = tribesGA.get(index).getImgHeight();
@@ -617,7 +610,6 @@ public class NewMain extends Application
     checkFit.calculateFitness(render.getBuff());
     Genome afterInjection = new Genome(temp);
     afterInjection.setFitness(checkFit.getFitness());
-    System.out.println("new fitness: " + checkFit.getFitness());
     util.insertSorted(afterInjection, tribes.get(index).getGenomesInTribe());
     tribesGA.get(index).updateBestDNA();
     tribesGA.get(index).updateBestGenome();
@@ -752,12 +744,10 @@ public class NewMain extends Application
     Genome bestGenome = tribes.get(0).getGenomesInTribe().get(0);
     Genome potential;
     double bestFit = bestGenome.getFitness();
-    System.out.println("First genome fitness " + bestFit);
     for (int i = 0; i < numThreads; i++)
     {
       bestGenome = tribes.get(i).getGenomesInTribe().get(0);
       bestFit = bestGenome.getFitness();
-      System.out.println("tribe " + i + " initial genome fitness:  " + bestFit);
 
       for (int j = 0; j < 100; j++)
       {
@@ -768,10 +758,7 @@ public class NewMain extends Application
           f = j;
           bestGenome = potential;
           bestFit = bestGenome.getFitness();
-          System.out.println("next best fitness in tribe:" + i + " genome:" + j + "  with fit: "
-              + bestFit);
         }
-        System.out.println("genome: " + j + " - fitness: " + potential.getFitness());
       }
     }
   }
@@ -1015,15 +1002,11 @@ public class NewMain extends Application
 
     // tribesGA.get(genomeWithBestFit).updatePreviousFitness(bestFit);
 
-    System.out.println("One: " + tribesDeltaT[genomeWithBestFit] + " two: "
-        + deltaFitnessPerSecond);
     for (int i = 0; i < numThreads; i++)
     {
-      System.out.println("Thread: " + i + " " + tribesDeltaT[i]);
       if (tribesDeltaT[i] == 0.0 && !tribesGA.get(i).isCrossOverMode)
       {
         tribesGA.get(i).stuckCount++;
-        System.out.println("Thread: " + i + " stuckcount: " + tribesGA.get(i).stuckCount);
       }
       else
       {
@@ -1032,7 +1015,6 @@ public class NewMain extends Application
           tribesGA.get(i).stuckCount = 0;
         }
       }
-      System.out.println("Thread: " + i + " stuckcount: " + tribesGA.get(i).stuckCount);
       if (tribesGA.get(i).stuckCount > 200)
       {
         isRunning = false;
@@ -1091,15 +1073,12 @@ public class NewMain extends Application
         // We could very possibly make the number larger.
         if (countTillCrossOver > 1500)
         {
-
-          System.out.println("Trigger crossover mode");
           crossOverMode = true;
         }
 
         if (crossOverMode)
         {
           // pause threads;
-          System.out.println(crossOverModeStarted);
           if (!crossOverModeStarted)
           {
             isRunning = false; // Pause threads.

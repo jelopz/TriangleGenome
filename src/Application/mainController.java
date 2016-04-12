@@ -238,7 +238,6 @@ public class mainController
     main.tribes = initPop.getTribes();
     main.tribesGA = initPop.getTribesGAs();
 
-    System.out.println("SIZE: " + main.tribesGA.size());
     myImageViewer.setImage(initPop.getInitImage());
     fitnessText.setText("Current Best Fitness: " + String.valueOf(initPop.getInitFitness()));
     main.setTotalPopulation();
@@ -344,6 +343,12 @@ public class mainController
     else if (s == "Baby")
     {
       String path = "baby.png";
+      main.originalImage = new Image(path, 500, 500, true, true);
+      targetImage.setImage(main.originalImage);
+    }
+    else if (s == "Star")
+    {
+      String path = "dallascowboys.jpg";
       main.originalImage = new Image(path, 500, 500, true, true);
       targetImage.setImage(main.originalImage);
     }
@@ -495,7 +500,6 @@ public class mainController
     {
       if (value >= 0 && value <= 255)
       {
-        System.out.println((tri + 1) + " " + s + " " + (value + 1));
         main.editGenome(tri, s, value);
       }
     }
@@ -541,7 +545,6 @@ public class mainController
 
         if (selection.equals(s))
         {
-          System.out.println("1");
           genomeViewerBox.setDisable(true);
           geneSelectorBox.setDisable(true);
           editGeneSelectorBox.setDisable(true);
@@ -554,7 +557,6 @@ public class mainController
         }
         else if (selection.equals(z))
         {
-          System.out.println("2");
           genomeViewerBox.setDisable(false);
           geneSelectorBox.setDisable(false);
           uploadButton.setDisable(false);
@@ -615,7 +617,6 @@ public class mainController
     }
     if (main.HEADLESS)
     {
-      System.out.println(elapsedNanoTime / 1E9);
       if (elapsedNanoTime / 1E9 > 540) // run for 1.5 hours
       {
         main.stopLoop();
@@ -672,7 +673,7 @@ public class mainController
     elapsedNanoTime = 0;
     initNewButton.setDisable(false); // headless
 
-    defaultImageSelectorBox.getItems().addAll("Mona Lisa", "Poppyfield", "Great Wave", "Baby",
+    defaultImageSelectorBox.getItems().addAll("Mona Lisa", "Poppyfield", "Great Wave", "Baby", "Star", 
         "Upload..");
   }
 
