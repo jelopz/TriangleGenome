@@ -46,64 +46,104 @@ import javafx.stage.Stage;
  */
 public class NewMain extends Application
 {
+  /** For testing purposes. Allows the GA to run without GUI */
   boolean HEADLESS = false;
 
-  // Filechooser
+  /** File choosers for choosing a picture or genome to upload */
   FileChooser fileChooser;
   FileChooser genomeChooser;
 
   Image originalImage;
-  // int NUM_OF_THREADS = 2;
-  private int numThreads;
   GA ga;
   ArrayList<Tribe> tribes;
   ArrayList<GA> tribesGA;
   ArrayList<Triangle> specificGene;
-  private Random random = new Random();
   ArrayList<WorkerThread> threads;
+
+  boolean startThreads = true;
+  boolean crossOverMode = false;
+  boolean crossOverModeStarted = false;
+  boolean isRunning; // used to let the ApplicationLoop know when to run
 
   // Each thread will have a global pool where some number of genomes
   // from the other tribes will be collected after some number of iterations
   // and then sent over to that threads GA so it can perform cross over.
   private ArrayList<ArrayList<Genome>> globalPools = new ArrayList<>();
 
-  boolean startThreads = true;
-  boolean crossOverMode = false;
-  boolean crossOverModeStarted = false;
-  boolean isRunning; // used to let the ApplicationLoop know when to run
+  /** Number of threads on the current GA execution */
+  private int numThreads;
+
+  private Random random = new Random();
+
+  /** Controller for main */
   private mainController mainController;
   private UtilityClass util;
+
+  /** The current genome displayed on the GUI */
   private Image displayedPop;
+
+  /** The DNA displayed to the table on the GUI */
   private ArrayList<Triangle> displayedDNA;
 
-  private int countTillCrossOver;
+  /** The fitness value displayed on the GUI */
   private double displayedFitness;
-  private boolean viewToggle; // Show the best fit genome or the user selected
-  // one? true = best fit, false = user selection
 
-  private int tribeDisplayed; // If (!viewtoggle), we display the
-  // tribesGA.get(tribeDisplayed) image
+  private int countTillCrossOver;
 
+  /** Show the best fit genome or the user selected genome. true = best fit */
+  private boolean viewToggle;
+
+  /** The value of index if the current tribe displayed */
+  private int tribeDisplayed;
+
+  /** The genome displayed to the GUI */
   private int genomeDisplayed;
+
+  /** (assuming specific genes are displayed) the gene display */
   private int geneDisplayed;
 
+  /** if genomeViewer = true, we are browsing through genomes in a tribe */
   private boolean genomeViewer;
+
+  /**
+   * if showwholeGenome = true, displaying the whole genome. Else, we're
+   * displaying specific triangles from a genome
+   */
   private boolean showWholeGenome;
 
+  /**
+   * The genome we're working with evaluating the statistics to display onscreen
+   */
   private GA currentGenome;
+
+  /**
+   * the number of generations. Used when evaluating the statistics to display
+   * onscreen
+   */
   private int numGenerations;
 
+  /** An arrayList used to take snapshots of the statistics at various times */
   private ArrayList<String> statSaver;
+
+  /**
+   * The number of iterations a genome hasn't made progress on. Used when
+   * determine when to move onto a new genome to pathfind on
+   */
+  private int stuckCount;
 
   private int totalGenerations;
   private int hillclimbChildren;
   private int crossoverChildren;
-  private int stuckCount;
   private double totalGenerationsPerSecond;
   private double avgCurrentGenerationsPerSecond;
   private double avgTotalGenerationsPerSecond;
   private double deltaFitnessPerSecond;
   private double[] tribesDeltaT;
+
+  /**
+   * Renderer class used so main can render a genome from a file and determine
+   * it's fitness
+   */
   private Renderer render;
 
   /**

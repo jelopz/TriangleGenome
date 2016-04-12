@@ -34,19 +34,18 @@ import java.util.concurrent.TimeUnit;
 public class mainController
 {
 
+  /**
+   * the single imageview that gets updated over and over again with a new image
+   * in updateDisplay method
+   */
   @FXML
-  private ImageView myImageViewer; // the single imageview that gets updated
-                                   // over and over again with a new Image in
-                                   // updateDisplay method
+  private ImageView myImageViewer;
 
   @FXML
   private ImageView targetImage;
 
   @FXML
   private TextField editTextField;
-
-  // @FXML
-  // private Button chooseFileButton;
 
   @FXML
   private Button startButton;
@@ -163,23 +162,38 @@ public class mainController
   private TableColumn<Triangle, Integer> aCol;
 
   private NewMain main;
-  private long startTime;
-  private long lastTime;
-  private long lastSaveTime;
-  private long lastGenomeSaveTime;
-  private long stashedTime; // Time from the last time we started then stopped
-                            // the GA. Without this the timer would restart to
-                            // 00:00:00 everytime the GA is stopped then
-                            // restarted using GUI
 
+  /** Time when GA was started */
+  private long startTime;
+
+  /** Used when determining how long ago we updated screen */
+  private long lastTime;
+
+  /** Used when determine how long ago we last made a timestamp of statistics */
+  private long lastSaveTime;
+
+  /**
+   * Used when determining how long ago we last took a snapshot of the most fit
+   * genome. Used for testing
+   */
+  private long lastGenomeSaveTime;
+
+  /**
+   * Time from the last time we started then stopped the GA. without this the
+   * timer would restart to 00:00:00 everytime the GA is stopped then restarted
+   * using the GUI
+   */
+  private long stashedTime;
+
+  /** Total population from all tribes */
   private int totalPopulation;
 
   private long elapsedNanoTime;
   private String elapsedFormattedTime;
 
+  /** ObservableList used to populate the table */
+  @SuppressWarnings("rawtypes")
   private ObservableList tableList;
-
-  private String geneEditorSelection;
 
   /**
    * Starts the pathfinding loop
@@ -229,6 +243,7 @@ public class mainController
    * 
    * @param event
    */
+  @SuppressWarnings("unchecked")
   @FXML
       void findInitialPopulation(ActionEvent event)
   {
@@ -284,6 +299,7 @@ public class mainController
    * @param dna
    *          the new DNA to display on the table
    */
+  @SuppressWarnings("unchecked")
   private void updateTable(ArrayList<Triangle> dna)
   {
     tableList.removeAll(tableList);
@@ -673,8 +689,8 @@ public class mainController
     elapsedNanoTime = 0;
     initNewButton.setDisable(false); // headless
 
-    defaultImageSelectorBox.getItems().addAll("Mona Lisa", "Poppyfield", "Great Wave", "Baby", "Star", 
-        "Upload..");
+    defaultImageSelectorBox.getItems().addAll("Mona Lisa", "Poppyfield", "Great Wave", "Baby",
+        "Star", "Upload..");
   }
 
   /**
