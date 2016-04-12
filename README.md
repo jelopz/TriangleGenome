@@ -22,6 +22,8 @@ Still in "Specific Genome from Tribe x" AND ALSO while paused, you can now uploa
 
 Finally, while paused and in "specific Genome from Tribe x," the value editor opens up on the bottom right of the window. The top combobox allows you to choose which genome in the tribe to edit. These values correspond to the same genomes when browsing through all the genomes upon selecting "Specific Genome from Tribe x," and also the table. The combobox right below selects which of the 10 genes to edit, then the text field at the bottom lets you enter what numeric value. RGBA values can only be 0-255. If you edit genome 0's p1x, you will see the top left most value change to what you entered.
 
+Pressing reset erases all the data. Upon pressing reset you can change the number of threads or the target image. Once ready, press "Initial New Image" again.
+
 **Hill Climbing Methodology:**
 
 **Type: Adaptive Hill climbing with some stochastic elements.**
