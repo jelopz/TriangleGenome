@@ -164,7 +164,6 @@ public class GA extends Stage
       randomMutate();
       ++generations;
       ++hillclimbChildren;
-      System.out.println(generations);
       // System.out.println(generations);
       // Undo mutation if unsuccessful.
       if (!checkIfRandomMutationWasImprovement())
@@ -397,7 +396,6 @@ public class GA extends Stage
     while (continueClimb)
     {
       ++generations;
-      System.out.println(generations);
       ++hillclimbChildren;
       if (takeStep(stepSize)) // Resulted in improvement
       {

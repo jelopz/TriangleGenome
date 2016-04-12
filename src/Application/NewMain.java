@@ -1,24 +1,18 @@
 package Application;
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
-
-import Application.NewMain.WorkerThread;
 import TriangleGenome.FitnessFunction;
 import TriangleGenome.GA;
 import TriangleGenome.Genome;
-import TriangleGenome.InitialPopulation;
 import TriangleGenome.Renderer;
 import TriangleGenome.Triangle;
 import TriangleGenome.Tribe;
@@ -30,8 +24,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -125,12 +117,6 @@ public class NewMain extends Application
   /** An arrayList used to take snapshots of the statistics at various times */
   private ArrayList<String> statSaver;
 
-  /**
-   * The number of iterations a genome hasn't made progress on. Used when
-   * determine when to move onto a new genome to pathfind on
-   */
-  private int stuckCount;
-
   private int totalGenerations;
   private int hillclimbChildren;
   private int crossoverChildren;
@@ -164,7 +150,6 @@ public class NewMain extends Application
     genomeChooser.setTitle("Genome Selector");
 
     isRunning = false;
-    stuckCount = 0;
     countTillCrossOver = 0;
     specificGene = new ArrayList<>();
     util = new UtilityClass();
@@ -450,7 +435,6 @@ public class NewMain extends Application
     }
     catch (IOException e)
     {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -777,6 +761,7 @@ public class NewMain extends Application
    * Only for testing purposes. These values are essentially the same values on
    * the table now.
    */
+  @SuppressWarnings("unused")
   public void printAllGenomeFitness()
   {
     int g = 0;
@@ -1164,6 +1149,7 @@ public class NewMain extends Application
   public class WorkerThread extends Thread
   {
 
+    @SuppressWarnings("unused")
     private Tribe tribe;
     private GA ga;
     int tribeNum;

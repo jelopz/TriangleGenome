@@ -47,8 +47,7 @@ public class InitialPopulation extends Stage
   
   private boolean completedBackGroundTest;
   
-  
-  private int INITIAL_TRIBE_POPULATIONS = 100;
+  private int INITIAL_TRIBE_POPULATIONS = 2000;
 
   private PixelReader reader;
 
