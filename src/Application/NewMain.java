@@ -61,12 +61,12 @@ public class NewMain extends Application
   ArrayList<Triangle> specificGene;
   private Random random = new Random();
   ArrayList<WorkerThread> threads;
-  
+
   // Each thread will have a global pool where some number of genomes
   // from the other tribes will be collected after some number of iterations
   // and then sent over to that threads GA so it can perform cross over.
   private ArrayList<ArrayList<Genome>> globalPools = new ArrayList<>();
-  
+
   boolean startThreads = true;
   boolean crossOverMode = false;
   boolean crossOverModeStarted = false;
@@ -835,7 +835,7 @@ public class NewMain extends Application
     startThreads = true;
     numThreads = i;
   }
-  
+
   /**
    * For cross tribal cross over after triggering the cross over mode a global
    * pool of genoems gathered from every tribe is made for each thread and then
@@ -890,6 +890,12 @@ public class NewMain extends Application
 
   }
 
+  /**
+   * Converts all the statistics displayed to the GUI into a single line String.
+   * 
+   * @param elapsedTime
+   * @return single line string of all the statistics
+   */
   private String statisticsToString(String elapsedTime)
   {
     return (elapsedTime + " " + displayedFitness + " " + totalGenerations + " " + hillclimbChildren
@@ -898,6 +904,10 @@ public class NewMain extends Application
         + deltaFitnessPerSecond);
   }
 
+  /**
+   * Calculates all the statistics to display on the gui and then sends the
+   * values to mainController to display
+   */
   private void updateStatistics()
   {
     totalGenerations = 0;

@@ -181,6 +181,11 @@ public class mainController
 
   private String geneEditorSelection;
 
+  /**
+   * Starts the pathfinding loop
+   * 
+   * @param event
+   */
   @FXML
       void startButtonHandler(ActionEvent event)
   {
@@ -201,6 +206,11 @@ public class mainController
     }
   }
 
+  /**
+   * Stops the pathfinding loop
+   * 
+   * @param event
+   */
   @FXML
       void stopButtonHandler(ActionEvent event)
   {
@@ -212,26 +222,6 @@ public class mainController
       saveGenomeButton.setDisable(false);
     }
   }
-
-  // /**
-  // * Uses the file chooser found in the main class to load a valid image.
-  // *
-  // * @param event
-  // */
-  // @FXML
-  // void fileButtonHandler(ActionEvent event)
-  // {
-  // File file = main.fileChooser.showOpenDialog(null);
-  // if (file != null)
-  // {
-  // String path = file.toURI().toString();
-  // main.originalImage = new Image(path, 500, 500, true, true);
-  // System.out.println("Loaded Image: " + path);
-  // initNewButton.setDisable(false);
-  // }
-  //
-  // targetImage.setImage(main.originalImage);
-  // }
 
   /**
    * After uploading a valid image file, pressing this button finds the initial
@@ -289,18 +279,34 @@ public class mainController
     }
   }
 
+  /**
+   * Called when user presses the edit button and successfully edits a gene
+   * 
+   * @param dna
+   *          the new DNA to display on the table
+   */
   private void updateTable(ArrayList<Triangle> dna)
   {
     tableList.removeAll(tableList);
     tableList.addAll(FXCollections.observableArrayList(dna));
   }
 
+  /**
+   * For testing purposes. Prints the values of all the genomes to the console
+   * 
+   * @param event
+   */
   @FXML
       void printButtonHandler(ActionEvent event)
   {
     main.printAllGenomeFitness();
   }
 
+  /**
+   * Handles what the target image is. Choose from presets or upload your own.
+   * 
+   * @param event
+   */
   @FXML
       void defaultImageBoxHandler(ActionEvent event)
   {
@@ -343,12 +349,22 @@ public class mainController
     }
   }
 
+  /**
+   * Saves the current genome displayed to the screen to a text file
+   * 
+   * @param event
+   */
   @FXML
       void saveGenomeButtonHandler(ActionEvent event)
   {
     main.saveCurrentGenomeDisplayed();
   }
 
+  /**
+   * Uploads a genome to the current tribe selected.
+   * 
+   * @param event
+   */
   @FXML
       void uploadButtonHandler(ActionEvent event)
   {
@@ -362,6 +378,12 @@ public class mainController
     }
   }
 
+  /**
+   * Resets the pathfinding loop. Loses all previous data in preparation for the
+   * new one.
+   * 
+   * @param event
+   */
   @FXML
       void resetButtonHandler(ActionEvent event)
   {
@@ -400,6 +422,12 @@ public class mainController
     editTriangleSelectorBox.setDisable(true);
   }
 
+  /**
+   * Called when user wants to browse through a list of genomes from a selected
+   * tribe.
+   * 
+   * @param event
+   */
   @FXML
       void genomeViewerBoxHandler(ActionEvent event)
   {
@@ -407,6 +435,12 @@ public class mainController
     main.updateDisplay();
   }
 
+  /**
+   * Called when a user wnats to browse through a list of triangles from a
+   * selected genome.
+   * 
+   * @param event
+   */
   @FXML
       void geneSelectorBoxHandler(ActionEvent event)
   {
@@ -423,6 +457,12 @@ public class mainController
     main.updateDisplay();
   }
 
+  /**
+   * Only possible to be used when reset. Chooses the amount of threads to use
+   * in the next execution of the GA.
+   * 
+   * @param event
+   */
   @FXML
       void threadSelectorBoxHandler(ActionEvent event)
   {
@@ -439,6 +479,12 @@ public class mainController
     }
   }
 
+  /**
+   * Checks the values in the editTriangleSelectorBox, editTextField and
+   * editgeneSelectorBox to figure out what specific gene is being edited
+   * 
+   * @param event
+   */
   @FXML
       void editButtonHandler(ActionEvent event)
   {
@@ -459,6 +505,12 @@ public class mainController
     }
   }
 
+  /**
+   * Choose between looking at the most fit from all tribe, the most fit from
+   * specific tribes, or specific genomes from specific tribes
+   * 
+   * @param event
+   */
   @FXML
       void tribeBoxHandler(ActionEvent event)
   {
@@ -519,12 +571,22 @@ public class mainController
     }
   }
 
+  /**
+   * Saves all the timestamps to a text file. For testing purposes.
+   */
   @FXML
       void saveStatsButtonHandler()
   {
     main.saveStatistics();
   }
 
+  /**
+   * Called approximately once every second to update the elapsed time of the
+   * GA.
+   * 
+   * @param thisTime
+   *          the current wall clock time
+   */
   public void setElapsedTime(long thisTime)
   {
     long t = thisTime - lastTime;
@@ -564,7 +626,7 @@ public class mainController
 
   /**
    * Gives the controller a reference to main to be able to communicate when
-   * buttons are pressed
+   * buttons are pressed and populates all the ComboBoxs
    * 
    * @param main
    */
@@ -573,10 +635,7 @@ public class mainController
     this.main = main;
 
     // Populates the combo box
-    tribeBox.getItems().addAll("Best Fit From All Tribes");// , "Best Fit From
-                                                           // Tribe 0",
-    // "Best Fit From Tribe 1", "Specific Genome From Tribe 0", "Specific Genome
-    // From Tribe 1");
+    tribeBox.getItems().addAll("Best Fit From All Tribes");
 
     for (int i = 0; i < main.getNumThreads(); i++)
     {
@@ -631,11 +690,25 @@ public class mainController
     updateTable(dna);
   }
 
+  /**
+   * Called when user selects a new target image to display to screen.
+   * 
+   * @param img
+   *          new target image
+   */
   public void setTargetImage(Image img)
   {
     targetImage.setImage(img);
   }
 
+  /**
+   * Called when the population changes.
+   * 
+   * @param i
+   *          total population from all tribes
+   * @param numTribes
+   *          number of tribes
+   */
   public void setTotalPopulation(int i, int numTribes)
   {
     totalPopulation = i;
@@ -648,6 +721,19 @@ public class mainController
     }
   }
 
+  /**
+   * Called by main when needed to update statistics to GUI. All these
+   * calculations are done in main with thorough explanations in
+   * main.updateStatistics method
+   * 
+   * @param totalGenerations
+   * @param hillclimbChildren
+   * @param crossoverChildren
+   * @param totalGPS
+   * @param avgCurrentGenerationsPerSecond
+   * @param avgTotalGenerationsPerSecond
+   * @param deltaFitnessPerSecond
+   */
   public void updateStatistics(int totalGenerations, int hillclimbChildren, int crossoverChildren,
       double totalGPS, double avgCurrentGenerationsPerSecond, double avgTotalGenerationsPerSecond,
       double deltaFitnessPerSecond)
@@ -665,6 +751,9 @@ public class mainController
         + deltaFitnessPerSecond);
   }
 
+  /**
+   * @return the current elapsed time in nanoseconds
+   */
   public long getElapsedNanoTime()
   {
     return elapsedNanoTime;
