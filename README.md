@@ -1,8 +1,26 @@
 **README**
 
+**IMPORTANT NOTE FOR RUNNING PROGRAM: The initial population when starting the jar takes around 5-15 minutes depending 
+on your system because every member of the tribe is being rendered and their fitness being calculated. So when 
+clicking on the jar and or program please note that it does work it just takes a little while to calculate the initial populaiton.**
+
 **Entry Point:**
 
 The entry point exists in the NewMain.java class
+
+**How to use the GUI**
+
+The application starts up paused with a default target image selected and the intiial population already set.
+
+Most features are only available when the GA is paused/the stop button has been pressed. The only feature available while the GA is running are the display options. From here you can choose from displaying the number 1 most fit genome from all tribes, the best fit genome from a specific tribe, or you can browse through every genome within a tribe. When you select a specific genome from a specific tribe, the dropdown box becomes available to browse through whichever genome you may want. Once here you can also view each specific triangle from a genome as well.
+
+Once paused/stopped you can save the stats, which compiles a list of timestamps to a text file. This was mostly for testing purposes. 
+
+Most features open up when you select "Specific Genome from Tribe x", where x is one of the tribes. While here you can choose which genome to display in the dropdown menu right below. These genomes are ordered from most to least fit, so genome 0 is the most fit in the tribe, and the final genome is the least fit. Also, the box below the genome selector allows you to choose which triangles to display from that specific genome. You can select "Show Complete Genome" to show all 200 triangles, or choose 1 to display the triangle in position 1, or 144 to show the triangle in position 144.
+
+Still in "Specific Genome from Tribe x" AND ALSO while paused, you can now upload a genome. This genome you upload will be placed in this same specific tribe. It also replaces the least fit tribe in the process.
+
+Finally, while paused and in "specific Genome from Tribe x," the value editor opens up on the bottom right of the window. The top combobox allows you to choose which genome in the tribe to edit. These values correspond to the same genomes when browsing through all the genomes upon selecting "Specific Genome from Tribe x," and also the table. The combobox right below selects which of the 10 genes to edit, then the text field at the bottom lets you enter what numeric value. RGBA values can only be 0-255. If you edit genome 0's p1x, you will see the top left most value change to what you entered.
 
 **Hill Climbing Methodology:**
 
@@ -39,16 +57,4 @@ The purpose of the GA is not necessarily to improve the fitness through its muta
 **Implementation:**
 The hill climbing and cross over work together as follows; Hill climbing is performed once every 1500 run calls of the thread controlling the tribe (about once every 1500 generations). After that cross over is triggered leading to cross tribal cross over and then immediately after inner tribal cross over. After that the program goes right back to hill climbing and this process is repeated infinitely. We also added one more component to aid in getting some of the children from cross over to be hill climbed on when the best genome from a tribe gets stuck. What happens is every thread keeps track of each time over one second there was 0 changes in the fitness score and increments a counter. Once the counter hits 200 then a method called getUnstuck is called. What this method does is take the best genome from the tribe (the one that hill climbing is stuck on), and inject the genes with random mutated values and inserts it back into the tribe. Since the tribe is ordered by fitness the genome gets sent back in the list and the previous genome at the 1th index moves to the 0th index as the best genome and hill climbing starts on that genome. Thanks to the cross over the genome in the 1th index is very close to the one in the 0th index but is genetically different so most of the time this allows us to break out of the local optima the hill climbing was stuck on. 
 
-**How to use the GUI**
 
-The application starts up paused with a default target image selected and the intiial population already set.
-
-Most features are only available when the GA is paused/the stop button has been pressed. The only feature available while the GA is running are the display options. From here you can choose from displaying the number 1 most fit genome from all tribes, the best fit genome from a specific tribe, or you can browse through every genome within a tribe. When you select a specific genome from a specific tribe, the dropdown box becomes available to browse through whichever genome you may want. Once here you can also view each specific triangle from a genome as well.
-
-Once paused/stopped you can save the stats, which compiles a list of timestamps to a text file. This was mostly for testing purposes. 
-
-Most features open up when you select "Specific Genome from Tribe x", where x is one of the tribes. While here you can choose which genome to display in the dropdown menu right below. These genomes are ordered from most to least fit, so genome 0 is the most fit in the tribe, and the final genome is the least fit. Also, the box below the genome selector allows you to choose which triangles to display from that specific genome. You can select "Show Complete Genome" to show all 200 triangles, or choose 1 to display the triangle in position 1, or 144 to show the triangle in position 144.
-
-Still in "Specific Genome from Tribe x" AND ALSO while paused, you can now upload a genome. This genome you upload will be placed in this same specific tribe. It also replaces the least fit tribe in the process.
-
-Finally, while paused and in "specific Genome from Tribe x," the value editor opens up on the bottom right of the window. The top combobox allows you to choose which genome in the tribe to edit. These values correspond to the same genomes when browsing through all the genomes upon selecting "Specific Genome from Tribe x," and also the table. The combobox right below selects which of the 10 genes to edit, then the text field at the bottom lets you enter what numeric value. RGBA values can only be 0-255. If you edit genome 0's p1x, you will see the top left most value change to what you entered.
