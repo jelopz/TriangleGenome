@@ -17,32 +17,16 @@ import javafx.stage.Stage;
 import javafx.scene.text.Text;
 
 /**
- * Class to handle the flow of the Genetic Algorithm/Hill climbing.
- *
- * Possible mutations (changing one of the 10 genes of a triangle) aka pure hill
- * climbing, but through explotation of patters we should be able to have
- * mutations of whole verticies (x,y), colors (a,r,g,b), size, order etc.
+ * @author Christian Seely
+ * @author Jesus Lopez 
  * 
- * Each step size is altered by the improvementCombo integer. When the first
- * improvement is found, improvementCombo is increased to 2, and the mutation
- * following the first improvement increases/decreases a single value by 2 now.
- * Then 3, up to 5. After consecutive improvements, the value can not be higher
- * than 5. For example, we can never increase the alpha value by more than 5 per
- * step. The value is decreased back to 1 upon finding a mutation with no
- * improvement. After selecting a gene to mutate following NO improvement,
- * improvementCombo is ALWAYS 1. improvementCombo is only ever greater than 1
- * following improvements, thus, values are only increased or decreased by more
- * than 1 IMMEDIATELY following improvements
- * 
- * The mutate method is used by the animationloop in the main class to perform
- * the algorithm. Each time mutate is called, a single step in the algorithm is
- * performed. If the mutate creates an improved fitness, give main a copy of the
- * image and the fitness value.
- * 
- * Current problems I've noticed: Sometimes a triangle is completely useless.
- * Some triangles may be trapped behind a giant non transparent triangle and any
- * change to these trapped triangles result in no improvement. Not sure what to
- * do about them. Do we pop them to the very top? Leave them alone?
+ * This is the main class that handles the flow of the hill climbing/
+ * cross over mutation. Each thread/tribe gets a GA object which
+ * will perform its hill climbing/cross over. To use this method
+ * you must create a GA object which initializes the classes
+ * variables/objects and then repeatlly call the mutate function
+ * to perform a mutaiton, the type of mutation will depend on whether
+ * the cross over mode is toggled or not. 
  */
 public class GA extends Stage
 {
@@ -55,8 +39,6 @@ public class GA extends Stage
   final int IMAGE_HEIGHT;
   final int IMAGE_WIDTH;
   private final int MAX_STEP_SIZE = 10; // Eventually large steps are not
-  // helpful for example
-  // a large step in color could skip a color spectrum.
   private Image originalImage;
   private ArrayList<Triangle> DNA;
   private boolean HILL_CLIMBING_WITHOUT_CROSSOVER = true;
@@ -75,9 +57,6 @@ public class GA extends Stage
   private TriangleMutation adaptiveMutation;
   int mutations;
 
-  // Only ever values 1 through 5. Used by the GA to increase the mutation step
-  // value.
-  private int improvementCombo;
   private Image perspectiveImage;
   private NewMain main;
   private int generations = 0;
@@ -87,17 +66,22 @@ public class GA extends Stage
 
   private ArrayList<Genome> globalPool;
 
-  // the previousIt values are used when comparing the change in generations or
-  // fitness from the last iteration. These values are used approximately every
-  // half a second, so the value (generations-previousItGenerations) gives you
-  // the number of generations processed over the last half second.
-  // (parentFitness - previousItFitness) gives you the change in fitness per
-  // half
-  // second. Multiply these values by 2 to get the change per second.
   private int previousItGenerations = 0;
   private double previousItFitness = 0;
   private Image bestGenome;
-
+  /**
+   * 
+   * @param tribe The Tribe what will use the GA.
+   * @param initialFitness The initial fitness of the best genome in the
+   * tribe. 
+   * @param originalImage The original image (used for fitness tests)
+   * @param IMAGE_WIDTH The images width
+   * @param IMAGE_HEIGHT The images height. 
+   * @param m Instance of the main class. 
+   * @param backGroundColor The Background color to be used throughout the
+   * GA. 
+   * This is the constructor which initializes all things used in the class. 
+   */
   public GA(Tribe tribe, double initialFitness, Image originalImage, int IMAGE_WIDTH,
       int IMAGE_HEIGHT, NewMain m, Color backGroundColor)
   {
@@ -126,27 +110,34 @@ public class GA extends Stage
     main = m;
     main.initRenderer(IMAGE_WIDTH, IMAGE_HEIGHT, backGroundColor);
   }
-
+  /**
+   * 
+   * @return CrossOverMutaiton object thats aleady initialized. 
+   */
   public CrossOverMutation getCrossOverMutationObject()
   {
     return crossOverMutation;
   }
-
+  /**
+   * Update the best current DNA in the tribes GA (at front of list). 
+   */
   public void updateBestDNA()
   {
     DNA = tribe.getGenomesInTribe().get(0).getDNA();
   }
-
+  /**
+   * 
+   * @param globalPool Set the global pool which consists of
+   * genomes from the other tribes, this will be used for cross
+   * tribal cross over. 
+   */
   public void setGlobalPool(ArrayList<Genome> globalPool)
   {
     this.globalPool = globalPool;
   }
 
   /**
-   * Used to toggle the mutation type from the GUI
-   * 
-   * @param type
-   *          If hard mutate is on or off
+    * METHOD NOT USED.
    */
   public void setMutateType(boolean type)
   {
@@ -164,7 +155,6 @@ public class GA extends Stage
       randomMutate();
       ++generations;
       ++hillclimbChildren;
-      // System.out.println(generations);
       // Undo mutation if unsuccessful.
       if (!checkIfRandomMutationWasImprovement())
       {
@@ -253,9 +243,7 @@ public class GA extends Stage
 
   /**
    * Update the display during cross over for small chance that there is a new
-   * best genome. TODO This is innefficent as it is, since it is called during
-   * each cross over, maybe create a flag for if the cross over results in a new
-   * best fit genome and then call this method.
+   * best genome. 
    */
   private void updateDisplay()
   {
@@ -266,7 +254,11 @@ public class GA extends Stage
     main.updateTribesList(DNA, parentFitness, bestGenome, this);
 
   }
-
+  /**
+   * Once a successful random mutaiton occurs then we find the direciton
+   * of that mutaiton and then adaptivly mutate in that direction
+   * with incremental step sizes. 
+   */
   private void adaptivelyClimbHill()
   {
     // First find direction of hill climb.
@@ -703,7 +695,9 @@ public class GA extends Stage
     DNA.get(triangleNum).updateTriangle();
 
   }
-
+  /**
+   * Update the best genome in the tribe. 
+   */
   public void updateBestGenome()
   {
     imageRenderer.render(DNA);
@@ -743,47 +737,76 @@ public class GA extends Stage
       return false;
     }
   }
-
+  /**
+   * 
+   * @return The best genome in the tribes fitness. 
+   */
   public double getFit()
   {
     return parentFitness;
   }
-
+  /**
+   * 
+   * @return The best genome in the tribes image.
+   */
   public Image getGenome()
   {
     return bestGenome;
   }
-
+  /**
+   * 
+   * @return Number of generations thus far for this tribe. 
+   */
   public int getNumGenerations()
   {
     return generations;
   }
-
+  /**
+   * 
+   * @return Number of hill climbing generations for this tribe
+   * thus far. 
+   */
   public int getNumHillclimb()
   {
     return hillclimbChildren;
   }
-
+  /**
+   * 
+   * @return Number of crossover generations for this tribe thus far. 
+   */
   public int getNumCrossover()
   {
     return crossoverChildren;
   }
-
+  /**
+   * 
+   * @return Return the previous number of generations for this
+   * tribe. 
+   */
   public int getPreviousNumGenerations()
   {
     return previousItGenerations;
   }
-
+  /**I
+   * 
+   * @param numGenerations Update the prev number of generations. 
+   */
   public void updatePreviousGeneration(int numGenerations)
   {
     previousItGenerations = numGenerations;
   }
-
+  /**
+   * 
+   * @return THe last best fitness. 
+   */
   public double getPreviousBestFit()
   {
     return previousItFitness;
   }
-
+  /**
+   * 
+   * @param Update the previous fitness. 
+   */
   public void updatePreviousFitness(double fit)
   {
     previousItFitness = fit;

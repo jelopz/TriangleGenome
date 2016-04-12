@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 
+ * @author Christian Seely
+ * @author Jesus Lopez 
  * The controller class for the main window/scene. Has an ImageView object which
  * is the picture that is currently displayed on the screen. startButton and
  * stopButton handle the runtime of the algorithm.

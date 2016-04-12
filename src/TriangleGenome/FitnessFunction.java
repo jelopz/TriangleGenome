@@ -4,20 +4,10 @@ import java.awt.image.BufferedImage;
 
 /**
  * 
- * 
+ * @author Christian Seely
+ * @author Jesus Lopez 
  * Brute force fitness function of comparing two
  * the difference between two images pixel by pixel.
- * Performance decreases as pixel size increases,
- * maybe we could compress all photos to say 150 by 150 pixels
- * for calculation without hindering the accuracy of the calculation.
- * 
- * Also there is other means of optimization that we can and probably
- * should look into to. 
- * 
- * Also another note based some people I have talked to we might want to
- * (it might even be required) to do the image rendering/display through 
- * the GPU, supposedly it's pretty hard to do right) If/when we go down
- * that path we should probably look at: JogAmp JOCL and OpenCL
  *
  */
 public class FitnessFunction {
@@ -25,17 +15,10 @@ public class FitnessFunction {
 	private BufferedImage originalImage;
 	private int IMAGE_HEIGHT;
 	private int IMAGE_WIDTH;
-	double fitness; //(Rate between 0 and 100% where 100 is the most fit
-	//e.g perfect match.) We will probably want to change the scale because
-	//its not really possible to get 100% fitness under these conditions.
-	//as the photos will never be exactly alike we could normalize it to make
-	//it more realistic and have a 75% percent fitness be considered our 100%. 
+	double fitness; 
 	BufferedImage test;
 	
-	public void setTest(BufferedImage test)
-	{
-		this.test = test;
-	}
+
 	/**
 	 * 
 	 * @param Original Image, Perspective Image. 
@@ -61,9 +44,7 @@ public class FitnessFunction {
 		//if you get the color from the getRGB method. To optimize it slightly
 		//those method calls are eliminated by using some bit manipulation
 		//to get the rgb values (this is actually the exact same method that 
-		//the getRed() and other methods use to get the value). Note we might
-		//have to factor in the alpha channel but I am not sure. 
-		//int red2;
+		//the getRed() and other methods use to get the value). 
 		for(int y = 0; y < IMAGE_HEIGHT; y++)
 		{
 			for(int x = 0; x < IMAGE_WIDTH; x++)

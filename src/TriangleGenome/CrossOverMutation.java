@@ -6,17 +6,14 @@ import java.util.Random;
 
 /**
  * 
- * Class for crossOver mutations. To perform a cross over mutation
- * you must provide a mother and father genome and the that you want
- * the child to be added too. Sometimes cross over is within the same
- * tribe so obviously the child will be added to that tribe but we can
- * also have cross over mutation between genomes of different tribes
- * so in that case you have to send over the tribe that you want the
- * child to be added to. 
- * 
- * One thing I have noticed so far is the hamming  distance is usually
- * really high which makes sense, but it results in cross overs where
- * the child's genes are predominantly one of its parents.  
+ * @author Christian Seely
+ * @author Jesus Lopez 
+ * This class performs both single and double point cross over muations.
+ * To use this class you have to create an instance of the class which
+ * initializes the variables/objects, and then from that point all you have to
+ * do is call the invokeCrossOverMuation method to perform the cross over
+ * mutation. You must provide the a mother and father genome and the tribe
+ * the child will be assigned to. 
  *
  */
 public class CrossOverMutation {
@@ -40,7 +37,14 @@ public class CrossOverMutation {
 	private double lastChildsFit;
 	private boolean CLONE_PREVENTION = false;
 	
-	
+	/**
+	 * 
+	 * @param fitnessTest Object used to calculate the childs fitness prior
+	 * to adding him to the tribe. 
+	 * @param imageRenderer Object also used to calculate the childs fitness.
+	 * @param IMAGE_WIDTH Image width 
+	 * @param IMAGE_HEIGHT Image height 
+	 */
 	CrossOverMutation(FitnessFunction fitnessTest, Renderer imageRenderer, int IMAGE_WIDTH, int IMAGE_HEIGHT)
 	{
 		this.fitnessTest = fitnessTest;
@@ -300,7 +304,14 @@ public class CrossOverMutation {
 		deleteWeakest();
 
 	}
-	
+	/**
+	 * 
+	 * @param rand1 Random Triangle 
+	 * @param rand2 Random gene
+	 * @param childGenome The child that will have mutations done to it. 
+	 * This class performs gene mutations which are a part of our 
+	 * cross over methodology as a type of forced diversity. 
+	 */
 	private void geneMutation(int rand1, int rand2, Genome childGenome)
 	{
 		Triangle triangle = childGenome.getDNA().get(rand1);
@@ -351,14 +362,20 @@ public class CrossOverMutation {
 		  triangle.updateTriangle();
 	}
 
-
+	/**
+	 * 
+	 * @return The fitness of the last child. 
+	 */
 	public double getLastChildFitness()
 	{
 		return lastChildsFit;
 	}
 	
 	
-	  //random currently
+	  /**
+	   * Delete the weakest trible member (the member at the end of the
+	   * list that has the lowest fitness). 
+	   */
 	  private void deleteWeakest()
 	  {
 		  tribe.getGenomesInTribe().remove(tribe.getGenomesInTribe().size()-1);

@@ -3,6 +3,8 @@ package Application;
 import javafx.scene.control.TextField;
 
 /**
+ * @author Christian Seely
+ * @author Jesus Lopez 
  * A modification of the TextField container in JavaFX. This allows for only for
  * numerical values to be entered into the textfield.
  */

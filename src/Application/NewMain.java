@@ -28,6 +28,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 /**
+ * @author Christian Seely
+ * @author Jesus Lopez 
  * The CPU of the application. The controllers handle the GUI and the GA handles
  * the pathfinding algorithm. Anytime the controllers or the GA needs something
  * done outside of it's own respective realm, they need to go through this main
